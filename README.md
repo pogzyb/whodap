@@ -2,10 +2,10 @@
 
 `whodap` | Simple RDAP Utility for Python
 
-- Builtin support for Asyncio
-- Saves (aka "bootstraps") initial directory lookups from IANA
+- Support for asyncio HTTP requests (thanks to `httpx`)
+- Uses the Singleton pattern to save (aka "bootstrap") initial directory lookups from IANA
 - Leverages the [SimpleNamespace](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
-- Supports the familiar look of WHOIS via the `to_whois_dict` method
+- Keeps the familiar look of WHOIS via the `to_whois_dict` method
 
 
 #### Quickstart
@@ -16,65 +16,72 @@ from pprint import pprint
 
 import whodap
 
-# standard
-response = whodap.lookup_domain(domain='ebay', tld='com')
-# raw output from RDAP lookup
-print(response) 
+# Standard call
+response = whodap.lookup_domain(domain='bitcoin', tld='org')
+# asyncio call
+loop = asyncio.get_event_loop()
+response = loop.run_until_complete(whodap.aio_lookup_domain(domain='bitcoin', tld='org'))
+# Raw output from RDAP lookup
+print(response)
 # Traverse the RDAP response via "dot" notation
-print(response.entities)
-# Example: retrieving nested "event" dates
-print(response.events[0].eventDate)
-# Don't like "dot" notation? Use `to_dict` for dictionary format
-print(response.to_dict()["events"][0]["eventDate"])
-# Use `to_whois_dict` for the classic "flat" output of WHOIS
+print(response.events)
+"""
+[{
+  "eventAction": "last update of RDAP database",
+  "eventDate": "2021-04-23T21:50:03"
+},
+ {
+  "eventAction": "registration",
+  "eventDate": "2008-08-18T13:19:55"
+},
+ {
+  "eventAction": "expiration",
+  "eventDate": "2029-08-18T13:19:55"
+},
+ {
+  "eventAction": "last changed",
+  "eventDate": "2019-11-24T13:58:35"
+}]
+"""
+# Retrieving the registration date from above:
+print(response.events[1].eventDate)
+"""
+2008-08-18 13:19:55
+"""
+# Don't like "dot" notation? Use `to_dict` to get the RDAP response as a dictionary
+pprint(response.to_dict())
+# Use `to_whois_dict` for the familiar look of WHOIS output
 pprint(response.to_whois_dict())
 """
-{admin_address: '2145 Hamilton Avenue, San Jose, CA, 95125, US',
- admin_email: 'hostmaster@ebay.com',
- admin_name: 'eBay Inc.',
- admin_phone: '+1.4083769801',
+{abuse_email: 'abuse@namecheap.com',
+ abuse_phone: 'tel:+1.6613102107',
+ admin_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
+ admin_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
+ admin_name: 'WhoisGuard, Inc.',
+ admin_phone: 'fax:+51.17057182',
  billing_address: None,
  billing_email: None,
  billing_name: None,
  billing_phone: None,
- created_date: datetime.datetime(1995, 8, 4, 4, 0),
- dnssec: False,
- domain_name: 'ebay.com',
- expires_date: datetime.datetime(2021, 8, 2, 7, 0),
- nameservers: ['dns1.p06.nsone.net',
-               'dns2.p06.nsone.net',
-               'dns3.p06.nsone.net',
-               'dns4.p06.nsone.net',
-               'ns01.ebaydns.com',
-               'ns02.ebaydns.com',
-               'ns03.ebaydns.com',
-               'ns04.ebaydns.com'],
- registrant_address: '2145 Hamilton Avenue, San Jose, CA, 95125, US',
- registrant_email: 'hostmaster@ebay.com',
- registrant_name: 'eBay Inc.',
- registrant_phone: '+1.4083769801',
- registrar_address: '3540 E Longwing Ln, Meridian, ID, 83646, US',
- registrar_email: None,
- registrar_name: 'MarkMonitor Inc.',
- registrar_phone: None,
- status: ['client update prohibited',
-          'client transfer prohibited',
-          'client delete prohibited',
-          'server update prohibited',
-          'server transfer prohibited',
-          'server delete prohibited'],
- technical_address: '2145 Hamilton Avenue, San Jose, CA, 95125, US',
- technical_email: 'hostmaster@ebay.com',
- technical_name: 'eBay Inc.',
- technical_phone: '+1.4083769801',
- updated_date: datetime.datetime(2021, 3, 4, 21, 59, 49)}
+ created_date: datetime.datetime(2008, 8, 18, 13, 19, 55),
+ domain_name: 'bitcoin.org',
+ expires_date: datetime.datetime(2029, 8, 18, 13, 19, 55),
+ nameservers: ['dns1.registrar-servers.com', 'dns2.registrar-servers.com'],
+ registrant_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
+ registrant_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
+ registrant_name: 'WhoisGuard, Inc.',
+ registrant_phone: 'fax:+51.17057182',
+ registrar_address: '4600 E Washington St #305, Phoenix, Arizona, 85034',
+ registrar_email: 'support@namecheap.com',
+ registrar_name: 'NAMECHEAP INC',
+ registrar_phone: 'tel:+1.6613102107',
+ status: ['client transfer prohibited'],
+ technical_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
+ technical_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
+ technical_name: 'WhoisGuard, Inc.',
+ technical_phone: 'fax:+51.17057182',
+ updated_date: datetime.datetime(2019, 11, 24, 13, 58, 35)}
 """
-
-# asyncio (full support for asynchronous calls)
-loop = asyncio.get_event_loop()
-response = loop.run_until_complete(whodap.aio_lookup_domain(domain='ebay', tld='com'))
-...
-
 ```
 
 #### Contributions
@@ -82,12 +89,12 @@ response = loop.run_until_complete(whodap.aio_lookup_domain(domain='ebay', tld='
 - Have any questions or comments? 
 - Anything that you'd like to see?
 
-Please feel free to reach out me (@pogzyb)
+Please post a question or comment.
 
 
 #### Roadmap
 
-First Alpha Release:
+Alpha Release:
 - Support for RDAP "domain" queries
 
 Coming Soon:
