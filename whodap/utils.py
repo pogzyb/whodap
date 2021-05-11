@@ -3,14 +3,14 @@ from functools import lru_cache
 
 
 @lru_cache(maxsize=1)
-def get_dns_client(**kwargs):
+def get_cached_dns_client(**kwargs):
     from .client import DNSClient
     c = DNSClient.new_client(**kwargs)
     return c
 
 
 @lru_cache(maxsize=1)
-async def get_aio_dns_client(**kwargs):
+async def get_cached_aio_dns_client(**kwargs):
     from .client import DNSClient
     c = DNSClient.new_aio_client(**kwargs)
     return c
