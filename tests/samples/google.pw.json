@@ -1,0 +1,340 @@
+{
+  "ldhName": "google.pw",
+  "objectClassName": "domain",
+  "handle": "CNIC-DO949924",
+  "events": [
+    {
+      "eventAction": "expiration",
+      "eventDate": "2022-02-10T08:00:00.000+0000"
+    },
+    {
+      "eventAction": "registration",
+      "eventDate": "2012-10-12T10:19:46.000+0000"
+    },
+    {
+      "eventAction": "last update",
+      "eventDate": "2021-01-09T10:35:54.000+0000"
+    },
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2021-04-17T01:17:07.000+0000"
+    }
+  ],
+  "status": [
+    "client update prohibited",
+    "client transfer prohibited",
+    "client delete prohibited"
+  ],
+  "secureDNS": {
+    "delegationSigned": false
+  },
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "events": [
+        {
+          "eventAction": "last update",
+          "eventDate": "2020-05-05T00:57:27.000+0000"
+        }
+      ],
+      "roles": [
+        "administrative"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "Object truncated due to authorization",
+          "description": [
+            "Some of the data in this object has been removed."
+          ]
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "CA",
+              "",
+              "US"
+            ]
+          ]
+        ]
+      ],
+      "contact_URI": "https://domains.markmonitor.com/whois/"
+    },
+    {
+      "objectClassName": "entity",
+      "events": [
+        {
+          "eventAction": "last update",
+          "eventDate": "2020-05-05T00:57:27.000+0000"
+        }
+      ],
+      "roles": [
+        "registrant"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "Object truncated due to authorization",
+          "description": [
+            "Some of the data in this object has been removed."
+          ]
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "org",
+            {
+              "type": "work"
+            },
+            "text",
+            "Google Inc."
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "CA",
+              "",
+              "US"
+            ]
+          ]
+        ]
+      ],
+      "contact_URI": "https://domains.markmonitor.com/whois/"
+    },
+    {
+      "objectClassName": "entity",
+      "events": [
+        {
+          "eventAction": "last update",
+          "eventDate": "2020-05-05T00:57:27.000+0000"
+        }
+      ],
+      "roles": [
+        "technical"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "Object truncated due to authorization",
+          "description": [
+            "Some of the data in this object has been removed."
+          ]
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "CA",
+              "",
+              "US"
+            ]
+          ]
+        ]
+      ],
+      "contact_URI": "https://domains.markmonitor.com/whois/"
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "292",
+      "events": [
+        {
+          "eventAction": "registrar expiration",
+          "eventDate": "2020-09-14T04:00:00.000+0000"
+        }
+      ],
+      "roles": [
+        "registrar"
+      ],
+      "entities": [
+        {
+          "objectClassName": "entity",
+          "vcardArray": [
+            "vcard",
+            [
+              [
+                "version",
+                {},
+                "text",
+                "4.0"
+              ],
+              [
+                "email",
+                {
+                  "type": "work"
+                },
+                "text",
+                "abusecomplaints@markmonitor.com"
+              ],
+              [
+                "tel",
+                {
+                  "type": "voice"
+                },
+                "text",
+                "+1.2083895770"
+              ]
+            ]
+          ],
+          "roles": [
+            "abuse"
+          ]
+        }
+      ],
+      "publicIds": [
+        {
+          "type": "IANA Registrar ID",
+          "identifier": "292"
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "org",
+            {
+              "type": "work"
+            },
+            "text",
+            "MarkMonitor Inc."
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "3540 E Longwing Ln",
+              "Meridian",
+              "ID",
+              "83646",
+              "US"
+            ]
+          ]
+        ]
+      ]
+    }
+  ],
+  "notices": [
+    {
+      "title": "Terms of Use",
+      "description": [
+        "By submitting an RDAP query, you agree that you will use this data only for",
+        "lawful purposes and that, under no circumstances will you use this data to:",
+        "(1) allow, enable, or otherwise support the transmission by email, telephone,",
+        "or facsimile of mass, unsolicited, commercial advertising, or spam; or",
+        "(2) enable high volume, automated, or electronic processes that send queries,",
+        "data, or email to MarkMonitor (or its systems) or the domain name contacts (or",
+        "its systems).",
+        "MarkMonitor reserves the right to modify these terms at any time.",
+        "By submitting this query, you agree to abide by this policy.",
+        "MarkMonitor Domain Management(TM)",
+        "Protecting companies and consumers in a digital world.",
+        "Visit MarkMonitor at https://www.markmonitor.com",
+        "Contact us at +1.8007459229",
+        "In Europe, at +44.02032062220"
+      ],
+      "links": [
+        {
+          "value": "https://www.markmonitor.com/legal/domain-management-terms-and-conditions",
+          "rel": "related",
+          "href": "https://www.markmonitor.com/legal/domain-management-terms-and-conditions",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "title": "Status Codes",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp."
+      ],
+      "links": [
+        {
+          "value": "https://icann.org/epp",
+          "rel": "related",
+          "href": "https://icann.org/epp",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "title": "RDDS Inaccuracy Complaint Form",
+      "description": [
+        "URL of the ICANN RDDS Inaccuracy Complaint Form: https://www.icann.org/wicf."
+      ],
+      "links": [
+        {
+          "value": "https://www.icann.org/wicf",
+          "rel": "related",
+          "href": "https://www.icann.org/wicf",
+          "type": "text/html"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "value": "https://rdap.markmonitor.com/rdap/domain/google.pw",
+      "rel": "self",
+      "href": "https://rdap.markmonitor.com/rdap/domain/google.pw",
+      "type": "application/rdap+json"
+    }
+  ],
+  "rdapConformance": [
+    "rdap_level_0",
+    "icann_rdap_technical_implementation_guide_0",
+    "icann_rdap_response_profile_0"
+  ],
+  "port43": "whois.markmonitor.com"
+}

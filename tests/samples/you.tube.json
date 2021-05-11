@@ -1,0 +1,515 @@
+{
+  "rdapConformance": [
+    "rdap_level_0",
+    "icann_rdap_response_profile_0",
+    "icann_rdap_technical_implementation_guide"
+  ],
+  "objectClassName": "domain",
+  "handle": "D2506-TUBE",
+  "ldhName": "you.tube",
+  "status": [
+    "client update prohibited",
+    "client transfer prohibited",
+    "client delete prohibited"
+  ],
+  "events": [
+    {
+      "eventAction": "registration",
+      "eventDate": "2016-04-17T11:31:13Z",
+      "eventActor": "Server Account"
+    },
+    {
+      "eventAction": "expiration",
+      "eventDate": "2022-04-16T23:59:59Z"
+    },
+    {
+      "eventAction": "last changed",
+      "eventDate": "2021-03-20T09:34:32Z"
+    },
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2021-04-16T02:44:25Z"
+    }
+  ],
+  "secureDNS": {
+    "delegationSigned": false
+  },
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "roles": [
+        "registrant"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Some of the data in this object has been removed"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        },
+        {
+          "title": "EMAIL REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant of the queried domain name"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        }
+      ],
+      "status": [
+        "removed"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "roles": [
+        "billing"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Some of the data in this object has been removed"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        },
+        {
+          "title": "EMAIL REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant of the queried domain name"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        }
+      ],
+      "status": [
+        "removed"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "roles": [
+        "administrative"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Some of the data in this object has been removed"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        },
+        {
+          "title": "EMAIL REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant of the queried domain name"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        }
+      ],
+      "status": [
+        "removed"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "roles": [
+        "technical"
+      ],
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Some of the data in this object has been removed"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        },
+        {
+          "title": "EMAIL REDACTED FOR PRIVACY",
+          "type": "object redacted due to authorization",
+          "description": [
+            "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant of the queried domain name"
+          ],
+          "links": [
+            {
+              "rel": "alternate",
+              "value": "https://www.registry.neustar/rdap",
+              "href": "https://www.registry.neustar/rdap",
+              "type": "text/html"
+            }
+          ]
+        }
+      ],
+      "status": [
+        "removed"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "292",
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "MarkMonitor, Inc."
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              [
+                "10400 W Overland Road",
+                "PMB 171",
+                ""
+              ],
+              "Boise",
+              "ID",
+              "83709",
+              ""
+            ]
+          ],
+          [
+            "ISO-3166-1-alpha-2",
+            {},
+            "text",
+            "US"
+          ],
+          [
+            "tel",
+            {
+              "type": "voice"
+            },
+            "uri",
+            "tel:+1.2083895740"
+          ],
+          [
+            "tel",
+            {
+              "type": "fax"
+            },
+            "uri",
+            "tel:+1.2083895779"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "registry.admin@markmonitor.com"
+          ]
+        ]
+      ],
+      "entities": [
+        {
+          "objectClassName": "entity",
+          "vcardArray": [
+            "vcard",
+            [
+              [
+                "version",
+                {},
+                "text",
+                "4.0"
+              ],
+              [
+                "tel",
+                {
+                  "type": "voice"
+                },
+                "uri",
+                "tel:+1.2083895740"
+              ],
+              [
+                "email",
+                {},
+                "text",
+                "abusecomplaints@markmonitor.com"
+              ]
+            ]
+          ],
+          "roles": [
+            "abuse"
+          ]
+        }
+      ],
+      "roles": [
+        "registrar"
+      ],
+      "publicIds": [
+        {
+          "identifier": "292",
+          "type": "IANA Registrar ID"
+        }
+      ],
+      "events": [
+        {
+          "eventAction": "registration",
+          "eventDate": "2016-12-05T22:02:38Z",
+          "eventActor": "REGISTRY"
+        },
+        {
+          "eventAction": "last changed",
+          "eventDate": "2021-04-12T23:55:03Z",
+          "eventActor": "REGISTRY"
+        },
+        {
+          "eventAction": "last update of RDAP database",
+          "eventDate": "2021-04-16T02:44:25Z"
+        }
+      ],
+      "links": [
+        {
+          "title": "Authoritative Registry object record",
+          "rel": "self",
+          "href": "https://rdap.nic.tube/entity/292",
+          "type": "application/rdap+json"
+        }
+      ]
+    }
+  ],
+  "nameservers": [
+    {
+      "objectClassName": "nameserver",
+      "handle": "HC0E888947CDA4DA49CDF9B260E882366-ARI",
+      "ldhName": "ns3.googledomains.com",
+      "status": [
+        "ok"
+      ],
+      "events": [
+        {
+          "eventAction": "registration",
+          "eventDate": "2016-01-25T21:47:45Z",
+          "eventActor": "MarkMonitor, Inc."
+        },
+        {
+          "eventAction": "last update of RDAP database",
+          "eventDate": "2021-04-16T02:44:25Z"
+        }
+      ],
+      "links": [
+        {
+          "title": "Authoritative Registry object record",
+          "rel": "self",
+          "href": "https://rdap.nic.tube/nameserver/ns3.googledomains.com",
+          "type": "application/rdap+json"
+        }
+      ]
+    },
+    {
+      "objectClassName": "nameserver",
+      "handle": "H853FAFBEE17F4737A37B20F94E9F2339-ARI",
+      "ldhName": "ns1.googledomains.com",
+      "status": [
+        "ok"
+      ],
+      "events": [
+        {
+          "eventAction": "registration",
+          "eventDate": "2016-01-25T21:47:45Z",
+          "eventActor": "MarkMonitor, Inc."
+        },
+        {
+          "eventAction": "last update of RDAP database",
+          "eventDate": "2021-04-16T02:44:25Z"
+        }
+      ],
+      "links": [
+        {
+          "title": "Authoritative Registry object record",
+          "rel": "self",
+          "href": "https://rdap.nic.tube/nameserver/ns1.googledomains.com",
+          "type": "application/rdap+json"
+        }
+      ]
+    },
+    {
+      "objectClassName": "nameserver",
+      "handle": "H8678E09DA978431BB0A2ED12517DB26E-ARI",
+      "ldhName": "ns2.googledomains.com",
+      "status": [
+        "ok"
+      ],
+      "events": [
+        {
+          "eventAction": "registration",
+          "eventDate": "2016-01-25T21:47:46Z",
+          "eventActor": "MarkMonitor, Inc."
+        },
+        {
+          "eventAction": "last update of RDAP database",
+          "eventDate": "2021-04-16T02:44:25Z"
+        }
+      ],
+      "links": [
+        {
+          "title": "Authoritative Registry object record",
+          "rel": "self",
+          "href": "https://rdap.nic.tube/nameserver/ns2.googledomains.com",
+          "type": "application/rdap+json"
+        }
+      ]
+    },
+    {
+      "objectClassName": "nameserver",
+      "handle": "H631B88E9A1C34739AF5E4D8C6D5FEAE1-ARI",
+      "ldhName": "ns4.googledomains.com",
+      "status": [
+        "ok"
+      ],
+      "events": [
+        {
+          "eventAction": "registration",
+          "eventDate": "2016-01-25T21:47:47Z",
+          "eventActor": "MarkMonitor, Inc."
+        },
+        {
+          "eventAction": "last update of RDAP database",
+          "eventDate": "2021-04-16T02:44:25Z"
+        }
+      ],
+      "links": [
+        {
+          "title": "Authoritative Registry object record",
+          "rel": "self",
+          "href": "https://rdap.nic.tube/nameserver/ns4.googledomains.com",
+          "type": "application/rdap+json"
+        }
+      ]
+    }
+  ],
+  "notices": [
+    {
+      "title": "Status Codes",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp"
+      ],
+      "links": [
+        {
+          "rel": "alternate",
+          "value": "https://icann.org/epp",
+          "href": "https://icann.org/epp",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "title": "RDDS Inaccuracy Complaint Form",
+      "description": [
+        "URL of the ICANN RDDS Inaccuracy Complaint Form: https://www.icann.org/wicf"
+      ],
+      "links": [
+        {
+          "rel": "alternate",
+          "value": "https://www.icann.org/wicf",
+          "href": "https://www.icann.org/wicf",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "title": "RDAP Terms of Service",
+      "description": [
+        "The RDAP service (the Service) offered by Neustar, Inc. or our designated representatives (Neustar), is provided for informational purposes only and is designed to assist a user (you) to look up certain information related to the registration records of existing domain names.",
+        "The information provided by the Service is \u2018as is\u2019 and we make no guarantee of its accuracy. Neustar cannot, under any circumstances, be held liable in such instances where the stored information would prove to be wrong, incomplete, or not accurate in any sense.",
+        "By submitting a query, you agree that you will not use this data",
+        "(i)            to allow, enable or otherwise support in any way the transmission of unsolicited, commercial advertising or other solicitations whether via direct mail, email, telephone or otherwise;",
+        "(ii)           to enable high volume, automated, electronic processes that apply to the Service or associated systems;",
+        "(iii)          for targeted advertising in any possible way;",
+        "(iv)         to cause nuisance in any possible way to individuals by sending (whether by automated, electronic processes capable of enabling high volumes or other possible means) messages to them;",
+        "(v)          in a way that is inconsistent with any applicable laws rule, regulation or statute or any policy issued by Neustar; and/or",
+        "(vi)         in contravention of any applicable data and privacy protection acts.",
+        "Without prejudice to the above, the copying, compilation, repackaging, dissemination or other use of the information provided by the Service is explicitly forbidden without prior and explicit permission by Neustar.",
+        "By your use of the Service you agree to abide by these Terms of Service and accept that Neustar can take measures to limit the use of the Service in order to protect the privacy of registrants or the integrity of the Service. Neustar may restrict, suspend or terminate your access to the Service at any time. Neustar reserve the right to make changes to the Service and these Terms of Service at any time without prior notice to you. It is your responsibility to review these Terms of Service each time you access or use the Service to keep apprised of any changes. If you do not agree to the changes implemented by Neustar, your sole and exclusive remedy is to terminate your use of the Service.",
+        "By executing a query, in any manner whatsoever, you agree to abide by these Terms of Service."
+      ],
+      "links": [
+        {
+          "rel": "alternate",
+          "value": "https://www.registry.neustar/rdap",
+          "href": "https://www.registry.neustar/rdap",
+          "type": "text/html"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "title": "Registrar RDAP server object record",
+      "rel": "related",
+      "href": "https://rdap.markmonitor.com/rdap/domain/you.tube",
+      "type": "application/rdap+json"
+    },
+    {
+      "title": "Authoritative Registry object record",
+      "rel": "self",
+      "href": "https://rdap.nic.tube/domain/you.tube",
+      "type": "application/rdap+json"
+    }
+  ]
+}

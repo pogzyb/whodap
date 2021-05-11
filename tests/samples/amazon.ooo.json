@@ -1,0 +1,374 @@
+{
+  "rdapConformance": [
+    "rdap_level_0",
+    "icann_rdap_response_profile_0"
+  ],
+  "notices": [
+    {
+      "title": "Status Codes",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp"
+      ],
+      "links": [
+        {
+          "value": "https://icann.org/epp",
+          "href": "https://icann.org/epp"
+        }
+      ]
+    },
+    {
+      "title": "RDDS Inaccuracy Complaint Form",
+      "description": [
+        "URL of the ICANN RDDS Inaccuracy Complaint Form: https://icann.org/wicf"
+      ],
+      "links": [
+        {
+          "value": "https://icann.org/wicf",
+          "href": "https://icann.org/wicf"
+        }
+      ]
+    }
+  ],
+  "objectClassName": "domain",
+  "handle": "D63507059-CNIC",
+  "remarks": [
+    {
+      "description": [
+        "The object does not contain all data due to lack of authorization."
+      ],
+      "type": "object truncated due to authorization"
+    }
+  ],
+  "links": [
+    {
+      "value": "https://rdap.comlaude.com/rdap/domain/amazon.ooo.",
+      "rel": "self",
+      "href": "https://rdap.comlaude.com/rdap/domain/amazon.ooo.",
+      "type": "application/rdap+json"
+    }
+  ],
+  "events": [
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2021-05-04T00:44:13.547Z"
+    },
+    {
+      "eventAction": "registration",
+      "eventDate": "2014-10-23T00:00:00Z"
+    },
+    {
+      "eventAction": "expiration",
+      "eventDate": "2021-10-23T00:00:00Z"
+    },
+    {
+      "eventAction": "last changed",
+      "eventDate": "2021-03-29T22:55:53Z"
+    }
+  ],
+  "status": [
+    "client delete prohibited",
+    "client transfer prohibited",
+    "client update prohibited"
+  ],
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "handle": "470",
+      "links": [
+        {
+          "value": "https://rdap.comlaude.com/rdap/entity/470",
+          "rel": "self",
+          "href": "https://rdap.comlaude.com/rdap/entity/470",
+          "type": "application/rdap+json"
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "entities": [
+        {
+          "objectClassName": "entity",
+          "handle": "CL-ABUSE-001",
+          "port43": "whois.comlaude.com",
+          "roles": [
+            "abuse"
+          ],
+          "vcardArray": [
+            "vcard",
+            [
+              [
+                "version",
+                {},
+                "text",
+                "4.0"
+              ],
+              [
+                "email",
+                {},
+                "text",
+                "abuse@comlaude.com"
+              ],
+              [
+                "tel",
+                {
+                  "type": "voice"
+                },
+                "text",
+                "+44.2074218250"
+              ]
+            ]
+          ]
+        }
+      ],
+      "roles": [
+        "registrar"
+      ],
+      "publicIds": [
+        {
+          "type": "IANA Registrar ID",
+          "identifier": "470"
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "NOM-IQ Ltd dba Com Laude"
+          ],
+          [
+            "org",
+            {},
+            "text",
+            "NOM-IQ Ltd dba Com Laude"
+          ]
+        ]
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "description": [
+            "Some of the data in this object has been removed."
+          ],
+          "type": "object redacted due to authorization."
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "roles": [
+        "registrant"
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "org",
+            {},
+            "text",
+            "Amazon Technologies, Inc."
+          ],
+          [
+            "contact-uri",
+            {},
+            "uri",
+            "amazon.ooo-registrant@anonymised.email"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "amazon.ooo-registrant@anonymised.email"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "Nevada",
+              "",
+              "US"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "description": [
+            "Some of the data in this object has been removed."
+          ],
+          "type": "object redacted due to authorization."
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "roles": [
+        "administrative"
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "contact-uri",
+            {},
+            "uri",
+            "amazon.ooo-admin@anonymised.email"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "amazon.ooo-admin@anonymised.email"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "remarks": [
+        {
+          "title": "REDACTED FOR PRIVACY",
+          "description": [
+            "Some of the data in this object has been removed."
+          ],
+          "type": "object redacted due to authorization."
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "roles": [
+        "technical"
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "contact-uri",
+            {},
+            "uri",
+            "comlaude.com-tech@anonymised.email"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "comlaude.com-tech@anonymised.email"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ]
+        ]
+      ]
+    }
+  ],
+  "lang": "en",
+  "ldhName": "amazon.ooo.",
+  "unicodeName": "amazon.ooo.",
+  "nameservers": [
+    {
+      "objectClassName": "nameserver",
+      "handle": "nsgbr.comlaude.co.uk",
+      "links": [
+        {
+          "value": "https://rdap.comlaude.com/rdap/nameserver/nsgbr.comlaude.co.uk.",
+          "rel": "self",
+          "href": "https://rdap.comlaude.com/rdap/nameserver/nsgbr.comlaude.co.uk.",
+          "type": "application/rdap+json"
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "ldhName": "nsgbr.comlaude.co.uk.",
+      "unicodeName": "nsgbr.comlaude.co.uk."
+    },
+    {
+      "objectClassName": "nameserver",
+      "handle": "nssui.comlaude.ch",
+      "links": [
+        {
+          "value": "https://rdap.comlaude.com/rdap/nameserver/nssui.comlaude.ch.",
+          "rel": "self",
+          "href": "https://rdap.comlaude.com/rdap/nameserver/nssui.comlaude.ch.",
+          "type": "application/rdap+json"
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "ldhName": "nssui.comlaude.ch.",
+      "unicodeName": "nssui.comlaude.ch."
+    },
+    {
+      "objectClassName": "nameserver",
+      "handle": "nsusa.comlaude.net",
+      "links": [
+        {
+          "value": "https://rdap.comlaude.com/rdap/nameserver/nsusa.comlaude.net.",
+          "rel": "self",
+          "href": "https://rdap.comlaude.com/rdap/nameserver/nsusa.comlaude.net.",
+          "type": "application/rdap+json"
+        }
+      ],
+      "port43": "whois.comlaude.com",
+      "ldhName": "nsusa.comlaude.net.",
+      "unicodeName": "nsusa.comlaude.net."
+    }
+  ],
+  "secureDNS": {
+    "zoneSigned": false,
+    "delegationSigned": false
+  }
+}

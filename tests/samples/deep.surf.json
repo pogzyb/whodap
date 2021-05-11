@@ -1,0 +1,411 @@
+{
+  "rdapConformance": [
+    "rdap_level_0",
+    "icann_rdap_response_profile_0",
+    "icann_rdap_technical_implementation_guide_0"
+  ],
+  "objectClassName": "domain",
+  "lang": "en",
+  "links": [
+    {
+      "href": "https://rdap.namecheap.com/domain/deep.surf",
+      "rel": "self",
+      "type": "application/rdap+json",
+      "value": "https://rdap.namecheap.com/domain/deep.surf"
+    }
+  ],
+  "handle": "D_01B5C010_DAAAFDD824C241EC90A5FBE4A352BAB6_000001730AB2D444-SURF",
+  "ldhName": "deep.surf",
+  "unicodeName": "deep.surf",
+  "events": [
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2021-04-17T00:18:31"
+    },
+    {
+      "eventAction": "registration",
+      "eventDate": "2020-07-01T14:05:58"
+    },
+    {
+      "eventAction": "expiration",
+      "eventDate": "2021-07-01T14:05:58"
+    }
+  ],
+  "status": [
+    "client transfer prohibited"
+  ],
+  "secureDNS": {
+    "delegationSigned": false,
+    "zoneSigned": false
+  },
+  "port43": "whois.namecheap.com",
+  "publicIds": [
+    {
+      "type": "NAMECHEAP INC",
+      "identifier": "1068"
+    }
+  ],
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "NAMECHEAP INC"
+          ],
+          [
+            "tel",
+            {
+              "Type": [
+                "voice"
+              ]
+            },
+            "uri",
+            "tel:+1.6613102107"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "abuse@namecheap.com"
+          ]
+        ]
+      ],
+      "roles": [
+        "abuse"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "NAMECHEAP INC"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "4600 E Washington St #305",
+              "Phoenix",
+              "Arizona",
+              "85034"
+            ]
+          ],
+          [
+            "tel",
+            {
+              "Type": [
+                "voice"
+              ]
+            },
+            "uri",
+            "tel:+1.6613102107"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "support@namecheap.com"
+          ]
+        ]
+      ],
+      "roles": [
+        "registrar"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "ixyiw4j0ic5srny9",
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "Withheld for Privacy Purposes"
+          ],
+          [
+            "kind",
+            {},
+            "text",
+            "individual"
+          ],
+          [
+            "org",
+            {},
+            "text",
+            "Privacy service provided by Withheld for Privacy ehf"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "Kalkofnsvegur 2",
+              "Reykjavik",
+              "Capital Region",
+              "101",
+              "IS"
+            ]
+          ],
+          [
+            "tel",
+            {
+              "Type": [
+                "voice"
+              ]
+            },
+            "uri",
+            "tel:+354.4212434"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "8e7a083b8eed4447b94dd2b5f466187d.protect@withheldforprivacy.com"
+          ]
+        ]
+      ],
+      "roles": [
+        "Registrant"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "ecxwu9vyki3c4d4m",
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "Withheld for Privacy Purposes"
+          ],
+          [
+            "kind",
+            {},
+            "text",
+            "individual"
+          ],
+          [
+            "org",
+            {},
+            "text",
+            "Privacy service provided by Withheld for Privacy ehf"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "Kalkofnsvegur 2",
+              "Reykjavik",
+              "Capital Region",
+              "101",
+              "IS"
+            ]
+          ],
+          [
+            "tel",
+            {
+              "Type": [
+                "voice"
+              ]
+            },
+            "uri",
+            "tel:+354.4212434"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "8e7a083b8eed4447b94dd2b5f466187d.protect@withheldforprivacy.com"
+          ]
+        ]
+      ],
+      "roles": [
+        "Administrative"
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "an4o3itzm9crvy7g",
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "Withheld for Privacy Purposes"
+          ],
+          [
+            "kind",
+            {},
+            "text",
+            "individual"
+          ],
+          [
+            "org",
+            {},
+            "text",
+            "Privacy service provided by Withheld for Privacy ehf"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "Kalkofnsvegur 2",
+              "Reykjavik",
+              "Capital Region",
+              "101",
+              "IS"
+            ]
+          ],
+          [
+            "tel",
+            {
+              "Type": [
+                "voice"
+              ]
+            },
+            "uri",
+            "tel:+354.4212434"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "8e7a083b8eed4447b94dd2b5f466187d.protect@withheldforprivacy.com"
+          ]
+        ]
+      ],
+      "roles": [
+        "Technical"
+      ]
+    }
+  ],
+  "nameservers": [
+    {
+      "objectClassName": "nameserver",
+      "ldhName": "ns-2005.awsdns-58.co.uk",
+      "unicodeName": "ns-2005.awsdns-58.co.uk"
+    },
+    {
+      "objectClassName": "nameserver",
+      "ldhName": "ns-22.awsdns-02.com",
+      "unicodeName": "ns-22.awsdns-02.com"
+    },
+    {
+      "objectClassName": "nameserver",
+      "ldhName": "ns-540.awsdns-03.net",
+      "unicodeName": "ns-540.awsdns-03.net"
+    },
+    {
+      "objectClassName": "nameserver",
+      "ldhName": "ns-1488.awsdns-58.org",
+      "unicodeName": "ns-1488.awsdns-58.org"
+    }
+  ],
+  "notices": [
+    {
+      "title": "RDAP Terms of Service",
+      "description": [
+        "By querying Namecheap’s  RDAP Domain Database, you agree to comply with Namecheap’s RDAP Terms of Service, including but not limited to the terms herein,  and you acknowledge and agree that your information will be used in accordance with Namecheap Privacy Policy (https://www.namecheap.com/legal/general/privacy-policy/), including that Namecheap may retain certain details about queries to our RDAP Domain Database for the purposes of detecting and preventing misuse.  If you do not agree to any of these terms, do not access or use ,the RDAP Domain Database.",
+        "Although Namecheap believes the data to be reliable, you agree and acknowledge that any information provided is 'as is' without any guarantee of accuracy.",
+        "You further agree that you will:",
+        "1) Not misuse the RDAP Domain Database. It is intended solely for query-based access and should not be used for or relied upon for any other purpose.",
+        "2) Not use the RDAP Domain Database to allow, enable, or otherwise support the transmission of unsolicited, commercial advertising or solicitations.",
+        "3) Not access the RDAP Domain Database through the use of high volume, automated electronic processes that send queries or data to the systems of Namecheap, any other ICANN-accredited registrar, or any registry operator.",
+        "4) Not compile, repackage, disseminate, or otherwise use the information contained in the RDAP Domain Database in its entirety, or in any substantial portion, without our prior written permission.",
+        "5) You will only use the information contained in the RDAP Domain Database for lawful purposes.",
+        "We reserve the right to restrict or deny your access to the RDAP Domain Database if we suspect that you have failed to comply with these terms.",
+        "We reserve the right to modify this agreement at any time."
+      ],
+      "links": [
+        {
+          "href": "https://www.namecheap.com/legal/domains/rdap",
+          "rel": "alternate",
+          "type": "text/html",
+          "value": "https://rdap.namecheap.com/policies"
+        }
+      ]
+    },
+    {
+      "description": [
+        "This response conforms to the RDAP Operational Profile for gTLD Registries and Registrars version 1.0"
+      ]
+    },
+    {
+      "title": "Status Codes",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp"
+      ],
+      "links": [
+        {
+          "href": "https://icann.org/epp",
+          "rel": "alternate",
+          "type": "text/html",
+          "value": "https://icann.org/epp"
+        }
+      ]
+    },
+    {
+      "title": "RDDS Inaccuracy Complaint Form",
+      "description": [
+        "URL of the ICANN RDDS Inaccuracy Complaint Form: https://www.icann.org/wicf"
+      ],
+      "links": [
+        {
+          "href": "https://www.icann.org/wicf",
+          "rel": "alternate",
+          "type": "text/html",
+          "value": "https://www.icann.org/wicf"
+        }
+      ]
+    }
+  ]
+}

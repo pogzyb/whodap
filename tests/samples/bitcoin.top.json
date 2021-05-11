@@ -1,0 +1,344 @@
+{
+  "rdapConformance": [
+    "icann_rdap_response_profile_0",
+    "icann_rdap_technical_implementation_guide_0",
+    "rdap_level_0"
+  ],
+  "notices": [
+    {
+      "title": "Status Codes",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp"
+      ],
+      "links": [
+        {
+          "href": "https://icann.org/epp",
+          "title": "More information on domain status codes"
+        }
+      ]
+    },
+    {
+      "title": "Terms of Use",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp",
+        "",
+        "NOTICE: The expiration date displayed in this record is the date the",
+        "registrar's sponsorship of the domain name registration in the registry is",
+        "currently set to expire. This date does not necessarily reflect the expiration",
+        "date of the domain name registrant's agreement with the sponsoring",
+        "registrar.  Users may consult the sponsoring registrar's Whois database to",
+        "view the registrar's reported date of expiration for this registration.",
+        "",
+        "TERMS OF USE: The information in the Whois database is collected through ICANN-accredited registrars. Jiangsu bangning science & technology Co., Ltd(“BANGNING”) make this information available to you and do not guarantee its accuracy or completeness. By submitting a whois query, you agree to abide by the following terms of use: you agree that you may use this data only for lawful purposes and that under no circumstances will you use this data to:  (1) to allow， enable， or otherwise support the transmission of mass unsolicited， commercial advertising or solicitations via direct mail， electronic mail， or by telephone; (2) in contravention of any applicable data and privacy protection acts; or (3) to enable high volume， automated， electronic processes that apply to BANGNING (or its computer systems). Compilation， repackaging， dissemination， or other use of the WHOIS database in its entirety， or of a substantial portion thereof， is not allowed without BANGNING prior written permission. You agree not to use electronic processes that are automated and high-volume to access or query the whois database except as reasonably necessary to register domain names or modify existing registrations. BANGNING reserves the right to restrict your access to the whois database in its sole discretion to ensure operational stability.  BANGNING may restrict or terminate your access to the whois database for failure to abide by these terms of use. BANGNING reserves the right to modify these terms at any time without prior or subsequent notification of any kind. "
+      ],
+      "links": [
+        {
+          "href": "http://www.nic.top",
+          "title": "Terms of Use"
+        }
+      ]
+    },
+    {
+      "title": "RDDS Inaccuracy Complaint Form",
+      "description": [
+        "URL of the ICANN RDDS Inaccuracy Complaint Form: https://www.icann.org/wicf/"
+      ],
+      "links": [
+        {
+          "href": "https://www.icann.org/wicf/",
+          "title": "ICANN RDDS Inaccuracy Complaint Form"
+        }
+      ]
+    },
+    {
+      "title": "Data Policy",
+      "description": [
+        "The object does not contain all data due to lack of authorization."
+      ],
+      "type": "object truncated due to authorization"
+    }
+  ],
+  "objectClassName": "domain",
+  "handle": "D20141118G10001G_19970343-top",
+  "links": [
+    {
+      "value": "https://rdap.zdnsgtld.com/top/domain/bitcoin.top.",
+      "rel": "self",
+      "href": "https://rdap.zdnsgtld.com/top/domain/bitcoin.top.",
+      "type": "application/rdap+json"
+    }
+  ],
+  "events": [
+    {
+      "eventAction": "registration",
+      "eventDate": "2014-11-17T16:00:29.0Z"
+    },
+    {
+      "eventAction": "expiration",
+      "eventDate": "2021-11-17T16:00:29.0Z"
+    },
+    {
+      "eventAction": "last changed",
+      "eventDate": "2020-09-14T20:40:57.0Z"
+    },
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2021-04-17T00:02:06.0Z"
+    }
+  ],
+  "status": [
+    "active"
+  ],
+  "port43": "whois.nic.top",
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "remarks": [
+        {
+          "title": "Data Policy",
+          "description": [
+            "The object does not contain all data due to lack of authorization."
+          ],
+          "type": "object truncated due to authorization"
+        },
+        {
+          "description": [
+            "Some of the data in this object has been removed."
+          ],
+          "type": "object truncated due to authorization"
+        },
+        {
+          "title": "EMAIL REDACTED FOR PRIVACY",
+          "description": [
+            "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant of the queried domain name."
+          ],
+          "type": "object truncated due to authorization"
+        }
+      ],
+      "roles": [
+        "registrant",
+        "administrative",
+        "technical"
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "org",
+            {},
+            "text",
+            "Wang Shao Gang"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "",
+              "beijing",
+              "",
+              "CN"
+            ]
+          ],
+          [
+            "ISO-3166-1-alpha-2",
+            {},
+            "text",
+            "CN"
+          ]
+        ]
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "1556",
+      "links": [
+        {
+          "value": "https://rdap.zdnsgtld.com/top/entity/1556",
+          "rel": "self",
+          "href": "https://rdap.zdnsgtld.com/top/entity/1556",
+          "type": "application/rdap+json"
+        }
+      ],
+      "entities": [
+        {
+          "objectClassName": "entity",
+          "handle": "not applicable",
+          "roles": [
+            "abuse"
+          ],
+          "vcardArray": [
+            "vcard",
+            [
+              [
+                "version",
+                {},
+                "text",
+                "4.0"
+              ],
+              [
+                "fn",
+                {},
+                "text",
+                "西数"
+              ],
+              [
+                "org",
+                {},
+                "text",
+                "成都西维数码科技有限公司"
+              ],
+              [
+                "email",
+                {},
+                "text",
+                "westabuse@gmail.com"
+              ],
+              [
+                "tel",
+                {
+                  "type": "voice"
+                },
+                "text",
+                "tel:02862778877"
+              ],
+              [
+                "tel",
+                {
+                  "type": "fax"
+                },
+                "text",
+                "02862778877"
+              ],
+              [
+                "adr",
+                {},
+                "text",
+                [
+                  "",
+                  "",
+                  "",
+                  "成都",
+                  "四川",
+                  "610000",
+                  "中国大陆"
+                ]
+              ]
+            ]
+          ]
+        }
+      ],
+      "roles": [
+        "registrar"
+      ],
+      "publicIds": [
+        {
+          "type": "IANA Registrar ID",
+          "identifier": "1556"
+        }
+      ],
+      "vcardArray": [
+        "vcard",
+        [
+          [
+            "version",
+            {},
+            "text",
+            "4.0"
+          ],
+          [
+            "fn",
+            {},
+            "text",
+            "成都西维数码科技有限公司"
+          ],
+          [
+            "email",
+            {},
+            "text",
+            "domain@west263.com"
+          ],
+          [
+            "tel",
+            {
+              "type": "voice"
+            },
+            "text",
+            "tel:15828476420"
+          ],
+          [
+            "tel",
+            {
+              "type": "fax"
+            },
+            "text",
+            "02886264041"
+          ],
+          [
+            "adr",
+            {},
+            "text",
+            [
+              "",
+              "",
+              "",
+              "成都",
+              "四川",
+              "610000",
+              "CN"
+            ]
+          ],
+          [
+            "ISO-3166-1-alpha-2",
+            {},
+            "text",
+            "CN"
+          ]
+        ]
+      ]
+    }
+  ],
+  "lang": "en",
+  "ldhName": "bitcoin.top.",
+  "unicodeName": "bitcoin.top.",
+  "nameservers": [
+    {
+      "objectClassName": "nameserver",
+      "links": [
+        {
+          "value": "https://rdap.zdnsgtld.com/top/nameserver/ns1.72dns.com",
+          "rel": "self",
+          "href": "https://rdap.zdnsgtld.com/top/nameserver/ns1.72dns.com",
+          "type": "application/rdap+json"
+        }
+      ],
+      "ldhName": "ns1.72dns.com.",
+      "unicodeName": "ns1.72dns.com."
+    },
+    {
+      "objectClassName": "nameserver",
+      "links": [
+        {
+          "value": "https://rdap.zdnsgtld.com/top/nameserver/ns2.idc1.cn",
+          "rel": "self",
+          "href": "https://rdap.zdnsgtld.com/top/nameserver/ns2.idc1.cn",
+          "type": "application/rdap+json"
+        }
+      ],
+      "ldhName": "ns2.idc1.cn.",
+      "unicodeName": "ns2.idc1.cn."
+    }
+  ],
+  "secureDNS": {
+    "delegationSigned": false
+  }
+}
