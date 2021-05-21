@@ -2,8 +2,8 @@
 
 `whodap` | Simple RDAP Utility for Python
 
-- Support for asyncio HTTP requests (thanks to `httpx`)
-- Uses the Singleton pattern to save (aka "bootstrap") initial directory lookups from IANA
+- Supports Async HTTP requests (thanks to `httpx`)
+- Caching option for initial IANA lookups
 - Leverages the [SimpleNamespace](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
 - Keeps the familiar look of WHOIS via the `to_whois_dict` method
 
@@ -16,14 +16,14 @@ from pprint import pprint
 
 import whodap
 
-# Standard call
-response = whodap.lookup_domain(domain='bitcoin', tld='org')
-# asyncio call
+# Looking up a domain name
+response = whodap.lookup_domain(domain='bitcoin', tld='org') 
+# equivalent asyncio call
 loop = asyncio.get_event_loop()
 response = loop.run_until_complete(whodap.aio_lookup_domain(domain='bitcoin', tld='org'))
 # Raw output from RDAP lookup
 print(response)
-# Traverse the RDAP response via "dot" notation
+# Traverse the DomainResponse via "dot" notation
 print(response.events)
 """
 [{
@@ -33,22 +33,14 @@ print(response.events)
  {
   "eventAction": "registration",
   "eventDate": "2008-08-18T13:19:55"
-},
- {
-  "eventAction": "expiration",
-  "eventDate": "2029-08-18T13:19:55"
-},
- {
-  "eventAction": "last changed",
-  "eventDate": "2019-11-24T13:58:35"
-}]
+}, ... ]
 """
 # Retrieving the registration date from above:
 print(response.events[1].eventDate)
 """
 2008-08-18 13:19:55
 """
-# Don't like "dot" notation? Use `to_dict` to get the RDAP response as a dictionary
+# Don't want "dot" notation? Use `to_dict` to get the RDAP response as a dictionary
 pprint(response.to_dict())
 # Use `to_whois_dict` for the familiar look of WHOIS output
 pprint(response.to_whois_dict())
@@ -57,11 +49,15 @@ pprint(response.to_whois_dict())
  abuse_phone: 'tel:+1.6613102107',
  admin_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
  admin_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
- admin_name: 'WhoisGuard, Inc.',
- admin_phone: 'fax:+51.17057182',
+ admin_fax: 'fax:+51.17057182',
+ admin_name: 'WhoisGuard Protected',
+ admin_organization: 'WhoisGuard, Inc.',
+ admin_phone: 'tel:+507.8365503',
  billing_address: None,
  billing_email: None,
+ billing_fax: None,
  billing_name: None,
+ billing_organization: None,
  billing_phone: None,
  created_date: datetime.datetime(2008, 8, 18, 13, 19, 55),
  domain_name: 'bitcoin.org',
@@ -69,17 +65,22 @@ pprint(response.to_whois_dict())
  nameservers: ['dns1.registrar-servers.com', 'dns2.registrar-servers.com'],
  registrant_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
  registrant_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
- registrant_name: 'WhoisGuard, Inc.',
- registrant_phone: 'fax:+51.17057182',
+ registrant_fax: 'fax:+51.17057182',
+ registrant_name: 'WhoisGuard Protected',
+ registrant_organization: None,
+ registrant_phone: 'tel:+507.8365503',
  registrar_address: '4600 E Washington St #305, Phoenix, Arizona, 85034',
  registrar_email: 'support@namecheap.com',
+ registrar_fax: None,
  registrar_name: 'NAMECHEAP INC',
  registrar_phone: 'tel:+1.6613102107',
  status: ['client transfer prohibited'],
  technical_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
  technical_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
- technical_name: 'WhoisGuard, Inc.',
- technical_phone: 'fax:+51.17057182',
+ technical_fax: 'fax:+51.17057182',
+ technical_name: 'WhoisGuard Protected',
+ technical_organization: 'WhoisGuard, Inc.',
+ technical_phone: 'tel:+507.8365503',
  updated_date: datetime.datetime(2019, 11, 24, 13, 58, 35)}
 """
 ```
