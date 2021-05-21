@@ -4,7 +4,7 @@ from json import dumps, loads
 from types import SimpleNamespace
 from typing import Dict, Any, List, Union
 
-from .utils import WHOISKeys
+from .utils import WHOISKeys, RDAPVCardKeys
 
 REDACTED = 'REDACTED FOR PRIVACY'
 
@@ -244,15 +244,22 @@ class DomainResponse(RDAPResponse):
                     # vCard represents information about an individual or entity.
                     vcard_type = vcard[0]
                     vcard_value = vcard[-1]
-                    if 'adr' == vcard_type:
+                    # check for organization
+                    if vcard_type == RDAPVCardKeys.ORG:
+                        ent_dict['org'] = vcard_value
+                    # check for email
+                    elif vcard_type == RDAPVCardKeys.EMAIL:
+                        ent_dict['email'] = vcard_value
+                    # check for name
+                    elif vcard_type == RDAPVCardKeys.FN:
+                        ent_dict['name'] = vcard_value
+                    # check for address
+                    elif vcard_type == RDAPVCardKeys.ADR:
                         values = self._flatten_list(vcard_value)
                         address_string = ', '.join([v for v in values if v])
                         ent_dict['address'] = address_string.lstrip()
-                    elif 'org' == vcard_type:
-                        ent_dict['org'] = vcard_value
-                    elif 'email' == vcard_type:
-                        ent_dict['email'] = vcard_value
-                    elif 'tel' == vcard_type:
+                    # check for contact
+                    elif vcard_type == RDAPVCardKeys.TEL:
                         if hasattr(vcard[1], 'Type'):
                             contact_type = vcard[1].Type[0]
                             if contact_type == 'voice':
@@ -261,8 +268,7 @@ class DomainResponse(RDAPResponse):
                                 ent_dict['fax'] = vcard_value
                         else:
                             ent_dict['phone'] = vcard_value
-                    elif 'fn' == vcard_type:
-                        ent_dict['name'] = vcard_value
+                        
             # add roles for this entity
             for role in entity.roles:
                 if mark_redacted:
@@ -324,6 +330,10 @@ class IPv4Response(RDAPResponse):
 
     def to_dict(self, **kwargs):
         ...
+
+    def get_geo_location(self):
+
+        return
 
 
 class IPv6Response(RDAPResponse):
