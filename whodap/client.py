@@ -13,9 +13,11 @@ class RDAPClient(ABC):
 
     _iana_publication_key: str = 'publication'
     _iana_verison_key: str = 'version'
+    _iana_services_key: str = 'services'
+    _iana_uri: str = None
 
     def __init__(self, *args, **kwargs):
-        self._session: Union[httpx.Client, httpx.AsyncClient] = None
+        self.session: Union[httpx.Client, httpx.AsyncClient] = None
         self.version: str
         self.publication: str
 
@@ -37,25 +39,29 @@ class RDAPClient(ABC):
     async def aio_lookup(self):
         ...
 
-    @abstractmethod
-    def _load_from_iana(self):
-        ...
-
-    @abstractmethod
-    async def _aio_load_from_iana(self):
-        ...
-
     @staticmethod
     @abstractmethod
     def _build_query_uri() -> str:
         ...
 
+    async def _aio_load_from_iana(self):
+        resp = await self._aio_get_request(self._iana_uri)
+        if resp.status_code != httpx.codes.OK:
+            raise ConnectionError(f"Bad response from {self._iana_uri}")
+        return resp.json()
+
+    def _load_from_iana(self):
+        resp = self._get_request(self._iana_uri)
+        if resp.status_code != httpx.codes.OK:
+            raise ConnectionError(f"Bad response from {self._iana_uri}")
+        return resp.json()
+
     def _get_request(self, uri: str) -> httpx.Response:
-        with self._session as client:
+        with self.session as client:
             return client.get(uri)
 
     async def _aio_get_request(self, uri: str) -> httpx.Response:
-        async with self._session as client:
+        async with self.session as client:
             return await client.get(uri)
 
     @staticmethod
@@ -78,8 +84,7 @@ class RDAPClient(ABC):
 class DNSClient(RDAPClient):
 
     # IANA DNS
-    _iana_dns_json_uri: str = 'https://data.iana.org/rdap/dns.json'
-    _iana_dns_services_key: str = 'services'
+    _iana_uri: str = 'https://data.iana.org/rdap/dns.json'
 
     def __init__(self):
         super(DNSClient, self).__init__()
@@ -94,7 +99,7 @@ class DNSClient(RDAPClient):
         :return: a DNSClient
         """
         c = cls()
-        c._session = httpx.Client(**kwargs)
+        c.session = httpx.Client(**kwargs)
         dns = c._load_from_iana()
         c._set_iana_dns_info(dns)
         return c
@@ -108,14 +113,14 @@ class DNSClient(RDAPClient):
         :return: a DNSClient
         """
         c = cls()
-        c._session = httpx.AsyncClient(**kwargs)
+        c.session = httpx.AsyncClient(**kwargs)
         dns = await c._aio_load_from_iana()
         c._set_iana_dns_info(dns)
         return c
 
     @staticmethod
     def _build_query_uri(rdap_uri: str, domain: str) -> str:
-        return posixpath.join(rdap_uri, 'domain', domain)
+        return posixpath.join(rdap_uri, 'domain', domain.lstrip('/'))
 
     def lookup(self, domain: str, tld: str, auth_ref: str = None) -> DomainResponse:
         domain_and_tld = domain + '.' + tld
@@ -126,22 +131,22 @@ class DNSClient(RDAPClient):
             self._check_status_code(resp.status_code)
             return DomainResponse.from_json(resp.text)
         # start with looking up server in the IANA list
-        iana_url = self.iana_dns_server_map.get(tld)
-        if not iana_url:
-            raise NotImplementedError(f'RDAP for {tld} is not supported')
+        server_url = self.iana_dns_server_map.get(tld)
+        if not server_url:
+            raise NotImplementedError(f'Could not find RDAP server for .{tld.upper()} domains')
         # hit the server found in the IANA list
-        query_url = self._build_query_uri(iana_url, domain_and_tld)
+        query_url = self._build_query_uri(server_url, domain_and_tld)
         print(query_url)
         response = self._get_request(query_url)
         self._check_status_code(response.status_code)
         domain_response = DomainResponse.from_json(response.text)
         # try to extract an authoritative server for this domain
         if hasattr(domain_response, 'links'):
-            authority_url = domain_response.links[-1].href
-            print(authority_url)
+            authoritative_url = domain_response.links[-1].href
+            print(authoritative_url)
             # avoid redundant connections
-            if authority_url.lower() != query_url.lower():
-                resp = self._get_request(authority_url)
+            if authoritative_url.lower() != query_url.lower():
+                resp = self._get_request(authoritative_url)
                 self._check_status_code(resp.status_code)
                 return DomainResponse.from_json(resp.text)
             else:
@@ -156,19 +161,17 @@ class DNSClient(RDAPClient):
             resp = await self._aio_get_request(query_url)
             self._check_status_code(resp.status_code)
             return DomainResponse.from_json(resp.read())
-
-        iana_url = self.iana_dns_server_map.get(tld)
-        if not iana_url:
-            raise NotImplementedError(f'RDAP for {tld} is not supported')
-
-        query_url = self._build_query_uri(iana_url, domain_and_tld)
+        server_url = self.iana_dns_server_map.get(tld)
+        if not server_url:
+            raise NotImplementedError(f'Could not find RDAP server for .{tld.upper()} domains')
+        query_url = self._build_query_uri(server_url, domain_and_tld)
         response = await self._aio_get_request(query_url)
         self._check_status_code(response.status_code)
         domain_response = DomainResponse.from_json(response.read())
         if hasattr(domain_response, 'links'):
-            authority_url = domain_response.links[-1].href
-            if authority_url.lower() != query_url.lower():
-                resp = await self._aio_get_request(authority_url)
+            authoritative_url = domain_response.links[-1].href
+            if authoritative_url.lower() != query_url.lower():
+                resp = await self._aio_get_request(authoritative_url)
                 self._check_status_code(resp.status_code)
                 return DomainResponse.from_json(resp.read())
             else:
@@ -176,23 +179,11 @@ class DNSClient(RDAPClient):
         else:
             return domain_response
 
-    async def _aio_load_from_iana(self):
-        resp = await self._aio_get_request(self._iana_dns_json_uri)
-        if resp.status_code != httpx.codes.OK:
-            raise ConnectionError(f"Bad response from {self._iana_dns_json_uri}")
-        return resp.json()
-
-    def _load_from_iana(self):
-        resp = self._get_request(self._iana_dns_json_uri)
-        if resp.status_code != httpx.codes.OK:
-            raise ConnectionError(f"Bad response from {self._iana_dns_json_uri}")
-        return resp.json()
-
     def _set_iana_dns_info(self, iana_dns_map: Dict[str, Any]) -> None:
         self.publication = iana_dns_map.get(self._iana_publication_key)
         self.version = iana_dns_map.get(self._iana_verison_key)
         tld_server_map = {}
-        for tlds, server in iana_dns_map.get(self._iana_dns_services_key):
+        for tlds, server in iana_dns_map.get(self._iana_services_key):
             for tld in tlds:
                 tld_server_map[tld] = server[0]
         self.iana_dns_server_map = tld_server_map
@@ -215,12 +206,6 @@ class IPv4Client(RDAPClient):
         ...
 
     async def aio_lookup(self):
-        ...
-
-    def _load_from_iana(self):
-        ...
-
-    async def _aio_load_from_iana(self):
         ...
 
     @staticmethod
@@ -247,12 +232,6 @@ class IPv6Client(RDAPClient):
     async def aio_lookup(self):
         ...
 
-    def _load_from_iana(self):
-        ...
-
-    async def _aio_load_from_iana(self):
-        ...
-
     @staticmethod
     def _build_query_uri() -> str:
         ...
@@ -272,12 +251,6 @@ class ASNClient(RDAPClient):
         ...
 
     def lookup(self):
-        ...
-
-    async def aio_lookup(self):
-        ...
-
-    def _load_from_iana(self):
         ...
 
     async def _aio_load_from_iana(self):
