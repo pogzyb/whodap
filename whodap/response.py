@@ -143,8 +143,6 @@ class DomainResponse(RDAPResponse):
     def to_dict(self) -> Dict[str, Any]:
         """
         Converts the DomainResponse to a dictionary.
-
-        :return: a dictionary
         """
         return self._convert_self_to_dict(self)
 
@@ -153,7 +151,7 @@ class DomainResponse(RDAPResponse):
         Converts the DomainResponse to a WHOIS JSON string.
 
         :param kwargs: arguments to be passed to `json.dumps`
-        :return: a JSON string
+        :return: JSON string
         """
         if not kwargs.get('default'):
             kwargs['default'] = self._encoder
@@ -217,8 +215,8 @@ class DomainResponse(RDAPResponse):
         """
         Returns the list of events as a flattened dict of date keys and values
 
-        :param events:
-        :return:
+        :param events: list of "events" from the RDAP response
+        :return: dictionary of "date" key value pairs
         """
         dates = dict([(event.eventAction, event.eventDate) for event in events])
         return dates
