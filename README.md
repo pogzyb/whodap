@@ -2,8 +2,8 @@
 
 `whodap` | Simple RDAP Utility for Python
 
-- Supports Async HTTP requests (thanks to `httpx`)
-- Caching option for initial IANA lookups
+- Support for asyncio HTTP requests (using `httpx`)
+- Caching option for initial IANA dns loads
 - Leverages the [SimpleNamespace](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
 - Keeps the familiar look of WHOIS via the `to_whois_dict` method
 
@@ -18,7 +18,7 @@ import whodap
 
 # Looking up a domain name
 response = whodap.lookup_domain(domain='bitcoin', tld='org') 
-# equivalent asyncio call
+# Equivalent asyncio call
 loop = asyncio.get_event_loop()
 response = loop.run_until_complete(whodap.aio_lookup_domain(domain='bitcoin', tld='org'))
 # Raw output from RDAP lookup
