@@ -5,7 +5,7 @@ from typing import Dict, Any, Union
 import httpx
 
 from .codes import RDAPStatusCodes
-from .errors import RateLimitError, NotFoundError, MalformedQueryError
+from .errors import RateLimitError, NotFoundError, MalformedQueryError, BadStatusCode
 from .response import DomainResponse
 
 
@@ -47,13 +47,13 @@ class RDAPClient(ABC):
     async def _aio_load_from_iana(self):
         resp = await self._aio_get_request(self._iana_uri)
         if resp.status_code != httpx.codes.OK:
-            raise ConnectionError(f"Bad response from {self._iana_uri}")
+            raise BadStatusCode(f"Status code <{resp.status_code}> from {self._iana_uri}")
         return resp.json()
 
     def _load_from_iana(self):
         resp = self._get_request(self._iana_uri)
         if resp.status_code != httpx.codes.OK:
-            raise ConnectionError(f"Bad response from {self._iana_uri}")
+            raise BadStatusCode(f"Status code <{resp.status_code}> from {self._iana_uri}")
         return resp.json()
 
     def _get_request(self, uri: str) -> httpx.Response:
@@ -67,18 +67,18 @@ class RDAPClient(ABC):
     @staticmethod
     def _check_status_code(status_code: int) -> None:
         if status_code == RDAPStatusCodes.POSITIVE_ANSWER_200:
-            return
+            return None
         elif status_code == RDAPStatusCodes.MALFORMED_QUERY_400:
             raise MalformedQueryError(
-                f"Malformed query: {RDAPStatusCodes.MALFORMED_QUERY_400} response from server")
+                f"Malformed query: {RDAPStatusCodes.MALFORMED_QUERY_400}")
         elif status_code == RDAPStatusCodes.NEGATIVE_ANSWER_404:
             raise NotFoundError(
-                f"Domain not found: {RDAPStatusCodes.NEGATIVE_ANSWER_404} response from server")
+                f"Domain not found: {RDAPStatusCodes.NEGATIVE_ANSWER_404}")
         elif status_code == RDAPStatusCodes.RATE_LIMIT_429:
             raise RateLimitError(
-                f"Too many requests: {RDAPStatusCodes.RATE_LIMIT_429} response from server")
+                f"Too many requests: {RDAPStatusCodes.RATE_LIMIT_429}")
         else:
-            raise
+            raise BadStatusCode(f"Status code <{status_code}>")
 
 
 class DNSClient(RDAPClient):
@@ -133,7 +133,7 @@ class DNSClient(RDAPClient):
         # start with looking up server in the IANA list
         server_url = self.iana_dns_server_map.get(tld)
         if not server_url:
-            raise NotImplementedError(f'Could not find RDAP server for .{tld.upper()} domains')
+            raise NotImplementedError(f'No RDAP Server for ".{tld.upper()}"')
         # hit the server found in the IANA list
         query_url = self._build_query_uri(server_url, domain_and_tld)
         print(query_url)
