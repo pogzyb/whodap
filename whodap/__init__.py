@@ -6,43 +6,43 @@ __all__ = ['aio_lookup_domain', 'lookup_domain', 'DNSClient']
 __version__ = '0.1.0'
 
 
-def lookup_domain(domain: str, tld: str, cache: bool = True, **kwargs) -> DomainResponse:
+def lookup_domain(domain: str, tld: str,
+                  cache: bool = True, **http_client_kws) -> DomainResponse:
     """
     Convenience function that instantiates a DNSClient,
-    submits a RDAP HTTP query for the given domain, and returns
-    an initialized DomainResponse. By default, caches the DNSClient
-    so that subsequent calls to this function will re-use
-    the loaded DNSClient.
+    submits an RDAP query for the given domain, and returns
+    the result as a DomainResponse. By default, caches the DNSClient
+    so that subsequent calls will re-use the existing DNSClient.
 
     :param domain: the domain name to lookup
-    :param tld: the top level domain
+    :param tld: the top level domain (e.g. "com", "net", "buzz")
     :param cache: if True, attempt to use a cached DNSClient
-    :param kwargs: parameters passed directly to `httpx.Client`
+    :param http_client_kws: kwargs passed directly to `httpx.Client`
     :return: an instance of DomainResponse
     """
     if cache:
-        client = get_cached_dns_client(**kwargs)
+        client = get_cached_dns_client(**http_client_kws)
     else:
-        client = DNSClient.new_client(**kwargs)
+        client = DNSClient.new_client(**http_client_kws)
     return client.lookup(domain, tld)
 
 
-async def aio_lookup_domain(domain: str, tld: str, cache: bool = True, **kwargs) -> DomainResponse:
+async def aio_lookup_domain(domain: str, tld: str,
+                            cache: bool = True, **http_client_kws) -> DomainResponse:
     """
-    [asyncio compatible] Convenience function that instantiates
-    a DNSClient, submits a RDAP HTTP query for the given domain,
-    and returns an initialized DomainResponse. By default, caches
-    the DNSClient so that subsequent callscto this function will
-    re-use the loaded DNSClient.
+    Async convenience function that instantiates a DNSClient,
+    submits an RDAP query for the given domain, and returns
+    the result as a DomainResponse. By default, caches the DNSClient
+    so that subsequent calls will re-use the existing DNSClient.
 
     :param domain: the domain name to lookup
-    :param tld: the top level domain
+    :param tld: the top level domain (e.g. "com", "net", "buzz")
     :param cache: if True, attempt to use a cached DNSClient
-    :param kwargs: parameters passed directly to `httpx.AsyncClient`
+    :param http_client_kws: kwargs passed directly to `httpx.AsyncClient`
     :return: an instance of DomainResponse
     """
     if cache:
-        client = get_cached_aio_dns_client(**kwargs)
+        client = get_cached_aio_dns_client(**http_client_kws)
     else:
-        client = await DNSClient.new_aio_client(**kwargs)
+        client = await DNSClient.new_aio_client(**http_client_kws)
     return await client.aio_lookup(domain, tld)

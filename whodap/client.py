@@ -91,7 +91,7 @@ class DNSClient(RDAPClient):
         self.iana_dns_server_map: Dict[str, str] = {}
 
     @classmethod
-    def new_client(cls, **kwargs):
+    def new_client(cls, **http_client_kws):
         """
         Primary method of instantiating a synchronous instance of DNSClient
 
@@ -99,13 +99,13 @@ class DNSClient(RDAPClient):
         :return: a DNSClient
         """
         c = cls()
-        c.session = httpx.Client(**kwargs)
+        c.session = httpx.Client(**http_client_kws)
         dns = c._load_from_iana()
         c._set_iana_dns_info(dns)
         return c
 
     @classmethod
-    async def new_aio_client(cls, **kwargs):
+    async def new_aio_client(cls, **http_client_kws):
         """
         Primary method of instantiating an asynchronous instance of DNSClient
 
@@ -113,7 +113,7 @@ class DNSClient(RDAPClient):
         :return: a DNSClient
         """
         c = cls()
-        c.session = httpx.AsyncClient(**kwargs)
+        c.session = httpx.AsyncClient(**http_client_kws)
         dns = await c._aio_load_from_iana()
         c._set_iana_dns_info(dns)
         return c
@@ -143,7 +143,6 @@ class DNSClient(RDAPClient):
         # try to extract an authoritative server for this domain
         if hasattr(domain_response, 'links'):
             authoritative_url = domain_response.links[-1].href
-            print(authoritative_url)
             # avoid redundant connections
             if authoritative_url.lower() != query_url.lower():
                 resp = self._get_request(authoritative_url)
