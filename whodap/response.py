@@ -260,8 +260,10 @@ class DomainResponse(RDAPResponse):
                         ent_dict['address'] = address_string.lstrip()
                     # check for contact
                     elif vcard_type == RDAPVCardKeys.TEL:
-                        if hasattr(vcard[1], 'Type'):
-                            contact_type = vcard[1].Type[0]
+                        # check the "type" of "tel" vcard (either voice or fax):
+                        # vcard looks like: ['tel', {"type": "voice"}, 'uri', 'tel:0000000']
+                        if hasattr(vcard[1], 'type'):
+                            contact_type = vcard[1].to_dict().get('type')
                             if contact_type == 'voice':
                                 ent_dict['phone'] = vcard_value
                             elif contact_type == 'fax':
@@ -277,7 +279,8 @@ class DomainResponse(RDAPResponse):
                             ent_dict[key] = REDACTED
                 # save the information under this "role"
                 entities_dict[role.lower()] = ent_dict
-        # return parsed entities/roles dict
+
+        # return parsed entities dict
         return entities_dict
 
     @staticmethod
