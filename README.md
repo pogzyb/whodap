@@ -2,6 +2,7 @@
 
 [![Build Status](https://app.travis-ci.com/pogzyb/whodap.svg?token=xCoELzvjMvTqZThTS7Va&branch=main)](https://app.travis-ci.com/pogzyb/whodap)
 [![codecov](https://codecov.io/gh/pogzyb/whodap/branch/main/graph/badge.svg?token=NCfdf6ftb9)](https://codecov.io/gh/pogzyb/whodap)
+[![PyPI version](https://badge.fury.io/py/whodap.svg)](https://badge.fury.io/py/whodap)
 
 `whodap` | Simple RDAP Utility for Python
 
