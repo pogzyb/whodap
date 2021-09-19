@@ -333,8 +333,7 @@ class IPv4Response(RDAPResponse):
         ...
 
     def get_geo_location(self):
-
-        return
+        ...
 
 
 class IPv6Response(RDAPResponse):

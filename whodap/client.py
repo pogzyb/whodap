@@ -136,7 +136,6 @@ class DNSClient(RDAPClient):
             raise NotImplementedError(f'No RDAP Server for ".{tld.upper()}"')
         # hit the server found in the IANA list
         query_url = self._build_query_uri(server_url, domain_and_tld)
-        print(query_url)
         response = self._get_request(query_url)
         self._check_status_code(response.status_code)
         domain_response = DomainResponse.from_json(response.text)

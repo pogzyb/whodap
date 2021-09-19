@@ -6,8 +6,10 @@ __all__ = ['aio_lookup_domain', 'lookup_domain', 'DNSClient']
 __version__ = '0.1.0'
 
 
-def lookup_domain(domain: str, tld: str,
-                  cache: bool = True, **http_client_kws) -> DomainResponse:
+def lookup_domain(domain: str,
+                  tld: str,
+                  cache: bool = True,
+                  **http_client_kws) -> DomainResponse:
     """
     Convenience function that instantiates a DNSClient,
     submits an RDAP query for the given domain, and returns
@@ -27,8 +29,10 @@ def lookup_domain(domain: str, tld: str,
     return client.lookup(domain, tld)
 
 
-async def aio_lookup_domain(domain: str, tld: str,
-                            cache: bool = True, **http_client_kws) -> DomainResponse:
+async def aio_lookup_domain(domain: str,
+                            tld: str,
+                            cache: bool = True,
+                            **http_client_kws) -> DomainResponse:
     """
     Async convenience function that instantiates a DNSClient,
     submits an RDAP query for the given domain, and returns
