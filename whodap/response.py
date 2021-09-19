@@ -44,7 +44,9 @@ class RDAPResponse(SimpleNamespace, ABC):
             '%Y-%m-%dT%H:%M:%S',
             '%Y-%m-%dT%H:%M:%SZ',
             '%Y-%m-%dT%H:%M:%S.%f%z',
-            '%Y-%m-%dT%H:%M:%S%z'
+            '%Y-%m-%dT%H:%M:%S%z',
+            # https://stackoverflow.com/questions/53291250/python-3-6-datetime-strptime-returns-error-while-python-3-7-works-well
+            '%Y-%m-%dT%H:%M:%S.%fZ'
         )
         for date_format in known_rdap_formats:
             try:
