@@ -13,4 +13,4 @@ script: tox
 notifications:
   email: false
 
-after_success: codecov
+after_success: bash <(curl -s https://codecov.io/bash)
