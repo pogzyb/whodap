@@ -1,4 +1,5 @@
 import posixpath
+import ipaddress
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Union
 
@@ -190,7 +191,12 @@ class DNSClient(RDAPClient):
 class IPv4Client(RDAPClient):
 
     # IANA IPv4
-    ...
+    _iana_uri: str = 'https://data.iana.org/rdap/ipv4.json'
+    _arin_registry_uri: str = 'https://rdap.arin.net/registry/ip/'
+
+    def __init__(self):
+        super(IPv4Client, self).__init__()
+        self.iana_ipv4_server_map: Dict[str, str] = {}
 
     @classmethod
     def new_client(cls):
@@ -200,15 +206,40 @@ class IPv4Client(RDAPClient):
     async def new_aio_client(cls):
         ...
 
-    def lookup(self):
-        ...
+    def lookup(self, ip: Union[str, int, bytes, ipaddress.IPv4Address]):
+        if not isinstance(ip, ipaddress.IPv4Address):
+            ip = ipaddress.ip_address(ip)
+            if not isinstance(ip, ipaddress.IPv4Address):
+                raise ValueError('')
+
+        server_url = self.iana_ipv4_server_map.get(ip)
 
     async def aio_lookup(self):
         ...
 
     @staticmethod
-    def _build_query_uri() -> str:
-        ...
+    def _build_query_uri(rdap_uri: str, ip_address: str) -> str:
+        return posixpath.join(rdap_uri, ip_address)
+
+    def _set_ipv4_server_map(self, iana_ipv4_map: Dict[str, Any]):
+        ip_map = {}
+        for blocks, servers in iana_ipv4_map.get(self._iana_services_key):
+            if len(servers) > 1:
+                server = None
+                for s in servers:
+                    if s.startswitch('https'):
+                        server = s
+                        break
+            else:
+                server = servers[0]
+
+            if not server:
+                ...
+
+            for block in blocks:
+                ip_map[block] = server
+
+        self.iana_ipv4_server_map = ip_map
 
 
 class IPv6Client(RDAPClient):
