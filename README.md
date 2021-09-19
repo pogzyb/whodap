@@ -1,5 +1,8 @@
 ## whodap
 
+[![Build Status](https://app.travis-ci.com/pogzyb/whodap.svg?token=xCoELzvjMvTqZThTS7Va&branch=main)](https://app.travis-ci.com/pogzyb/whodap)
+[![codecov](https://codecov.io/gh/pogzyb/whodap/branch/main/graph/badge.svg?token=NCfdf6ftb9)](https://codecov.io/gh/pogzyb/whodap)
+
 `whodap` | Simple RDAP Utility for Python
 
 - Support for asyncio HTTP requests (using `httpx`)
@@ -21,7 +24,7 @@ response = whodap.lookup_domain(domain='bitcoin', tld='org')
 # Equivalent asyncio call
 loop = asyncio.get_event_loop()
 response = loop.run_until_complete(whodap.aio_lookup_domain(domain='bitcoin', tld='org'))
-# Raw output from RDAP lookup
+# "response" is a DomainResponse object. It contains the output from the RDAP lookup.
 print(response)
 # Traverse the DomainResponse via "dot" notation
 print(response.events)
