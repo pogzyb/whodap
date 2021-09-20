@@ -26,7 +26,10 @@ setup(
     author_email='pogzyb@umich.edu',
     python_requires='>=3.6, <4',
     keywords='security, whois, rdap, research',
-    install_requires=['httpx>=0.18.1'],
+    install_requires=[
+        'httpx>=0.18.1',
+        'async_generator>=1.10; python_version < "3.7.0"'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

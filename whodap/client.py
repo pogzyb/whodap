@@ -1,8 +1,15 @@
+import sys
 import posixpath
 import ipaddress
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Union, Optional
-from contextlib import contextmanager, asynccontextmanager
+from contextlib import contextmanager
+
+# different installs for async contextmanager based on python version
+if sys.version_info.major == 3 and sys.version_info.minor < 7:
+    from async_generator import asynccontextmanager
+else:
+    from contextlib import asynccontextmanager
 
 import httpx
 
@@ -12,7 +19,6 @@ from .response import DomainResponse
 
 
 class RDAPClient(ABC):
-
     _iana_publication_key: str = 'publication'
     _iana_verison_key: str = 'version'
     _iana_services_key: str = 'services'
@@ -25,7 +31,6 @@ class RDAPClient(ABC):
 
     @classmethod
     @abstractmethod
-    @contextmanager
     def new_client_context(cls, httpx_client):
         ...
 
@@ -36,7 +41,6 @@ class RDAPClient(ABC):
 
     @classmethod
     @abstractmethod
-    @asynccontextmanager
     async def new_aio_client_context(cls, httpx_client):
         ...
 
@@ -82,7 +86,6 @@ class RDAPClient(ABC):
 
 
 class DNSClient(RDAPClient):
-
     # IANA DNS
     _iana_uri: str = 'https://data.iana.org/rdap/dns.json'
 
@@ -271,7 +274,6 @@ class DNSClient(RDAPClient):
 
 
 class IPv4Client(RDAPClient):
-
     # IANA IPv4
     _iana_uri: str = 'https://data.iana.org/rdap/ipv4.json'
     _arin_registry_uri: str = 'https://rdap.arin.net/registry/ip/'
@@ -303,7 +305,6 @@ class IPv4Client(RDAPClient):
 
 
 class IPv6Client(RDAPClient):
-
     # IANA IPv6
     ...
 
@@ -327,7 +328,6 @@ class IPv6Client(RDAPClient):
 
 
 class ASNClient(RDAPClient):
-
     # IANA ASN
     ...
 
