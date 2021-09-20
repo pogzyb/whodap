@@ -1,7 +1,8 @@
 import posixpath
 import ipaddress
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, Optional
+from contextlib import contextmanager, asynccontextmanager
 
 import httpx
 
@@ -17,19 +18,31 @@ class RDAPClient(ABC):
     _iana_services_key: str = 'services'
     _iana_uri: str = None
 
-    def __init__(self, *args, **kwargs):
-        self.session: Union[httpx.Client, httpx.AsyncClient] = None
-        self.version: str
-        self.publication: str
+    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+        self.httpx_client = httpx_client
+        self.version: str = ''
+        self.publication: str = ''
 
     @classmethod
     @abstractmethod
-    def new_client(cls):
+    @contextmanager
+    def new_client_context(cls, httpx_client):
         ...
 
     @classmethod
     @abstractmethod
-    async def new_aio_client(cls):
+    def new_client(cls, httpx_client):
+        ...
+
+    @classmethod
+    @abstractmethod
+    @asynccontextmanager
+    async def new_aio_client_context(cls, httpx_client):
+        ...
+
+    @classmethod
+    @abstractmethod
+    async def new_aio_client(cls, httpx_client):
         ...
 
     @abstractmethod
@@ -45,25 +58,11 @@ class RDAPClient(ABC):
     def _build_query_uri() -> str:
         ...
 
-    async def _aio_load_from_iana(self):
-        resp = await self._aio_get_request(self._iana_uri)
-        if resp.status_code != httpx.codes.OK:
-            raise BadStatusCode(f"Status code <{resp.status_code}> from {self._iana_uri}")
-        return resp.json()
-
-    def _load_from_iana(self):
-        resp = self._get_request(self._iana_uri)
-        if resp.status_code != httpx.codes.OK:
-            raise BadStatusCode(f"Status code <{resp.status_code}> from {self._iana_uri}")
-        return resp.json()
-
     def _get_request(self, uri: str) -> httpx.Response:
-        with self.session as client:
-            return client.get(uri)
+        return self.httpx_client.get(uri)
 
     async def _aio_get_request(self, uri: str) -> httpx.Response:
-        async with self.session as client:
-            return await client.get(uri)
+        return await self.httpx_client.get(uri)
 
     @staticmethod
     def _check_status_code(status_code: int) -> None:
@@ -87,43 +86,106 @@ class DNSClient(RDAPClient):
     # IANA DNS
     _iana_uri: str = 'https://data.iana.org/rdap/dns.json'
 
-    def __init__(self):
-        super(DNSClient, self).__init__()
+    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+        super(DNSClient, self).__init__(httpx_client)
         self.iana_dns_server_map: Dict[str, str] = {}
 
     @classmethod
-    def new_client(cls, **http_client_kws):
+    @contextmanager
+    def new_client_context(cls, httpx_client: Optional[httpx.Client] = None):
         """
-        Primary method of instantiating a synchronous instance of DNSClient
+        Contextmanager for instantiating a Synchronous DNSClient
 
-        :kwargs: keyword arguments passed directly to `httpx.Client`
-        :return: a DNSClient
+        :httpx_client: pre-configured instance of `httpx.Client`
+        :return: yields the initialized DNSClient
         """
-        c = cls()
-        c.session = httpx.Client(**http_client_kws)
-        dns = c._load_from_iana()
-        c._set_iana_dns_info(dns)
-        return c
+        dns_client = cls(httpx_client or httpx.Client())
+        try:
+            iana_dns_info = dns_client.get_iana_dns_info()
+            dns_client.set_iana_dns_info(iana_dns_info)
+            yield dns_client
+        except:
+            raise
+        finally:
+            if not dns_client.httpx_client.is_closed:
+                dns_client.httpx_client.close()
 
     @classmethod
-    async def new_aio_client(cls, **http_client_kws):
+    def new_client(cls, httpx_client: Optional[httpx.Client] = None):
         """
-        Primary method of instantiating an asynchronous instance of DNSClient
+        Classmethod for instantiating an synchronous instance of DNSClient
 
-        :kwargs: keyword arguments passed directly to `httpx.AsyncClient`
-        :return: a DNSClient
+        :httpx_client: pre-configured instance of `httpx.Client`
+        :return: DNSClient with a sync httpx_client
         """
-        c = cls()
-        c.session = httpx.AsyncClient(**http_client_kws)
-        dns = await c._aio_load_from_iana()
-        c._set_iana_dns_info(dns)
-        return c
+        # init the client with a default httpx.Client if one is not provided
+        dns_client = cls(httpx_client or httpx.Client())
+        # load the dns server information from IANA
+        iana_dns_info = dns_client.get_iana_dns_info()
+        # parse and save the server information
+        dns_client.set_iana_dns_info(iana_dns_info)
+        # return the loaded client
+        return dns_client
+
+    @classmethod
+    @asynccontextmanager
+    async def new_aio_client_context(cls, httpx_client: Optional[httpx.AsyncClient] = None):
+        """
+        Contextmanager for instantiating an Asynchronous DNSClient
+
+        :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
+        :return: yields the initialized DNSClient
+        """
+        dns_client = cls(httpx_client or httpx.AsyncClient())
+        try:
+            iana_dns_info = await dns_client.aio_get_iana_dns_info()
+            dns_client.set_iana_dns_info(iana_dns_info)
+            yield dns_client
+        except:
+            raise
+        finally:
+            if not dns_client.httpx_client.is_closed:
+                await dns_client.httpx_client.aclose()
+
+    @classmethod
+    async def new_aio_client(cls, httpx_client: Optional[httpx.AsyncClient] = None):
+        """
+        Classmethod for instantiating an asynchronous instance of DNSClient
+
+        :httpx_client: pre-configured instance of `httpx.AsyncClient`
+        :return: DNSClient with an async httpx_client
+        """
+        dns_client = cls(httpx_client or httpx.AsyncClient())
+        iana_dns_info = await dns_client.aio_get_iana_dns_info()
+        dns_client.set_iana_dns_info(iana_dns_info)
+        return dns_client
+
+    def get_iana_dns_info(self):
+        response = self._get_request(self._iana_uri)
+        return response.json()
+
+    async def aio_get_iana_dns_info(self):
+        response = await self._aio_get_request(self._iana_uri)
+        return response.json()
 
     @staticmethod
     def _build_query_uri(rdap_uri: str, domain: str) -> str:
         return posixpath.join(rdap_uri, 'domain', domain.lstrip('/'))
 
     def lookup(self, domain: str, tld: str, auth_ref: str = None) -> DomainResponse:
+        """
+        Performs an RDAP domain lookup.
+
+        First, finds the appropriate server for the top level domain,
+        sends an HTTP request to the server, parses the response for a more authoritative source,
+        sends an additional HTTP request to the more authoritative source, and finally
+        encapsulates the HTTP response into a DomainResponse object.
+
+        :param domain: the domain name
+        :param tld: the top level domain
+        :param auth_ref: optional authoritative url for the given TLD
+        :return: instance of DomainResponse
+        """
         domain_and_tld = domain + '.' + tld
         # if an authoritative url is provided; use it
         if auth_ref:
@@ -154,6 +216,19 @@ class DNSClient(RDAPClient):
             return domain_response
 
     async def aio_lookup(self, domain: str, tld: str, auth_ref: str = None) -> DomainResponse:
+        """
+        Performs an RDAP domain lookup.
+
+        First, finds the appropriate server for the top level domain,
+        sends an HTTP request to the server, parses the response for a more authoritative source,
+        sends an additional HTTP request to the more authoritative source, and finally
+        encapsulates the HTTP response into a DomainResponse object.
+
+        :param domain: the domain name
+        :param tld: the top level domain
+        :param auth_ref: optional authoritative url for the given TLD
+        :return: instance of DomainResponse
+        """
         domain_and_tld = domain + '.' + tld
         if auth_ref:
             query_url = self._build_query_uri(auth_ref, domain_and_tld)
@@ -178,7 +253,14 @@ class DNSClient(RDAPClient):
         else:
             return domain_response
 
-    def _set_iana_dns_info(self, iana_dns_map: Dict[str, Any]) -> None:
+    def set_iana_dns_info(self, iana_dns_map: Dict[str, Any]) -> None:
+        """
+        Populates the DNSClient's `iana_dns_server_map` attribute with
+        the server information found in the given `iana_dns_map`.
+
+        :param iana_dns_map: Server information retrieved from `self._iana_url`
+        :return: None
+        """
         self.publication = iana_dns_map.get(self._iana_publication_key)
         self.version = iana_dns_map.get(self._iana_verison_key)
         tld_server_map = {}
@@ -206,13 +288,8 @@ class IPv4Client(RDAPClient):
     async def new_aio_client(cls):
         ...
 
-    def lookup(self, ip: Union[str, int, bytes, ipaddress.IPv4Address]):
-        if not isinstance(ip, ipaddress.IPv4Address):
-            ip = ipaddress.ip_address(ip)
-            if not isinstance(ip, ipaddress.IPv4Address):
-                raise ValueError('')
-
-        server_url = self.iana_ipv4_server_map.get(ip)
+    def lookup(self):
+        ...
 
     async def aio_lookup(self):
         ...
@@ -222,24 +299,7 @@ class IPv4Client(RDAPClient):
         return posixpath.join(rdap_uri, ip_address)
 
     def _set_ipv4_server_map(self, iana_ipv4_map: Dict[str, Any]):
-        ip_map = {}
-        for blocks, servers in iana_ipv4_map.get(self._iana_services_key):
-            if len(servers) > 1:
-                server = None
-                for s in servers:
-                    if s.startswitch('https'):
-                        server = s
-                        break
-            else:
-                server = servers[0]
-
-            if not server:
-                ...
-
-            for block in blocks:
-                ip_map[block] = server
-
-        self.iana_ipv4_server_map = ip_map
+        ...
 
 
 class IPv6Client(RDAPClient):
