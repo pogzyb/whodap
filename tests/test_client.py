@@ -10,6 +10,7 @@ class TestDNSClient(asynctest.TestCase):
     def setUp(self) -> None:
         self.dns_client = DNSClient.new_client()
 
+
     def test_build_query_url(self):
         expected_base_case = "http://some-url.com/domain/domain-name"
         output = self.dns_client._build_query_uri("http://some-url.com/", "domain-name")
@@ -95,3 +96,19 @@ class TestDNSClient(asynctest.TestCase):
         self.dns_client.httpx_client = mock_client
         resp = await self.dns_client._aio_get_request("https://www.some-domain.com")
         assert resp == fake_http_response, f"{resp} != {fake_http_response}"
+
+    async def test_async_context_manager(self):
+        fake_http_response = "fake-http-response"
+        mock_client = mock.Mock(get=mock.CoroutineMock(return_value=fake_http_response))
+        async with DNSClient.new_aio_client_context() as aio_dns_client:
+            aio_dns_client.httpx_client = mock_client
+            resp = await aio_dns_client._aio_get_request("https://www.some-domain.com")
+            assert resp == fake_http_response, f"{resp} != {fake_http_response}"
+
+    def text_context_manager(self):
+        fake_http_response = "fake-http-response"
+        mock_client = mock.Mock(get=mock.Mock(return_value=fake_http_response))
+        with DNSClient.new_client_context() as dns_client:
+            dns_client.httpx_client = mock_client
+            resp = dns_client._get_request("https://www.some-domain.com")
+            assert resp == fake_http_response, f"{resp} != {fake_http_response}"
