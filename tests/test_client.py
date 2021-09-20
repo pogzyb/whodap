@@ -8,7 +8,8 @@ from whodap.errors import RateLimitError, NotFoundError, MalformedQueryError
 class TestDNSClient(asynctest.TestCase):
 
     def setUp(self) -> None:
-        self.dns_client = DNSClient()
+        self.dns_client = DNSClient.new_client()
+
 
     def test_build_query_url(self):
         expected_base_case = "http://some-url.com/domain/domain-name"
@@ -65,7 +66,7 @@ class TestDNSClient(asynctest.TestCase):
                 ]
             ]
         }
-        self.dns_client._set_iana_dns_info(rdap_output)
+        self.dns_client.set_iana_dns_info(rdap_output)
         assert len(self.dns_client.iana_dns_server_map.keys()) == 4
         assert self.dns_client.publication == "2021-05-05"
         assert self.dns_client.version == "2"
@@ -73,28 +74,41 @@ class TestDNSClient(asynctest.TestCase):
     @mock.patch("whodap.client.DNSClient._aio_get_request")
     async def test_aio_load_dns(self, mock_request):
         mock_request.return_value = mock.Mock(status_code=200, json=mock.Mock())
-        await self.dns_client._aio_load_from_iana()
+        await self.dns_client.aio_get_iana_dns_info()
         mock_request.assert_called_once()
 
     @mock.patch("whodap.client.DNSClient._get_request")
     def test_load_dns(self, mock_request):
         mock_request.return_value = mock.Mock(status_code=200, json=mock.Mock())
-        self.dns_client._load_from_iana()
+        self.dns_client.get_iana_dns_info()
         mock_request.assert_called_once()
 
     def test_get_request(self):
         fake_http_response = "fake-http-response"
-        mock_client = mock.MagicMock()
-        mock_client.__enter__.return_value = mock.Mock(get=mock.Mock(return_value=fake_http_response))
-        self.dns_client.session = mock_client
+        mock_client = mock.Mock(get=mock.Mock(return_value=fake_http_response))
+        self.dns_client.httpx_client = mock_client
         resp = self.dns_client._get_request("https://www.some-domain.com")
         assert resp == fake_http_response, f"{resp} != {fake_http_response}"
 
     async def test_get_aio_request(self):
         fake_http_response = "fake-http-response"
-        mock_client = mock.MagicMock()
-        mock_client.__aenter__.return_value = mock.CoroutineMock(
-            get=mock.CoroutineMock(return_value=fake_http_response))
-        self.dns_client.session = mock_client
+        mock_client = mock.Mock(get=mock.CoroutineMock(return_value=fake_http_response))
+        self.dns_client.httpx_client = mock_client
         resp = await self.dns_client._aio_get_request("https://www.some-domain.com")
         assert resp == fake_http_response, f"{resp} != {fake_http_response}"
+
+    async def test_async_context_manager(self):
+        fake_http_response = "fake-http-response"
+        mock_client = mock.Mock(get=mock.CoroutineMock(return_value=fake_http_response))
+        async with DNSClient.new_aio_client_context() as aio_dns_client:
+            aio_dns_client.httpx_client = mock_client
+            resp = await aio_dns_client._aio_get_request("https://www.some-domain.com")
+            assert resp == fake_http_response, f"{resp} != {fake_http_response}"
+
+    def text_context_manager(self):
+        fake_http_response = "fake-http-response"
+        mock_client = mock.Mock(get=mock.Mock(return_value=fake_http_response))
+        with DNSClient.new_client_context() as dns_client:
+            dns_client.httpx_client = mock_client
+            resp = dns_client._get_request("https://www.some-domain.com")
+            assert resp == fake_http_response, f"{resp} != {fake_http_response}"

@@ -1,14 +1,13 @@
 ## whodap
 
+[![PyPI version](https://badge.fury.io/py/whodap.svg)](https://badge.fury.io/py/whodap)
 [![Build Status](https://app.travis-ci.com/pogzyb/whodap.svg?token=xCoELzvjMvTqZThTS7Va&branch=main)](https://app.travis-ci.com/pogzyb/whodap)
 [![codecov](https://codecov.io/gh/pogzyb/whodap/branch/main/graph/badge.svg?token=NCfdf6ftb9)](https://codecov.io/gh/pogzyb/whodap)
-[![PyPI version](https://badge.fury.io/py/whodap.svg)](https://badge.fury.io/py/whodap)
 
 `whodap` | Simple RDAP Utility for Python
 
-- Support for asyncio HTTP requests (using `httpx`)
-- Caching option for initial IANA dns loads
-- Leverages the [SimpleNamespace](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
+- Support for asyncio HTTP requests ([`httpx`](https://www.python-httpx.org/))
+- Leverages the [`SimpleNamespace`](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
 - Keeps the familiar look of WHOIS via the `to_whois_dict` method
 
 
@@ -89,23 +88,88 @@ pprint(response.to_whois_dict())
 """
 ```
 
+#### Common Usage Patterns
+
+- Using the DNSClient:
+```python
+import whodap
+
+# Initialize an instance of DNSClient using classmethods: `new_client` or `new_aio_client`
+dns_client = whodap.DNSClient.new_client()
+for domain, tld in [('google', 'com'), ('google', 'buzz')]:
+    response = dns_client.lookup(domain, tld)
+    
+# Equivalent asyncio call
+dns_client = await whodap.DNSClient.new_aio_client()
+for domain, tld in [('google', 'com'), ('google', 'buzz')]:
+    response = await dns_client.aio_lookup(domain, tld)
+    
+# Use the DNSClient contextmanagers: `new_client_context` or `new_aio_client_context`
+with whodap.DNSClient.new_client_context() as dns_client:
+    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
+        response = dns_client.lookup(domain, tld)
+
+# Equivalent asyncio call
+async with whodap.DNSClient.new_aio_client_context() as dns_client:
+    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
+        response = await dns_client.aio_lookup(domain, tld)
+```
+
+- Configurable `httpx` client:
+
+```python
+import asyncio
+
+import httpx
+import whodap
+
+# Initialize a custom, pre-configured httpx client ...
+httpx_client = httpx.Client(proxies=httpx.Proxy('user:pw@proxy_url.com'))
+# ... or an async client
+aio_httpx_client = httpx.AsyncClient(proxies=httpx.Proxy('user:pw@proxy_url.com'))
+
+# Three common methods for leveraging httpx clients are outlined below:
+
+# 1) Pass the httpx client directly into the convenience functions: `lookup_domain` or `aio_lookup_domain`
+# Important: In this scenario, you are responsible for closing the httpx client.
+# In this example, the given httpx client is used as a contextmanager; ensuring it is "closed" when finished.
+async with aio_httpx_client:
+    futures = []
+    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
+        task = whodap.aio_lookup_domain(domain, tld, httpx_client=aio_httpx_client)
+        futures.append(task)
+    asyncio.gather(*futures)
+
+# 2) Pass the httpx_client into the DNSClient classmethod: `new_client` or `new_aio_client`
+aio_dns_client = await whodap.DNSClient.new_aio_client(aio_httpx_client)
+result = await aio_dns_client.aio_lookup('google', 'buzz')
+await aio_httpx_client.aclose()
+
+# 3) Pass the httpx_client into the DNSClient contextmanagers: `new_client_context` or `new_aio_client_context`
+# This method ensures the underlying httpx_client is closed when exiting the "with" block.
+async with whodap.DNSClient.new_aio_client_context(aio_httpx_client) as dns_client:
+    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
+        response = await dns_client.aio_lookup(domain, tld)
+```
+
 #### Contributions
 - Interested in contributing? 
 - Have any questions or comments? 
 - Anything that you'd like to see?
+- Anything that doesn't look right?
 
 Please post a question or comment.
 
-
 #### Roadmap
 
-Alpha Release:
+[alpha] 0.1.X Release:
 - Support for RDAP "domain" queries
 
-Coming Soon:
+Future Features:
 - Support for RDAP "ipv4" and "ipv6" queries
-
+- Caching or memoization mechanisms for initial IANA data loads
 
 #### RDAP Resources:
-  - https://tools.ietf.org/html/rfc7483
-  - https://tools.ietf.org/html/rfc6350
+- https://rdap.org/
+- https://tools.ietf.org/html/rfc7483
+- https://tools.ietf.org/html/rfc6350
