@@ -6,7 +6,7 @@ from .client import DNSClient
 from .response import DomainResponse
 
 __all__ = ['aio_lookup_domain', 'lookup_domain', 'DNSClient']
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 
 def lookup_domain(domain: str,
@@ -45,5 +45,5 @@ async def aio_lookup_domain(domain: str,
     dns_client = await DNSClient.new_aio_client(httpx_client)
     response = await dns_client.aio_lookup(domain, tld)
     if not httpx_client and not dns_client.httpx_client.is_closed:
-        await dns_client.httpx_client.close()
+        await dns_client.httpx_client.aclose()
     return response
