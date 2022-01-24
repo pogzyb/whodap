@@ -195,7 +195,7 @@ class DNSClient(RDAPClient):
         # set starting href
         base_href = auth_href or self.iana_dns_server_map.get(tld)
         if not base_href:
-            raise NotImplementedError(f'Could not find RDAP server for .{tld.upper()} domains')
+            raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
         # build query href
         domain_name = domain + '.' + tld
         href = self._build_query_href(base_href, domain_name)
