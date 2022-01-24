@@ -6,7 +6,7 @@ from typing import Dict, Any, Union, Optional
 from contextlib import contextmanager
 
 # different installs for async contextmanager based on python version
-if sys.version_info.major == 3 and sys.version_info.minor < 7:
+if sys.version_info < (3, 7):
     from async_generator import asynccontextmanager
 else:
     from contextlib import asynccontextmanager
@@ -59,7 +59,7 @@ class RDAPClient(ABC):
 
     @staticmethod
     @abstractmethod
-    def _build_query_uri() -> str:
+    def _build_query_href() -> str:
         ...
 
     def _get_request(self, uri: str) -> httpx.Response:
@@ -92,6 +92,7 @@ class DNSClient(RDAPClient):
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         super(DNSClient, self).__init__(httpx_client)
         self.iana_dns_server_map: Dict[str, str] = {}
+        self.rdap_hrefs = set()
 
     @classmethod
     @contextmanager
@@ -172,89 +173,90 @@ class DNSClient(RDAPClient):
         return response.json()
 
     @staticmethod
-    def _build_query_uri(rdap_uri: str, domain: str) -> str:
-        return posixpath.join(rdap_uri, 'domain', domain.lstrip('/'))
+    def _build_query_href(rdap_href: str, domain: str) -> str:
+        return posixpath.join(rdap_href, 'domain', domain.lstrip('/'))
 
-    def lookup(self, domain: str, tld: str, auth_ref: str = None) -> DomainResponse:
+    async def aio_lookup(
+        self,
+        domain: str,
+        tld: str,
+        auth_href: str = None
+    ) -> DomainResponse:
+        """
+        Performs an asynchronous RDAP domain lookup.
+        Finds the authoritative server for the domain and encapsulates
+        the RDAP response into a DomainResponse object.
+
+        :param domain: The domain name
+        :param tld: The top level domain
+        :param auth_href: Optional authoritative URL for the given TLD
+        :return: Instance of DomainResponse
+        """
+        # set starting href
+        base_href = auth_href or self.iana_dns_server_map.get(tld)
+        if not base_href:
+            raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
+        # build query href
+        domain_name = domain + '.' + tld
+        href = self._build_query_href(base_href, domain_name)
+        domain_response = await self._aio_get_authoritative_response(href)
+        # return response
+        return domain_response
+
+    def lookup(
+        self,
+        domain: str,
+        tld: str,
+        auth_href: str = None
+    ) -> DomainResponse:
         """
         Performs an RDAP domain lookup.
+        Finds the authoritative server for the domain and encapsulates
+        the RDAP response into a DomainResponse object.
 
-        First, finds the appropriate server for the top level domain,
-        sends an HTTP request to the server, parses the response for a more authoritative source,
-        sends an additional HTTP request to the more authoritative source, and finally
-        encapsulates the HTTP response into a DomainResponse object.
-
-        :param domain: the domain name
-        :param tld: the top level domain
-        :param auth_ref: optional authoritative url for the given TLD
-        :return: instance of DomainResponse
+        :param domain: The domain name
+        :param tld: The top level domain
+        :param auth_href: Optional authoritative URL for the given TLD
+        :return: Instance of DomainResponse
         """
-        domain_and_tld = domain + '.' + tld
-        # if an authoritative url is provided; use it
-        if auth_ref:
-            query_url = self._build_query_uri(auth_ref, domain_and_tld)
-            resp = self._get_request(query_url)
-            self._check_status_code(resp.status_code)
-            return DomainResponse.from_json(resp.text)
-        # start with looking up server in the IANA list
-        server_url = self.iana_dns_server_map.get(tld)
-        if not server_url:
-            raise NotImplementedError(f'No RDAP Server for ".{tld.upper()}"')
-        # hit the server found in the IANA list
-        query_url = self._build_query_uri(server_url, domain_and_tld)
-        response = self._get_request(query_url)
-        self._check_status_code(response.status_code)
-        domain_response = DomainResponse.from_json(response.text)
-        # try to extract an authoritative server for this domain
+        # set starting href
+        base_href = auth_href or self.iana_dns_server_map.get(tld)
+        if not base_href:
+            raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
+        # build query href
+        domain_name = domain + '.' + tld
+        href = self._build_query_href(base_href, domain_name)
+        domain_response = self._get_authoritative_response(href)
+        # return response
+        return domain_response
+
+    def _get_authoritative_response(self, href: str) -> DomainResponse:
+        resp = self._get_request(href)
+        self._check_status_code(resp.status_code)
+        domain_response = DomainResponse.from_json(resp.read())
+        # save href chain
+        self.rdap_hrefs.add(href)
+        # check for more authoritative source
         if hasattr(domain_response, 'links'):
-            authoritative_url = domain_response.links[-1].href
-            # avoid redundant connections
-            if authoritative_url.lower() != query_url.lower():
-                resp = self._get_request(authoritative_url)
-                self._check_status_code(resp.status_code)
-                return DomainResponse.from_json(resp.text)
-            else:
-                return domain_response
-        else:
-            return domain_response
+            next_href = domain_response.links[-1].href.lower()
+            if next_href and next_href != href:
+                domain_response = self._get_authoritative_response(next_href)
+        # return response
+        return domain_response
 
-    async def aio_lookup(self, domain: str, tld: str, auth_ref: str = None) -> DomainResponse:
-        """
-        Performs an RDAP domain lookup.
-
-        First, finds the appropriate server for the top level domain,
-        sends an HTTP request to the server, parses the response for a more authoritative source,
-        sends an additional HTTP request to the more authoritative source, and finally
-        encapsulates the HTTP response into a DomainResponse object.
-
-        :param domain: the domain name
-        :param tld: the top level domain
-        :param auth_ref: optional authoritative url for the given TLD
-        :return: instance of DomainResponse
-        """
-        domain_and_tld = domain + '.' + tld
-        if auth_ref:
-            query_url = self._build_query_uri(auth_ref, domain_and_tld)
-            resp = await self._aio_get_request(query_url)
-            self._check_status_code(resp.status_code)
-            return DomainResponse.from_json(resp.read())
-        server_url = self.iana_dns_server_map.get(tld)
-        if not server_url:
-            raise NotImplementedError(f'Could not find RDAP server for .{tld.upper()} domains')
-        query_url = self._build_query_uri(server_url, domain_and_tld)
-        response = await self._aio_get_request(query_url)
-        self._check_status_code(response.status_code)
-        domain_response = DomainResponse.from_json(response.read())
+    async def _aio_get_authoritative_response(self, href: str) -> DomainResponse:
+        resp = await self._aio_get_request(href)
+        self._check_status_code(resp.status_code)
+        domain_response = DomainResponse.from_json(resp.read())
+        # save href chain
+        self.rdap_hrefs.add(href)
+        # check for more authoritative source
         if hasattr(domain_response, 'links'):
-            authoritative_url = domain_response.links[-1].href
-            if authoritative_url.lower() != query_url.lower():
-                resp = await self._aio_get_request(authoritative_url)
-                self._check_status_code(resp.status_code)
-                return DomainResponse.from_json(resp.read())
-            else:
-                return domain_response
-        else:
-            return domain_response
+            next_href = domain_response.links[-1].href.lower()
+            if next_href and next_href != href:
+                domain_response = await self._aio_get_authoritative_response(next_href)
+        # return response
+        return domain_response
 
     def set_iana_dns_info(self, iana_dns_map: Dict[str, Any]) -> None:
         """
@@ -297,8 +299,8 @@ class IPv4Client(RDAPClient):
         ...
 
     @staticmethod
-    def _build_query_uri(rdap_uri: str, ip_address: str) -> str:
-        return posixpath.join(rdap_uri, ip_address)
+    def _build_query_href(rdap_href: str, ip_address: str) -> str:
+        return posixpath.join(rdap_href, ip_address)
 
     def _set_ipv4_server_map(self, iana_ipv4_map: Dict[str, Any]):
         ...
@@ -323,7 +325,7 @@ class IPv6Client(RDAPClient):
         ...
 
     @staticmethod
-    def _build_query_uri() -> str:
+    def _build_query_href() -> str:
         ...
 
 
@@ -346,5 +348,5 @@ class ASNClient(RDAPClient):
         ...
 
     @staticmethod
-    def _build_query_uri() -> str:
+    def _build_query_href() -> str:
         ...

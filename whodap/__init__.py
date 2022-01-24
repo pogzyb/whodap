@@ -6,12 +6,14 @@ from .client import DNSClient
 from .response import DomainResponse
 
 __all__ = ['aio_lookup_domain', 'lookup_domain', 'DNSClient']
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 
-def lookup_domain(domain: str,
-                  tld: str,
-                  httpx_client: Optional[Client] = None) -> DomainResponse:
+def lookup_domain(
+    domain: str,
+    tld: str,
+    httpx_client: Optional[Client] = None
+) -> DomainResponse:
     """
     Convenience function that instantiates a DNSClient,
     submits an RDAP query for the given domain, and returns
@@ -19,7 +21,7 @@ def lookup_domain(domain: str,
 
     :param domain: the domain name to lookup
     :param tld: the top level domain (e.g. "com", "net", "buzz")
-    :param httpx_client: Custom, pre-configured instance `httpx.Client`
+    :param httpx_client: Preconfigured instance `httpx.Client`
     :return: an instance of DomainResponse
     """
     dns_client = DNSClient.new_client(httpx_client)
@@ -29,9 +31,11 @@ def lookup_domain(domain: str,
     return response
 
 
-async def aio_lookup_domain(domain: str,
-                            tld: str,
-                            httpx_client: Optional[AsyncClient] = None) -> DomainResponse:
+async def aio_lookup_domain(
+    domain: str,
+    tld: str,
+    httpx_client: Optional[AsyncClient] = None
+) -> DomainResponse:
     """
     Async-compatible convenience function that instantiates
     a DNSClient, submits an RDAP query for the given domain,
@@ -39,7 +43,7 @@ async def aio_lookup_domain(domain: str,
 
     :param domain: the domain name to lookup
     :param tld: the top level domain (e.g. "com", "net", "buzz")
-    :param httpx_client: Custom, pre-configured instance `httpx.AsyncClient`
+    :param httpx_client: Preconfigured instance `httpx.AsyncClient`
     :return: an instance of DomainResponse
     """
     dns_client = await DNSClient.new_aio_client(httpx_client)
