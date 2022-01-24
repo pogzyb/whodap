@@ -7,16 +7,16 @@ from whodap.errors import RateLimitError, NotFoundError, MalformedQueryError
 
 class TestDNSClient(asynctest.TestCase):
 
-    def setUp(self) -> None:
+    async def setUp(self) -> None:
         self.dns_client = DNSClient.new_client()
-
+        self.aio_dns_client = await DNSClient.new_aio_client()
 
     def test_build_query_url(self):
         expected_base_case = "http://some-url.com/domain/domain-name"
-        output = self.dns_client._build_query_uri("http://some-url.com/", "domain-name")
+        output = self.dns_client._build_query_href("http://some-url.com/", "domain-name")
         assert output == expected_base_case, f"{output} != {expected_base_case}"
         expected_absolute_case = "http://bad-example/domain/forward-slash-domain"
-        output = self.dns_client._build_query_uri("http://bad-example", "/forward-slash-domain")
+        output = self.dns_client._build_query_href("http://bad-example", "/forward-slash-domain")
         assert output == expected_absolute_case, f"{output} != {expected_absolute_case}"
 
     def test_check_status(self):
@@ -25,7 +25,7 @@ class TestDNSClient(asynctest.TestCase):
         self.assertRaises(NotFoundError, self.dns_client._check_status_code, 404)
         self.assertRaises(MalformedQueryError, self.dns_client._check_status_code, 400)
 
-    @mock.patch("whodap.client.DNSClient._get_request")
+    @mock.patch("whodap.client.RDAPClient._get_request")
     @mock.patch("whodap.client.DomainResponse.from_json")
     def test_lookup(self, mock_rdap_resp, mock_request):
         self.dns_client.iana_dns_server_map = {'com': 'some-server-for-rdap'}
@@ -34,22 +34,22 @@ class TestDNSClient(asynctest.TestCase):
         self.dns_client.lookup('domain', 'com')
         assert mock_request.call_count == 2, f'_aio_get_request call_count {mock_request.call_count} != 2'
         assert mock_rdap_resp.call_count == 2, f'from_json call_count {mock_rdap_resp.call_count} != 2'
-        self.dns_client.lookup('domain', 'com', auth_ref='some-auth-ref')
-        assert mock_request.call_count == 3
-        assert mock_rdap_resp.call_count == 3
+        self.dns_client.lookup('domain', 'com', auth_href='some-auth-ref')
+        assert mock_request.call_count == 4, f'_aio_get_request call_count {mock_request.call_count} != 3'
+        assert mock_rdap_resp.call_count == 4, f'from_json call_count {mock_rdap_resp.call_count} != 3'
 
     @mock.patch("whodap.client.DNSClient._aio_get_request")
     @mock.patch("whodap.client.DomainResponse.from_json")
     async def test_aio_lookup(self, mock_rdap_resp, mock_request):
-        self.dns_client.iana_dns_server_map = {'com': 'some-server-for-rdap'}
+        self.aio_dns_client.iana_dns_server_map = {'com': 'some-server-for-rdap'}
         mock_request.return_value = mock.Mock(status_code=200)
         mock_rdap_resp.return_value = mock.Mock(links=[mock.Mock(href='the-authority-server-for-domain')])
-        await self.dns_client.aio_lookup('domain', 'com')
+        await self.aio_dns_client.aio_lookup('domain', 'com')
         assert mock_request.call_count == 2, f'_aio_get_request call_count {mock_request.call_count} != 2'
         assert mock_rdap_resp.call_count == 2, f'from_json call_count {mock_rdap_resp.call_count} != 2'
-        await self.dns_client.aio_lookup('domain', 'com', auth_ref='some-auth-ref')
-        assert mock_request.call_count == 3
-        assert mock_rdap_resp.call_count == 3
+        await self.aio_dns_client.aio_lookup('domain', 'com', auth_href='some-auth-ref')
+        assert mock_request.call_count == 4
+        assert mock_rdap_resp.call_count == 4
 
     def test_iana_server_map(self):
         rdap_output = {
