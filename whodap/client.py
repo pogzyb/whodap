@@ -1,8 +1,7 @@
 import sys
 import posixpath
 import ipaddress
-from abc import ABC, abstractmethod
-from typing import Dict, Any, Union, Optional
+from typing import Dict, Any, Union, Optional, List
 from contextlib import contextmanager
 
 # different installs for async contextmanager based on python version
@@ -18,9 +17,13 @@ from .errors import RateLimitError, NotFoundError, MalformedQueryError, BadStatu
 from .response import DomainResponse
 
 
-class RDAPClient(ABC):
+class RDAPClient:
+    """
+    Base class for RDAP Clients.
+    Abstracts HTTP helper functions and context managers.
+    """
     _iana_publication_key: str = 'publication'
-    _iana_verison_key: str = 'version'
+    _iana_version_key: str = 'version'
     _iana_services_key: str = 'services'
     _iana_uri: str = None
 
@@ -28,45 +31,224 @@ class RDAPClient(ABC):
         self.httpx_client = httpx_client
         self.version: str = ''
         self.publication: str = ''
+        self.rdap_hrefs: List[str] = []
+        self._target: Union[str, int, ipaddress.IPv4Address, ipaddress.IPv6Address] = ""
 
-    @classmethod
-    @abstractmethod
-    def new_client_context(cls, httpx_client):
+    def lookup(self, *args, **kwargs):
+        """
+        Subclasses implement methods for queries.
+        """
         ...
 
-    @classmethod
-    @abstractmethod
-    def new_client(cls, httpx_client):
-        ...
-
-    @classmethod
-    @abstractmethod
-    async def new_aio_client_context(cls, httpx_client):
-        ...
-
-    @classmethod
-    @abstractmethod
-    async def new_aio_client(cls, httpx_client):
-        ...
-
-    @abstractmethod
-    def lookup(self):
-        ...
-
-    @abstractmethod
-    async def aio_lookup(self):
+    async def aio_lookup(self, *args, **kwargs):
+        """
+        Subclasses implement methods for queries.
+        """
         ...
 
     @staticmethod
-    @abstractmethod
-    def _build_query_href() -> str:
+    def _build_query_href(rdap_href: str, target: str) -> str:
+        """
+        Subclasses implement logic for building HREFs.
+        """
         ...
+
+    def _set_iana_info(self, iana_resp: Dict[str, Any]) -> None:
+        """
+        Subclasses implement logic for parsing and storing
+        the JSON response from IANA.
+        """
+        ...
+
+    @classmethod
+    @contextmanager
+    def new_client_context(cls, httpx_client: Optional[httpx.Client] = None):
+        """
+        Contextmanager for instantiating a Synchronous DNSClient
+
+        :httpx_client: pre-configured instance of `httpx.Client`
+        :return: yields the initialized DNSClient
+        """
+        client = cls(httpx_client or httpx.Client(timeout=10))
+        try:
+            iana_dns_info = client._get_iana_info()
+            client._set_iana_info(iana_dns_info)
+            yield client
+        finally:
+            if not client.httpx_client.is_closed:
+                client.httpx_client.close()
+
+    @classmethod
+    def new_client(cls, httpx_client: Optional[httpx.Client] = None):
+        """
+        Classmethod for instantiating an synchronous instance of Client
+
+        :httpx_client: pre-configured instance of `httpx.Client`
+        :return: DNSClient with a sync httpx_client
+        """
+        # init the client with a default httpx.Client if one is not provided
+        client = cls(httpx_client or httpx.Client(timeout=10))
+        # load the dns server information from IANA
+        iana_info = client._get_iana_info()
+        # parse and save the server information
+        client._set_iana_info(iana_info)
+        # return the loaded client
+        return client
+
+    @classmethod
+    @asynccontextmanager
+    async def new_aio_client_context(cls, httpx_client: Optional[httpx.AsyncClient] = None):
+        """
+        Contextmanager for instantiating an Asynchronous DNSClient
+
+        :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
+        :return: yields the initialized DNSClient
+        """
+        client = cls(httpx_client or httpx.AsyncClient(timeout=10))
+        try:
+            iana_info = await client._aio_get_iana_info()
+            client._set_iana_info(iana_info)
+            yield client
+        finally:
+            if not client.httpx_client.is_closed:
+                await client.httpx_client.aclose()
+
+    @classmethod
+    async def new_aio_client(cls, httpx_client: Optional[httpx.AsyncClient] = None):
+        """
+        Classmethod for instantiating an asynchronous instance of DNSClient
+
+        :httpx_client: pre-configured instance of `httpx.AsyncClient`
+        :return: DNSClient with an async httpx_client
+        """
+        client = cls(httpx_client or httpx.AsyncClient(timeout=10))
+        iana_info = await client._aio_get_iana_info()
+        client._set_iana_info(iana_info)
+        return client
+
+    def _get_iana_info(self):
+        """
+        Retrieves the JSON payload from IANA.
+        Each Subclass of RDAPClient implements its own `iana_url`
+
+        :return: JSON data dictionary
+        """
+        response = self._get_request(self._iana_uri)
+        return response.json()
+
+    async def _aio_get_iana_info(self):
+        """
+        Retrieves the JSON payload from IANA.
+        Each Subclass of RDAPClient implements its own `iana_url`
+
+        :return: JSON data dictionary
+        """
+        response = await self._aio_get_request(self._iana_uri)
+        return response.json()
 
     def _get_request(self, uri: str) -> httpx.Response:
         return self.httpx_client.get(uri)
 
     async def _aio_get_request(self, uri: str) -> httpx.Response:
         return await self.httpx_client.get(uri)
+
+    def _get_authoritative_response(
+        self,
+        href: str,
+        depth: int = 0
+    ) -> Optional[httpx.Response]:
+        """
+        Makes HTTP calls to RDAP servers until it finds
+        the authoritative source.
+
+        :param href: href containing the location of an RDAP
+        :param depth: recursion counter
+        :return: `httpx` response object
+        """
+        resp = self._get_request(href)
+        try:
+            self._check_status_code(resp.status_code)
+        except NotFoundError:
+            # Occasionally, gTLD RDAP servers are wrong or not fully implemented.
+            # If we've succeeded previously, but now the href returns a 404,
+            # return None, so the last OK response is returned.
+            if depth != 0:
+                return None
+            else:
+                raise
+        # save href chain
+        self.rdap_hrefs.append(href)
+        # check for more authoritative source
+        rdap_json = resp.json()
+        links = rdap_json.get('links')
+        if links:
+            next_href = self._check_next_href(href, links)
+            if next_href:
+                resp = self._get_authoritative_response(next_href, depth+1)
+        # return authoritative response
+        return resp
+
+    async def _aio_get_authoritative_response(
+        self,
+        href: str,
+        depth: int = 0
+    ) -> Optional[httpx.Response]:
+        """
+        Makes HTTP calls to RDAP servers until it finds
+        the authoritative source.
+
+        :param href: href containing the location of an RDAP
+        :param depth: recursion counter
+        :return: `httpx` response object
+        """
+        resp = await self._aio_get_request(href)
+        try:
+            self._check_status_code(resp.status_code)
+        except NotFoundError:
+            # Occasionally, gTLD RDAP servers are wrong or not implemented.
+            # If we've succeeded previously, but now the href returns a 404,
+            # return None, so the last OK response is returned.
+            if depth != 0:
+                return None
+            else:
+                raise
+        # save href chain
+        self.rdap_hrefs.append(href)
+        rdap_json = resp.json()
+        links = rdap_json.get('links')
+        if links:
+            next_href = self._check_next_href(href, links)
+            if next_href:
+                resp = await self._aio_get_authoritative_response(next_href, depth+1) or resp
+        return resp
+
+    def _check_next_href(
+            self,
+            current_href: str,
+            links: List[Dict[str, str]]
+    ) -> Optional[str]:
+        # RFC: https://datatracker.ietf.org/doc/html/rfc9083#section-4.2
+        # find next href or return None
+        for link in links:
+            href = link.get("href").lower() # RFC required
+            rel = link.get("rel").lower() # RFC required
+            # some gTLD servers have confusing/inconsistent edge-cases;
+            # checks if this href is "authoritative"
+            title = link.get("title", "").lower()
+            if "authoritative" in title and rel == "self":
+                return None
+            # skip this link if the "type" is specified and not json
+            _type = link.get("type")
+            if _type and _type != "application/rdap+json":
+                continue
+            # otherwise compare the hrefs and check "rel"
+            if href != current_href and rel == "related":
+                # ensure href is properly formatted;
+                # sometimes it's just the server name e.g. "rdap.server.com"
+                if not href.endswith(str(self._target)):
+                    return self._build_query_href(href, self._target)
+                else:
+                    return href
 
     @staticmethod
     def _check_status_code(status_code: int) -> None:
@@ -92,116 +274,7 @@ class DNSClient(RDAPClient):
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         super(DNSClient, self).__init__(httpx_client)
         self.iana_dns_server_map: Dict[str, str] = {}
-        self.rdap_hrefs = set()
-
-    @classmethod
-    @contextmanager
-    def new_client_context(cls, httpx_client: Optional[httpx.Client] = None):
-        """
-        Contextmanager for instantiating a Synchronous DNSClient
-
-        :httpx_client: pre-configured instance of `httpx.Client`
-        :return: yields the initialized DNSClient
-        """
-        dns_client = cls(httpx_client or httpx.Client())
-        try:
-            iana_dns_info = dns_client.get_iana_dns_info()
-            dns_client.set_iana_dns_info(iana_dns_info)
-            yield dns_client
-        except:
-            raise
-        finally:
-            if not dns_client.httpx_client.is_closed:
-                dns_client.httpx_client.close()
-
-    @classmethod
-    def new_client(cls, httpx_client: Optional[httpx.Client] = None):
-        """
-        Classmethod for instantiating an synchronous instance of DNSClient
-
-        :httpx_client: pre-configured instance of `httpx.Client`
-        :return: DNSClient with a sync httpx_client
-        """
-        # init the client with a default httpx.Client if one is not provided
-        dns_client = cls(httpx_client or httpx.Client())
-        # load the dns server information from IANA
-        iana_dns_info = dns_client.get_iana_dns_info()
-        # parse and save the server information
-        dns_client.set_iana_dns_info(iana_dns_info)
-        # return the loaded client
-        return dns_client
-
-    @classmethod
-    @asynccontextmanager
-    async def new_aio_client_context(cls, httpx_client: Optional[httpx.AsyncClient] = None):
-        """
-        Contextmanager for instantiating an Asynchronous DNSClient
-
-        :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
-        :return: yields the initialized DNSClient
-        """
-        dns_client = cls(httpx_client or httpx.AsyncClient())
-        try:
-            iana_dns_info = await dns_client.aio_get_iana_dns_info()
-            dns_client.set_iana_dns_info(iana_dns_info)
-            yield dns_client
-        except:
-            raise
-        finally:
-            if not dns_client.httpx_client.is_closed:
-                await dns_client.httpx_client.aclose()
-
-    @classmethod
-    async def new_aio_client(cls, httpx_client: Optional[httpx.AsyncClient] = None):
-        """
-        Classmethod for instantiating an asynchronous instance of DNSClient
-
-        :httpx_client: pre-configured instance of `httpx.AsyncClient`
-        :return: DNSClient with an async httpx_client
-        """
-        dns_client = cls(httpx_client or httpx.AsyncClient())
-        iana_dns_info = await dns_client.aio_get_iana_dns_info()
-        dns_client.set_iana_dns_info(iana_dns_info)
-        return dns_client
-
-    def get_iana_dns_info(self):
-        response = self._get_request(self._iana_uri)
-        return response.json()
-
-    async def aio_get_iana_dns_info(self):
-        response = await self._aio_get_request(self._iana_uri)
-        return response.json()
-
-    @staticmethod
-    def _build_query_href(rdap_href: str, domain: str) -> str:
-        return posixpath.join(rdap_href, 'domain', domain.lstrip('/'))
-
-    async def aio_lookup(
-        self,
-        domain: str,
-        tld: str,
-        auth_href: str = None
-    ) -> DomainResponse:
-        """
-        Performs an asynchronous RDAP domain lookup.
-        Finds the authoritative server for the domain and encapsulates
-        the RDAP response into a DomainResponse object.
-
-        :param domain: The domain name
-        :param tld: The top level domain
-        :param auth_href: Optional authoritative URL for the given TLD
-        :return: Instance of DomainResponse
-        """
-        # set starting href
-        base_href = auth_href or self.iana_dns_server_map.get(tld)
-        if not base_href:
-            raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
-        # build query href
-        domain_name = domain + '.' + tld
-        href = self._build_query_href(base_href, domain_name)
-        domain_response = await self._aio_get_authoritative_response(href)
-        # return response
-        return domain_response
+        self._target = None
 
     def lookup(
         self,
@@ -211,65 +284,83 @@ class DNSClient(RDAPClient):
     ) -> DomainResponse:
         """
         Performs an RDAP domain lookup.
-        Finds the authoritative server for the domain and encapsulates
-        the RDAP response into a DomainResponse object.
+        Finds the authoritative server for the domain,
+        submits an HTTP request, and encapsulates the
+        response into a DomainResponse object.
 
         :param domain: The domain name
         :param tld: The top level domain
-        :param auth_href: Optional authoritative URL for the given TLD
-        :return: Instance of DomainResponse
+        :param auth_href: Optional authoritative href for the given TLD
+        :return: instance of DomainResponse
         """
+        self._target = domain + '.' + tld
         # set starting href
-        base_href = auth_href or self.iana_dns_server_map.get(tld)
-        if not base_href:
-            raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
-        # build query href
-        domain_name = domain + '.' + tld
-        href = self._build_query_href(base_href, domain_name)
-        domain_response = self._get_authoritative_response(href)
-        # return response
+        if auth_href:
+            href = auth_href
+        else:
+            base_href = self.iana_dns_server_map.get(tld)
+            if not base_href:
+                raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
+            # build query href
+            href = self._build_query_href(base_href, self._target)
+        # get response
+        rdap_resp = self._get_authoritative_response(href)
+        # construct and return domain response
+        domain_response = DomainResponse.from_json(rdap_resp.read())
         return domain_response
 
-    def _get_authoritative_response(self, href: str) -> DomainResponse:
-        resp = self._get_request(href)
-        self._check_status_code(resp.status_code)
-        domain_response = DomainResponse.from_json(resp.read())
-        # save href chain
-        self.rdap_hrefs.add(href)
-        # check for more authoritative source
-        if hasattr(domain_response, 'links'):
-            next_href = domain_response.links[-1].href.lower()
-            if next_href and next_href != href:
-                domain_response = self._get_authoritative_response(next_href)
-        # return response
-        return domain_response
-
-    async def _aio_get_authoritative_response(self, href: str) -> DomainResponse:
-        resp = await self._aio_get_request(href)
-        self._check_status_code(resp.status_code)
-        domain_response = DomainResponse.from_json(resp.read())
-        # save href chain
-        self.rdap_hrefs.add(href)
-        # check for more authoritative source
-        if hasattr(domain_response, 'links'):
-            next_href = domain_response.links[-1].href.lower()
-            if next_href and next_href != href:
-                domain_response = await self._aio_get_authoritative_response(next_href)
-        # return response
-        return domain_response
-
-    def set_iana_dns_info(self, iana_dns_map: Dict[str, Any]) -> None:
+    async def aio_lookup(
+        self,
+        domain: str,
+        tld: str,
+        auth_href: str = None
+    ) -> DomainResponse:
         """
-        Populates the DNSClient's `iana_dns_server_map` attribute with
-        the server information found in the given `iana_dns_map`.
+        Performs an RDAP domain lookup.
+        Finds the authoritative server for the domain,
+        submits an HTTP request, and encapsulates the
+        response into a DomainResponse object.
 
-        :param iana_dns_map: Server information retrieved from `self._iana_url`
+        :param domain: The domain name
+        :param tld: The top level domain
+        :param auth_href: Optional authoritative href for the given TLD
+        :return: instance of DomainResponse
+        """
+        self._target = domain + '.' + tld
+        # set starting href
+        if auth_href:
+            href = auth_href
+        else:
+            base_href = self.iana_dns_server_map.get(tld)
+            if not base_href:
+                raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
+            # build query href
+            href = self._build_query_href(base_href, self._target)
+        # get response
+        rdap_resp = await self._aio_get_authoritative_response(href)
+        # construct and return domain response
+        domain_response = DomainResponse.from_json(rdap_resp.read())
+        return domain_response
+
+    @staticmethod
+    def _build_query_href(rdap_href: str, target: str) -> str:
+        href = posixpath.join(rdap_href, 'domain', target.lstrip('/'))
+        if not href.startswith('http'):
+            href = 'https://' + href
+        return href
+
+    def _set_iana_info(self, iana_resp: Dict[str, Any]) -> None:
+        """
+        Populates `iana_dns_server_map` attribute with
+        server information found in the given `iana_resp`.
+
+        :param iana_resp: Server information retrieved from `self._iana_url`
         :return: None
         """
-        self.publication = iana_dns_map.get(self._iana_publication_key)
-        self.version = iana_dns_map.get(self._iana_verison_key)
+        self.publication = iana_resp.get(self._iana_publication_key)
+        self.version = iana_resp.get(self._iana_version_key)
         tld_server_map = {}
-        for tlds, server in iana_dns_map.get(self._iana_services_key):
+        for tlds, server in iana_resp.get(self._iana_services_key):
             for tld in tlds:
                 tld_server_map[tld] = server[0]
         self.iana_dns_server_map = tld_server_map
