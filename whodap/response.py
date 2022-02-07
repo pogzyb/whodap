@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from datetime import datetime
 from json import dumps, loads
 from types import SimpleNamespace
@@ -9,12 +8,12 @@ from .utils import WHOISKeys, RDAPVCardKeys
 REDACTED = 'REDACTED FOR PRIVACY'
 
 
-class RDAPResponse(SimpleNamespace, ABC):
+class RDAPResponse(SimpleNamespace):
     """
-    Abstract class representing an RDAP Response
+    Base class representing an RDAP Response
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def __str__(self):
@@ -22,14 +21,6 @@ class RDAPResponse(SimpleNamespace, ABC):
 
     def __repr__(self):
         return self.to_json(indent=2)
-
-    @abstractmethod
-    def to_json(self, **kwargs):
-        ...
-
-    @abstractmethod
-    def to_dict(self, **kwargs):
-        ...
 
     @staticmethod
     def _convert_date(ds: str) -> Union[str, datetime]:
@@ -106,31 +97,6 @@ class RDAPResponse(SimpleNamespace, ABC):
         """
         return loads(json, object_hook=lambda d: cls(**d))
 
-
-class DomainResponse(RDAPResponse):
-
-    def __getattribute__(self, item):
-        """
-        Converts and returns an "eventDate" value to a datetime object;
-        otherwise returns the value of the given attribute
-        """
-        val = super().__getattribute__(item)
-        if item == 'eventDate':
-            return self._convert_date(val)
-        return val
-
-    @staticmethod
-    def _encoder(x: Any):
-        """
-        JSON encoding helper for "datetime" objects.
-
-        :param x: Any
-        :return: "datetime" as an iso formatted string or Any
-        """
-        if isinstance(x, datetime):
-            return x.isoformat()
-        return x
-
     def to_json(self, **kwargs) -> str:
         """
         Converts the DomainResponse to a JSON string.
@@ -147,6 +113,46 @@ class DomainResponse(RDAPResponse):
         Converts the DomainResponse to a dictionary.
         """
         return self._convert_self_to_dict(self)
+
+    @staticmethod
+    def _encoder(x: Any):
+        """
+        JSON encoding helper for "datetime" objects.
+
+        :param x: Any
+        :return: "datetime" as an iso formatted string or Any
+        """
+        if isinstance(x, datetime):
+            return x.isoformat()
+        return x
+
+    def _flatten_list(self, ls: List[Any]):
+        """
+        Recursively flattens the input list.
+
+        :param ls: any list
+        :return: a flattened list
+        """
+        flattened = []
+        for i in ls:
+            if isinstance(i, list):
+                flattened.extend(self._flatten_list(i))
+            else:
+                flattened.append(i)
+        return flattened
+
+
+class DomainResponse(RDAPResponse):
+
+    def __getattribute__(self, item):
+        """
+        Converts and returns an "eventDate" value to a datetime object;
+        otherwise returns the value of the given attribute
+        """
+        val = super().__getattribute__(item)
+        if item == 'eventDate':
+            return self._convert_date(val)
+        return val
 
     def to_whois_json(self, **kwargs) -> str:
         """
@@ -196,21 +202,6 @@ class DomainResponse(RDAPResponse):
             flat[WHOISKeys.DNSSEC] = self.secureDNS.delegationSigned
 
         return flat
-
-    def _flatten_list(self, ls: List[Any]):
-        """
-        Recursively flattens the input list.
-
-        :param ls: any list
-        :return: a flattened list
-        """
-        flattened = []
-        for i in ls:
-            if isinstance(i, list):
-                flattened.extend(self._flatten_list(i))
-            else:
-                flattened.append(i)
-        return flattened
 
     @staticmethod
     def _flat_dates(events: List[SimpleNamespace]) -> Dict[str, datetime]:
@@ -327,30 +318,15 @@ class DomainResponse(RDAPResponse):
 
 
 class IPv4Response(RDAPResponse):
-
-    def to_json(self, **kwargs):
-        ...
-
-    def to_dict(self, **kwargs):
-        ...
-
-    def get_geo_location(self):
-        ...
+    # IPv4Response has no specific parser utils at this time
+    ...
 
 
 class IPv6Response(RDAPResponse):
-
-    def to_json(self, **kwargs):
-        ...
-
-    def to_dict(self, **kwargs):
-        ...
+    # IPv6Response has no specific parser utils at this time
+    ...
 
 
 class ASNResponse(RDAPResponse):
-
-    def to_json(self, **kwargs):
-        ...
-
-    def to_dict(self, **kwargs):
-        ...
+    # ASNClient has no specific parser utils at this time
+    ...

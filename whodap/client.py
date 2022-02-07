@@ -14,7 +14,7 @@ import httpx
 
 from .codes import RDAPStatusCodes
 from .errors import RateLimitError, NotFoundError, MalformedQueryError, BadStatusCode
-from .response import DomainResponse
+from .response import DomainResponse, IPv4Response, IPv6Response, ASNResponse
 
 
 class RDAPClient:
