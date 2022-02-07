@@ -60,6 +60,20 @@ class RDAPClient:
         """
         ...
 
+    def close(self):
+        """
+        Closes the underlying `httpx.Client`
+        """
+        if not self.httpx_client.is_closed:
+            self.httpx_client.close()
+
+    async def aio_close(self):
+        """
+        Closes the underlying `httpx.AsyncClient`
+        """
+        if not self.httpx_client.is_closed:
+            await self.httpx_client.aclose()
+
     @classmethod
     @contextmanager
     def new_client_context(cls, httpx_client: Optional[httpx.Client] = None):

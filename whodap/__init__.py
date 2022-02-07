@@ -44,8 +44,8 @@ def lookup_domain(
     finally:
         # close the default client created by DNSClient if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not dns_client.httpx_client.is_closed:
-            dns_client.httpx_client.close()
+        if not httpx_client:
+            dns_client.close()
     return resp
 
 
@@ -70,8 +70,8 @@ async def aio_lookup_domain(
     finally:
         # close the default client created by DNSClient if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not dns_client.httpx_client.is_closed:
-            await dns_client.httpx_client.aclose()
+        if not httpx_client:
+            await dns_client.aio_close()
     return resp
 
 
@@ -94,8 +94,8 @@ def lookup_ipv4(
     finally:
         # close the default client created by IPv4Client if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not ipv4_client.httpx_client.is_closed:
-            ipv4_client.httpx_client.close()
+        if not httpx_client:
+            ipv4_client.close()
     return resp
 
 
@@ -118,8 +118,8 @@ async def aio_lookup_ipv4(
     finally:
         # close the default client created by IPv4Client if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not ipv4_client.httpx_client.is_closed:
-            await ipv4_client.httpx_client.aclose()
+        if not httpx_client:
+            await ipv4_client.aio_close()
     return resp
 
 
@@ -142,8 +142,8 @@ def lookup_ipv6(
     finally:
         # close the default client created by IPv6Client if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not ipv6_client.httpx_client.is_closed:
-            ipv6_client.httpx_client.close()
+        if not httpx_client:
+            ipv6_client.close()
     return resp
 
 
@@ -166,8 +166,8 @@ async def aio_lookup_ipv6(
     finally:
         # close the default client created by IPv6Client if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not ipv6_client.httpx_client.is_closed:
-            await ipv6_client.httpx_client.aclose()
+        if not httpx_client:
+            await ipv6_client.aio_close()
     return resp
 
 
@@ -190,8 +190,8 @@ def lookup_asn(
     finally:
         # close the default client created by ASNClient if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not asn_client.httpx_client.is_closed:
-            asn_client.httpx_client.close()
+        if not httpx_client:
+            asn_client.close()
     return resp
 
 
@@ -214,6 +214,6 @@ async def aio_lookup_asn(
     finally:
         # close the default client created by ASNClient if it exists;
         # otherwise it's up to the user to close their `httpx_client`
-        if not httpx_client and not asn_client.httpx_client.is_closed:
-            await asn_client.httpx_client.aclose()
+        if not httpx_client:
+            await asn_client.aio_close()
     return resp
