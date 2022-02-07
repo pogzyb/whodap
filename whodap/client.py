@@ -529,22 +529,61 @@ class IPv6Client(RDAPClient):
 
 class ASNClient(RDAPClient):
     # IANA ASN
-    ...
+    _iana_uri: str = 'https://data.iana.org/rdap/asn.json'
 
-    @classmethod
-    def new_client(cls):
-        ...
+    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+        super().__init__(httpx_client)
+        self.iana_asn_server_map: Dict[str, str] = {}
+        self._target = None
 
-    @classmethod
-    async def new_aio_client(cls):
-        ...
+    def lookup(self, asn: int, auth_ref: str = None) -> ASNResponse:
+        """
+        Performs an RDAP ASN lookup.
 
-    def lookup(self):
-        ...
+        :param asn: the Autonomous System Number
+        :param auth_ref: Optional authoritative rdap href
+        :return: ASNResponse
+        """
+        self._target = asn
+        server = self._get_rdap_server(asn)
+        href = self._build_query_href(server, str(asn))
+        rdap_resp = self._get_authoritative_response(href)
+        asn_response = ASNResponse.from_json(rdap_resp.read())
+        return asn_response
+    
+    async def aio_lookup(self, asn: int, auth_ref: str = None) -> ASNResponse:
+        """
+        Performs an RDAP ASN lookup.
 
-    async def _aio_load_from_iana(self):
-        ...
+        :param asn: the Autonomous System Number
+        :param auth_ref: Optional authoritative rdap href
+        :return: ASNResponse
+        """
+        self._target = asn
+        server = self._get_rdap_server(asn)
+        href = self._build_query_href(server, str(asn))
+        rdap_resp = await self._aio_get_authoritative_response(href)
+        asn_response = ASNResponse.from_json(rdap_resp.read())
+        return asn_response
 
     @staticmethod
-    def _build_query_href() -> str:
-        ...
+    def _build_query_href(rdap_href: str, target: str) -> str:
+        return posixpath.join(rdap_href, 'autnum', target.lstrip('/'))
+
+    def _set_iana_info(self, iana_asn_map: Dict[str, Any]) -> None:
+        self.publication = iana_asn_map.get(self._iana_publication_key)
+        self.version = iana_asn_map.get(self._iana_version_key)
+        for service in iana_asn_map.get("services"):
+            asn_ranges, servers = service[0], service[1]
+            for asn_range in asn_ranges:
+                self.iana_asn_server_map[asn_range] = servers[0]  # https
+
+    def _get_rdap_server(self, asn_number: int) -> Optional[str]:
+        for asn_range, server in self.iana_asn_server_map.items():
+            if '-' in asn_range:
+                lower, upper = [int(n) for n in asn_range.split('-')]
+            else:
+                lower = upper = int(asn_range)
+            if lower <= asn_number <= upper:
+                return server
+        return None
