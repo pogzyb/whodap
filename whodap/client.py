@@ -369,55 +369,162 @@ class DNSClient(RDAPClient):
 class IPv4Client(RDAPClient):
     # IANA IPv4
     _iana_uri: str = 'https://data.iana.org/rdap/ipv4.json'
-    _arin_registry_uri: str = 'https://rdap.arin.net/registry/ip/'
 
-    def __init__(self):
-        super(IPv4Client, self).__init__()
-        self.iana_ipv4_server_map: Dict[str, str] = {}
+    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+        super().__init__(httpx_client)
+        self.iana_ipv4_server_map: Dict[ipaddress.IPv4Network, str] = {}
+        self._target = None
 
-    @classmethod
-    def new_client(cls):
-        ...
+    def lookup(
+        self,
+        ipv4: Union[str, ipaddress.IPv4Address],
+        auth_href: str = None
+    ) -> IPv4Response:
+        """
+        Performs an RDAP ipv4 lookup.
+        Finds the authoritative server for the ip address,
+        submits an HTTP request, and encapsulates the
+        response into a IPv4Response object.
 
-    @classmethod
-    async def new_aio_client(cls):
-        ...
+        :param ipv4: ipv4 address as string or IPv4Address object
+        :param auth_href: Optional authoritative rdap href for the IPv4
+        :return: instance of IPv4Response
+        """
+        if not isinstance(ipv4, ipaddress.IPv4Address):
+            self._target = ipaddress.IPv4Address(ipv4)
+        else:
+            self._target = ipv4
+        server = self._get_rdap_server(self._target)
+        href = self._build_query_href(server, str(ipv4))
+        rdap_resp = self._get_authoritative_response(href)
+        ipv4_response = IPv4Response.from_json(rdap_resp.read())
+        return ipv4_response
 
-    def lookup(self):
-        ...
+    async def aio_lookup(
+        self,
+        ipv4: Union[str, ipaddress.IPv4Address],
+        auth_href: str = None
+    ) -> IPv4Response:
+        """
+        Performs an RDAP IPv4 lookup.
+        Finds the authoritative server for the ip address,
+        submits an HTTP request, and encapsulates the
+        response into a IPv4Response object.
 
-    async def aio_lookup(self):
-        ...
+        :param ipv4: IPv4 address as string or IPv4Address object
+        :param auth_href: Optional authoritative rdap href for the IPv4
+        :return: instance of IPv4Response
+        """
+        if not isinstance(ipv4, ipaddress.IPv4Address):
+            self._target = ipaddress.IPv4Address(ipv4)
+        else:
+            self._target = ipv4
+        server = self._get_rdap_server(self._target)
+        href = self._build_query_href(server, str(self._target))
+        rdap_resp = await self._aio_get_authoritative_response(href)
+        ipv4_response = IPv4Response.from_json(rdap_resp.read())
+        return ipv4_response
 
     @staticmethod
-    def _build_query_href(rdap_href: str, ip_address: str) -> str:
-        return posixpath.join(rdap_href, ip_address)
+    def _build_query_href(rdap_href: str, target: str) -> str:
+        href = posixpath.join(rdap_href, 'ip', target.lstrip('/'))
+        if not href.startswith('http'):
+            href = 'https://' + href
+        return href
 
-    def _set_ipv4_server_map(self, iana_ipv4_map: Dict[str, Any]):
-        ...
+    def _set_iana_info(self, iana_ipv4_map: Dict[str, Any]) -> None:
+        self.publication = iana_ipv4_map.get(self._iana_publication_key)
+        self.version = iana_ipv4_map.get(self._iana_version_key)
+        for service in iana_ipv4_map.get("services"):
+            ips, servers = service[0], service[1]
+            for ip in ips:
+                ipv4 = ipaddress.IPv4Network(ip)
+                self.iana_ipv4_server_map[ipv4] = servers[0] # https
+
+    def _get_rdap_server(self, ipv4: ipaddress.IPv4Address) -> Optional[str]:
+        for network, server in self.iana_ipv4_server_map.items():
+            if ipv4 in network:
+                return server
+        return None
 
 
 class IPv6Client(RDAPClient):
     # IANA IPv6
-    ...
+    _iana_uri: str = 'https://data.iana.org/rdap/ipv6.json'
 
-    @classmethod
-    def new_client(cls):
-        ...
+    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+        super().__init__(httpx_client)
+        self.iana_ipv6_server_map: Dict[ipaddress.IPv6Network, str] = {}
+        self._target = None
 
-    @classmethod
-    async def new_aio_client(cls):
-        ...
+    def lookup(
+        self,
+        ipv6: Union[str, ipaddress.IPv6Address],
+        auth_href: str = None
+    ) -> IPv6Response:
+        """
+        Performs an RDAP IPv6 lookup.
+        Finds the authoritative server for the ip address,
+        submits an HTTP request, and encapsulates the
+        response into a IPv6Response object.
 
-    def lookup(self):
-        ...
+        :param ipv6: IPv6 address as string or IPv6Address object
+        :param auth_href: Optional authoritative rdap href for the IPv6
+        :return: instance of IPv6Response
+        """
+        if not isinstance(ipv6, ipaddress.IPv6Address):
+            self._target = ipaddress.IPv6Address(ipv6)
+        else:
+            self._target = ipv6
+        server = self._get_rdap_server(self._target)
+        href = self._build_query_href(server, str(self._target))
+        rdap_resp = self._get_authoritative_response(href)
+        ipv6_response = IPv6Response.from_json(rdap_resp.read())
+        return ipv6_response
 
-    async def aio_lookup(self):
-        ...
+    async def aio_lookup(
+        self,
+        ipv6: Union[str, ipaddress.IPv4Address],
+        auth_href: str = None
+    ) -> IPv6Response:
+        """
+        Performs an RDAP IPv6 lookup.
+        Finds the authoritative server for the ip address,
+        submits an HTTP request, and encapsulates the
+        response into a IPv6Response object.
+
+        :param ipv6: IPv6 address as string or IPv6Address object
+        :param auth_href: Optional authoritative rdap href for the IPv6
+        :return: instance of IPv6Response
+        """
+        if not isinstance(ipv6, ipaddress.IPv6Address):
+            self._target = ipaddress.IPv6Address(ipv6)
+        else:
+            self._target = ipv6
+        server = self._get_rdap_server(self._target)
+        href = self._build_query_href(server, str(self._target))
+        rdap_resp = await self._aio_get_authoritative_response(href)
+        ipv6_response = IPv6Response.from_json(rdap_resp.read())
+        return ipv6_response
 
     @staticmethod
-    def _build_query_href() -> str:
-        ...
+    def _build_query_href(rdap_href: str, target: str) -> str:
+        return posixpath.join(rdap_href, 'ip', target.lstrip('/'))
+
+    def _set_iana_info(self, iana_ipv6_map: Dict[str, Any]) -> None:
+        self.publication = iana_ipv6_map.get(self._iana_publication_key)
+        self.version = iana_ipv6_map.get(self._iana_version_key)
+        for service in iana_ipv6_map.get("services"):
+            ips, servers = service[0], service[1]
+            for ip in ips:
+                ipv6 = ipaddress.IPv6Network(ip)
+                self.iana_ipv6_server_map[ipv6] = servers[0] # https
+
+    def _get_rdap_server(self, ipv6: ipaddress.IPv6Address) -> Optional[str]:
+        for network, server in self.iana_ipv6_server_map.items():
+            if ipv6 in network:
+                return server
+        return None
 
 
 class ASNClient(RDAPClient):
