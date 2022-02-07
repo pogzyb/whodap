@@ -8,8 +8,7 @@
 
 - Support for asyncio HTTP requests ([`httpx`](https://www.python-httpx.org/))
 - Leverages the [`SimpleNamespace`](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
-- Keeps the familiar look of WHOIS via the `to_whois_dict` method
-
+- Keeps the familiar look of WHOIS via the `to_whois_dict` method for DNS lookups
 
 #### Quickstart
 
@@ -88,6 +87,24 @@ pprint(response.to_whois_dict())
 """
 ```
 
+#### Exported Functions and Classes
+
+| Object      | Description |
+| ----------- | ----------- |
+|  `lookup_domain`      | Performs an RDAP query for the given Domain and TLD                     |
+|  `lookup_ipv4`        | Performs an RDAP query for the given IPv4 address                       |
+|  `lookup_ipv6`        | Performs an RDAP query for the given IPv6 address                       |
+|  `lookup_asn`         | Performs an RDAP query for the Autonomous System with the given Number  |
+|  `aio_lookup_domain`  | async counterpart to `lookup_domain`  |
+|  `aio_lookup_ipv4`    | async counterpart to `lookup_ipv4`    |
+|  `aio_lookup_ipv6`    | async counterpart to `lookup_ipv6`    |
+|  `aio_lookup_asn`     | async counterpart to `lookup_asn`     |
+|  `DNSClient`     | Reusable client for RDAP DNS queries    |
+|  `IPv4Client`     | Reusable client for RDAP IPv4 queries     |
+|  `IPv6Client`     | Reusable client for RDAP IPv6 queries     |
+|  `ASNClient`     | Reusable client for RDAP ASN queries     |
+
+
 #### Common Usage Patterns
 
 - Using the DNSClient:
@@ -124,9 +141,9 @@ import httpx
 import whodap
 
 # Initialize a custom, pre-configured httpx client ...
-httpx_client = httpx.Client(proxies=httpx.Proxy('user:pw@proxy_url.com'))
+httpx_client = httpx.Client(proxies=httpx.Proxy('https://user:pw@proxy_url.net'))
 # ... or an async client
-aio_httpx_client = httpx.AsyncClient(proxies=httpx.Proxy('user:pw@proxy_url.com'))
+aio_httpx_client = httpx.AsyncClient(proxies=httpx.Proxy('http://user:pw@proxy_url.net'))
 
 # Three common methods for leveraging httpx clients are outlined below:
 
@@ -138,7 +155,7 @@ async with aio_httpx_client:
     for domain, tld in [('google', 'com'), ('google', 'buzz')]:
         task = whodap.aio_lookup_domain(domain, tld, httpx_client=aio_httpx_client)
         futures.append(task)
-    asyncio.gather(*futures)
+    await asyncio.gather(*futures)
 
 # 2) Pass the httpx_client into the DNSClient classmethod: `new_client` or `new_aio_client`
 aio_dns_client = await whodap.DNSClient.new_aio_client(aio_httpx_client)
@@ -163,13 +180,13 @@ Please post a question or comment.
 #### Roadmap
 
 [alpha] 0.1.X Release:
-- Support for RDAP "domain" queries
-
-Future Features:
-- Support for RDAP "ipv4" and "ipv6" queries
-- Caching or memoization mechanisms for initial IANA data loads
+- ~~Support for RDAP "domain" queries~~
+- ~~Support for RDAP "ipv4" and "ipv6" queries~~
+- ~~Support for RDAP ASN queries~~
+- Abstract the HTTP Client (`httpx` is the defacto client for now)
+- Add parser utils/helpers for IPv4, IPv6, and ASN Responses (if someone shows interest)
 
 #### RDAP Resources:
 - https://rdap.org/
-- https://tools.ietf.org/html/rfc7483
+- https://tools.ietf.org/html/rfc7483 
 - https://tools.ietf.org/html/rfc6350
