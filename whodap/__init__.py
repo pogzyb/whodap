@@ -126,7 +126,7 @@ async def aio_lookup_ipv4(
 def lookup_ipv6(
     ipv6: Union[str, ipaddress.IPv6Address],
     httpx_client: Optional[Client] = None
-) -> IPv4Response:
+) -> IPv6Response:
     """
     Convenience function that instantiates an IPv6Client,
     submits an RDAP query for the given IP address, and
@@ -150,7 +150,7 @@ def lookup_ipv6(
 async def aio_lookup_ipv6(
     ipv6: Union[str, ipaddress.IPv6Address],
     httpx_client: Optional[AsyncClient] = None
-) -> IPv4Response:
+) -> IPv6Response:
     """
     Convenience function that instantiates an IPv6Client,
     submits an RDAP query for the given IP address, and
