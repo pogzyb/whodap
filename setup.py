@@ -27,7 +27,7 @@ setup(
     python_requires='>=3.6, <4',
     keywords='security, whois, rdap, research',
     install_requires=[
-        'httpx>=0.18.1',
+        'httpx>=0.20.0',
         'async_generator>=1.10; python_version < "3.7.0"'
     ],
     classifiers=[

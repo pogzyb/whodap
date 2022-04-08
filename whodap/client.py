@@ -83,7 +83,7 @@ class RDAPClient:
         :httpx_client: pre-configured instance of `httpx.Client`
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or httpx.Client(timeout=10))
+        client = cls(httpx_client or httpx.Client(follow_redirects=True, timeout=10))
         try:
             iana_dns_info = client._get_iana_info()
             client._set_iana_info(iana_dns_info)
@@ -101,7 +101,7 @@ class RDAPClient:
         :return: DNSClient with a sync httpx_client
         """
         # init the client with a default httpx.Client if one is not provided
-        client = cls(httpx_client or httpx.Client(timeout=10))
+        client = cls(httpx_client or httpx.Client(follow_redirects=True, timeout=10))
         # load the dns server information from IANA
         iana_info = client._get_iana_info()
         # parse and save the server information
@@ -118,7 +118,7 @@ class RDAPClient:
         :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or httpx.AsyncClient(timeout=10))
+        client = cls(httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10))
         try:
             iana_info = await client._aio_get_iana_info()
             client._set_iana_info(iana_info)
@@ -135,7 +135,7 @@ class RDAPClient:
         :httpx_client: pre-configured instance of `httpx.AsyncClient`
         :return: DNSClient with an async httpx_client
         """
-        client = cls(httpx_client or httpx.AsyncClient(timeout=10))
+        client = cls(httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10))
         iana_info = await client._aio_get_iana_info()
         client._set_iana_info(iana_info)
         return client
@@ -237,9 +237,9 @@ class RDAPClient:
         return resp
 
     def _check_next_href(
-            self,
-            current_href: str,
-            links: List[Dict[str, str]]
+        self,
+        current_href: str,
+        links: List[Dict[str, str]]
     ) -> Optional[str]:
         # RFC: https://datatracker.ietf.org/doc/html/rfc9083#section-4.2
         # find next href or return None
