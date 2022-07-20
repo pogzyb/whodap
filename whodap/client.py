@@ -198,7 +198,7 @@ class RDAPClient:
         if links:
             next_href = self._check_next_href(href, links)
             if next_href:
-                resp = self._get_authoritative_response(next_href, depth+1)
+                resp = self._get_authoritative_response(next_href, depth+1) or resp
         # return authoritative response
         return resp
 
