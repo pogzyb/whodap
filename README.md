@@ -1,7 +1,7 @@
 ## whodap
 
 [![PyPI version](https://badge.fury.io/py/whodap.svg)](https://badge.fury.io/py/whodap)
-[![Build Status](https://app.travis-ci.com/pogzyb/whodap.svg?token=xCoELzvjMvTqZThTS7Va&branch=main)](https://app.travis-ci.com/pogzyb/whodap)
+![example workflow](https://github.com/pogzyb/whodap/actions/workflows/run-build-and-test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/pogzyb/whodap/branch/main/graph/badge.svg?token=NCfdf6ftb9)](https://codecov.io/gh/pogzyb/whodap)
 
 `whodap` | Simple RDAP Utility for Python
