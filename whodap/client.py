@@ -543,12 +543,12 @@ class ASNClient(RDAPClient):
         self.iana_asn_server_map: Dict[str, str] = {}
         self._target = None
 
-    def lookup(self, asn: int, auth_ref: str = None) -> ASNResponse:
+    def lookup(self, asn: int, auth_href: str = None) -> ASNResponse:
         """
         Performs an RDAP ASN lookup.
 
         :param asn: the Autonomous System Number
-        :param auth_ref: Optional authoritative rdap href
+        :param auth_href: Optional authoritative rdap href
         :return: ASNResponse
         """
         self._target = asn
@@ -558,12 +558,12 @@ class ASNClient(RDAPClient):
         asn_response = ASNResponse.from_json(rdap_resp.read())
         return asn_response
 
-    async def aio_lookup(self, asn: int, auth_ref: str = None) -> ASNResponse:
+    async def aio_lookup(self, asn: int, auth_href: str = None) -> ASNResponse:
         """
         Performs an RDAP ASN lookup.
 
         :param asn: the Autonomous System Number
-        :param auth_ref: Optional authoritative rdap href
+        :param auth_href: Optional authoritative rdap href
         :return: ASNResponse
         """
         self._target = asn
