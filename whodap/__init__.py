@@ -7,26 +7,24 @@ from .client import DNSClient, IPv4Client, IPv6Client, ASNClient
 from .response import DomainResponse, IPv4Response, IPv6Response, ASNResponse
 
 __all__ = [
-    'lookup_domain',
-    'lookup_ipv4',
-    'lookup_ipv6',
-    'lookup_asn',
-    'aio_lookup_domain',
-    'aio_lookup_ipv4',
-    'aio_lookup_ipv6',
-    'aio_lookup_asn',
-    'DNSClient',
-    'IPv4Client',
-    'IPv6Client',
-    'ASNClient'
+    "lookup_domain",
+    "lookup_ipv4",
+    "lookup_ipv6",
+    "lookup_asn",
+    "aio_lookup_domain",
+    "aio_lookup_ipv4",
+    "aio_lookup_ipv6",
+    "aio_lookup_asn",
+    "DNSClient",
+    "IPv4Client",
+    "IPv6Client",
+    "ASNClient",
 ]
-__version__ = '0.1.6'
+__version__ = "0.1.6"
 
 
 def lookup_domain(
-    domain: str,
-    tld: str,
-    httpx_client: Optional[Client] = None
+    domain: str, tld: str, httpx_client: Optional[Client] = None
 ) -> DomainResponse:
     """
     Convenience function that instantiates a DNSClient,
@@ -50,9 +48,7 @@ def lookup_domain(
 
 
 async def aio_lookup_domain(
-    domain: str,
-    tld: str,
-    httpx_client: Optional[AsyncClient] = None
+    domain: str, tld: str, httpx_client: Optional[AsyncClient] = None
 ) -> DomainResponse:
     """
     Async-compatible convenience function that instantiates
@@ -76,8 +72,7 @@ async def aio_lookup_domain(
 
 
 def lookup_ipv4(
-    ipv4: Union[str, ipaddress.IPv4Address],
-    httpx_client: Optional[Client] = None
+    ipv4: Union[str, ipaddress.IPv4Address], httpx_client: Optional[Client] = None
 ) -> IPv4Response:
     """
     Convenience function that instantiates an IPv4Client,
@@ -100,8 +95,7 @@ def lookup_ipv4(
 
 
 async def aio_lookup_ipv4(
-    ipv4: Union[str, ipaddress.IPv4Address],
-    httpx_client: Optional[AsyncClient] = None
+    ipv4: Union[str, ipaddress.IPv4Address], httpx_client: Optional[AsyncClient] = None
 ) -> IPv4Response:
     """
     Convenience function that instantiates an IPv4Client,
@@ -124,8 +118,7 @@ async def aio_lookup_ipv4(
 
 
 def lookup_ipv6(
-    ipv6: Union[str, ipaddress.IPv6Address],
-    httpx_client: Optional[Client] = None
+    ipv6: Union[str, ipaddress.IPv6Address], httpx_client: Optional[Client] = None
 ) -> IPv6Response:
     """
     Convenience function that instantiates an IPv6Client,
@@ -148,8 +141,7 @@ def lookup_ipv6(
 
 
 async def aio_lookup_ipv6(
-    ipv6: Union[str, ipaddress.IPv6Address],
-    httpx_client: Optional[AsyncClient] = None
+    ipv6: Union[str, ipaddress.IPv6Address], httpx_client: Optional[AsyncClient] = None
 ) -> IPv6Response:
     """
     Convenience function that instantiates an IPv6Client,
@@ -171,10 +163,7 @@ async def aio_lookup_ipv6(
     return resp
 
 
-def lookup_asn(
-    asn: int,
-    httpx_client: Optional[Client] = None
-) -> ASNResponse:
+def lookup_asn(asn: int, httpx_client: Optional[Client] = None) -> ASNResponse:
     """
     Convenience function that instantiates an ASNClient,
     submits an RDAP query for the given ASN, and returns
@@ -196,8 +185,7 @@ def lookup_asn(
 
 
 async def aio_lookup_asn(
-    asn: int,
-    httpx_client: Optional[AsyncClient] = None
+    asn: int, httpx_client: Optional[AsyncClient] = None
 ) -> ASNResponse:
     """
     Convenience function that instantiates an ASNClient,

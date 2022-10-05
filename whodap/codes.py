@@ -5,6 +5,7 @@ class RDAPStatusCodes(int, Enum):
     """
     Status Code meanings for the RDAP protocol
     """
+
     POSITIVE_ANSWER_200 = 200
     NEGATIVE_ANSWER_404 = 404
     MALFORMED_QUERY_400 = 400

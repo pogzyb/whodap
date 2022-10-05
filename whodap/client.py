@@ -22,15 +22,16 @@ class RDAPClient:
     Base class for RDAP Clients.
     Abstracts HTTP helper functions and context managers.
     """
-    _iana_publication_key: str = 'publication'
-    _iana_version_key: str = 'version'
-    _iana_services_key: str = 'services'
+
+    _iana_publication_key: str = "publication"
+    _iana_version_key: str = "version"
+    _iana_services_key: str = "services"
     _iana_uri: str = None
 
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         self.httpx_client = httpx_client
-        self.version: str = ''
-        self.publication: str = ''
+        self.version: str = ""
+        self.publication: str = ""
         self.rdap_hrefs: List[str] = []
         self._target: Union[str, int, ipaddress.IPv4Address, ipaddress.IPv6Address] = ""
 
@@ -111,14 +112,18 @@ class RDAPClient:
 
     @classmethod
     @asynccontextmanager
-    async def new_aio_client_context(cls, httpx_client: Optional[httpx.AsyncClient] = None):
+    async def new_aio_client_context(
+        cls, httpx_client: Optional[httpx.AsyncClient] = None
+    ):
         """
         Contextmanager for instantiating an Asynchronous DNSClient
 
         :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10))
+        client = cls(
+            httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10)
+        )
         try:
             iana_info = await client._aio_get_iana_info()
             client._set_iana_info(iana_info)
@@ -135,7 +140,9 @@ class RDAPClient:
         :httpx_client: pre-configured instance of `httpx.AsyncClient`
         :return: DNSClient with an async httpx_client
         """
-        client = cls(httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10))
+        client = cls(
+            httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10)
+        )
         iana_info = await client._aio_get_iana_info()
         client._set_iana_info(iana_info)
         return client
@@ -167,9 +174,7 @@ class RDAPClient:
         return await self.httpx_client.get(uri)
 
     def _get_authoritative_response(
-        self,
-        href: str,
-        depth: int = 0
+        self, href: str, depth: int = 0
     ) -> Optional[httpx.Response]:
         """
         Makes HTTP calls to RDAP servers until it finds
@@ -194,18 +199,16 @@ class RDAPClient:
         self.rdap_hrefs.append(href)
         # check for more authoritative source
         rdap_json = resp.json()
-        links = rdap_json.get('links')
+        links = rdap_json.get("links")
         if links:
             next_href = self._check_next_href(href, links)
             if next_href:
-                resp = self._get_authoritative_response(next_href, depth+1) or resp
+                resp = self._get_authoritative_response(next_href, depth + 1) or resp
         # return authoritative response
         return resp
 
     async def _aio_get_authoritative_response(
-        self,
-        href: str,
-        depth: int = 0
+        self, href: str, depth: int = 0
     ) -> Optional[httpx.Response]:
         """
         Makes HTTP calls to RDAP servers until it finds
@@ -229,23 +232,24 @@ class RDAPClient:
         # save href chain
         self.rdap_hrefs.append(href)
         rdap_json = resp.json()
-        links = rdap_json.get('links')
+        links = rdap_json.get("links")
         if links:
             next_href = self._check_next_href(href, links)
             if next_href:
-                resp = await self._aio_get_authoritative_response(next_href, depth+1) or resp
+                resp = (
+                    await self._aio_get_authoritative_response(next_href, depth + 1)
+                    or resp
+                )
         return resp
 
     def _check_next_href(
-        self,
-        current_href: str,
-        links: List[Dict[str, str]]
+        self, current_href: str, links: List[Dict[str, str]]
     ) -> Optional[str]:
         # RFC: https://datatracker.ietf.org/doc/html/rfc9083#section-4.2
         # find next href or return None
         for link in links:
-            href = link.get("href").lower() # RFC required
-            rel = link.get("rel").lower() # RFC required
+            href = link.get("href").lower()  # RFC required
+            rel = link.get("rel").lower()  # RFC required
             # some gTLD servers have confusing/inconsistent edge-cases;
             # checks if this href is "authoritative"
             title = link.get("title", "").lower()
@@ -270,32 +274,28 @@ class RDAPClient:
             return None
         elif status_code == RDAPStatusCodes.MALFORMED_QUERY_400:
             raise MalformedQueryError(
-                f"Malformed query: {RDAPStatusCodes.MALFORMED_QUERY_400}")
+                f"Malformed query: {RDAPStatusCodes.MALFORMED_QUERY_400}"
+            )
         elif status_code == RDAPStatusCodes.NEGATIVE_ANSWER_404:
             raise NotFoundError(
-                f"Domain not found: {RDAPStatusCodes.NEGATIVE_ANSWER_404}")
+                f"Domain not found: {RDAPStatusCodes.NEGATIVE_ANSWER_404}"
+            )
         elif status_code == RDAPStatusCodes.RATE_LIMIT_429:
-            raise RateLimitError(
-                f"Too many requests: {RDAPStatusCodes.RATE_LIMIT_429}")
+            raise RateLimitError(f"Too many requests: {RDAPStatusCodes.RATE_LIMIT_429}")
         else:
             raise BadStatusCode(f"Status code <{status_code}>")
 
 
 class DNSClient(RDAPClient):
     # IANA DNS
-    _iana_uri: str = 'https://data.iana.org/rdap/dns.json'
+    _iana_uri: str = "https://data.iana.org/rdap/dns.json"
 
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         super(DNSClient, self).__init__(httpx_client)
         self.iana_dns_server_map: Dict[str, str] = {}
         self._target = None
 
-    def lookup(
-        self,
-        domain: str,
-        tld: str,
-        auth_href: str = None
-    ) -> DomainResponse:
+    def lookup(self, domain: str, tld: str, auth_href: str = None) -> DomainResponse:
         """
         Performs an RDAP domain lookup.
         Finds the authoritative server for the domain,
@@ -307,14 +307,16 @@ class DNSClient(RDAPClient):
         :param auth_href: Optional authoritative href for the given TLD
         :return: instance of DomainResponse
         """
-        self._target = domain + '.' + tld
+        self._target = domain + "." + tld
         # set starting href
         if auth_href:
             href = auth_href
         else:
             base_href = self.iana_dns_server_map.get(tld)
             if not base_href:
-                raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
+                raise NotImplementedError(
+                    f"No RDAP server found for .{tld.upper()} domains"
+                )
             # build query href
             href = self._build_query_href(base_href, self._target)
         # get response
@@ -324,10 +326,7 @@ class DNSClient(RDAPClient):
         return domain_response
 
     async def aio_lookup(
-        self,
-        domain: str,
-        tld: str,
-        auth_href: str = None
+        self, domain: str, tld: str, auth_href: str = None
     ) -> DomainResponse:
         """
         Performs an RDAP domain lookup.
@@ -340,14 +339,16 @@ class DNSClient(RDAPClient):
         :param auth_href: Optional authoritative href for the given TLD
         :return: instance of DomainResponse
         """
-        self._target = domain + '.' + tld
+        self._target = domain + "." + tld
         # set starting href
         if auth_href:
             href = auth_href
         else:
             base_href = self.iana_dns_server_map.get(tld)
             if not base_href:
-                raise NotImplementedError(f'No RDAP server found for .{tld.upper()} domains')
+                raise NotImplementedError(
+                    f"No RDAP server found for .{tld.upper()} domains"
+                )
             # build query href
             href = self._build_query_href(base_href, self._target)
         # get response
@@ -358,9 +359,9 @@ class DNSClient(RDAPClient):
 
     @staticmethod
     def _build_query_href(rdap_href: str, target: str) -> str:
-        href = posixpath.join(rdap_href, 'domain', target.lstrip('/'))
-        if not href.startswith('http'):
-            href = 'https://' + href
+        href = posixpath.join(rdap_href, "domain", target.lstrip("/"))
+        if not href.startswith("http"):
+            href = "https://" + href
         return href
 
     def _set_iana_info(self, iana_resp: Dict[str, Any]) -> None:
@@ -382,7 +383,7 @@ class DNSClient(RDAPClient):
 
 class IPv4Client(RDAPClient):
     # IANA IPv4
-    _iana_uri: str = 'https://data.iana.org/rdap/ipv4.json'
+    _iana_uri: str = "https://data.iana.org/rdap/ipv4.json"
 
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         super().__init__(httpx_client)
@@ -390,9 +391,7 @@ class IPv4Client(RDAPClient):
         self._target = None
 
     def lookup(
-        self,
-        ipv4: Union[str, ipaddress.IPv4Address],
-        auth_href: str = None
+        self, ipv4: Union[str, ipaddress.IPv4Address], auth_href: str = None
     ) -> IPv4Response:
         """
         Performs an RDAP ipv4 lookup.
@@ -415,9 +414,7 @@ class IPv4Client(RDAPClient):
         return ipv4_response
 
     async def aio_lookup(
-        self,
-        ipv4: Union[str, ipaddress.IPv4Address],
-        auth_href: str = None
+        self, ipv4: Union[str, ipaddress.IPv4Address], auth_href: str = None
     ) -> IPv4Response:
         """
         Performs an RDAP IPv4 lookup.
@@ -441,9 +438,9 @@ class IPv4Client(RDAPClient):
 
     @staticmethod
     def _build_query_href(rdap_href: str, target: str) -> str:
-        href = posixpath.join(rdap_href, 'ip', target.lstrip('/'))
-        if not href.startswith('http'):
-            href = 'https://' + href
+        href = posixpath.join(rdap_href, "ip", target.lstrip("/"))
+        if not href.startswith("http"):
+            href = "https://" + href
         return href
 
     def _set_iana_info(self, iana_ipv4_map: Dict[str, Any]) -> None:
@@ -453,7 +450,7 @@ class IPv4Client(RDAPClient):
             ips, servers = service[0], service[1]
             for ip in ips:
                 ipv4 = ipaddress.IPv4Network(ip)
-                self.iana_ipv4_server_map[ipv4] = servers[0] # https
+                self.iana_ipv4_server_map[ipv4] = servers[0]  # https
 
     def _get_rdap_server(self, ipv4: ipaddress.IPv4Address) -> Optional[str]:
         for network, server in self.iana_ipv4_server_map.items():
@@ -464,7 +461,7 @@ class IPv4Client(RDAPClient):
 
 class IPv6Client(RDAPClient):
     # IANA IPv6
-    _iana_uri: str = 'https://data.iana.org/rdap/ipv6.json'
+    _iana_uri: str = "https://data.iana.org/rdap/ipv6.json"
 
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         super().__init__(httpx_client)
@@ -472,9 +469,7 @@ class IPv6Client(RDAPClient):
         self._target = None
 
     def lookup(
-        self,
-        ipv6: Union[str, ipaddress.IPv6Address],
-        auth_href: str = None
+        self, ipv6: Union[str, ipaddress.IPv6Address], auth_href: str = None
     ) -> IPv6Response:
         """
         Performs an RDAP IPv6 lookup.
@@ -497,9 +492,7 @@ class IPv6Client(RDAPClient):
         return ipv6_response
 
     async def aio_lookup(
-        self,
-        ipv6: Union[str, ipaddress.IPv4Address],
-        auth_href: str = None
+        self, ipv6: Union[str, ipaddress.IPv4Address], auth_href: str = None
     ) -> IPv6Response:
         """
         Performs an RDAP IPv6 lookup.
@@ -523,7 +516,7 @@ class IPv6Client(RDAPClient):
 
     @staticmethod
     def _build_query_href(rdap_href: str, target: str) -> str:
-        return posixpath.join(rdap_href, 'ip', target.lstrip('/'))
+        return posixpath.join(rdap_href, "ip", target.lstrip("/"))
 
     def _set_iana_info(self, iana_ipv6_map: Dict[str, Any]) -> None:
         self.publication = iana_ipv6_map.get(self._iana_publication_key)
@@ -532,7 +525,7 @@ class IPv6Client(RDAPClient):
             ips, servers = service[0], service[1]
             for ip in ips:
                 ipv6 = ipaddress.IPv6Network(ip)
-                self.iana_ipv6_server_map[ipv6] = servers[0] # https
+                self.iana_ipv6_server_map[ipv6] = servers[0]  # https
 
     def _get_rdap_server(self, ipv6: ipaddress.IPv6Address) -> Optional[str]:
         for network, server in self.iana_ipv6_server_map.items():
@@ -543,7 +536,7 @@ class IPv6Client(RDAPClient):
 
 class ASNClient(RDAPClient):
     # IANA ASN
-    _iana_uri: str = 'https://data.iana.org/rdap/asn.json'
+    _iana_uri: str = "https://data.iana.org/rdap/asn.json"
 
     def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
         super().__init__(httpx_client)
@@ -564,7 +557,7 @@ class ASNClient(RDAPClient):
         rdap_resp = self._get_authoritative_response(href)
         asn_response = ASNResponse.from_json(rdap_resp.read())
         return asn_response
-    
+
     async def aio_lookup(self, asn: int, auth_ref: str = None) -> ASNResponse:
         """
         Performs an RDAP ASN lookup.
@@ -582,7 +575,7 @@ class ASNClient(RDAPClient):
 
     @staticmethod
     def _build_query_href(rdap_href: str, target: str) -> str:
-        return posixpath.join(rdap_href, 'autnum', target.lstrip('/'))
+        return posixpath.join(rdap_href, "autnum", target.lstrip("/"))
 
     def _set_iana_info(self, iana_asn_map: Dict[str, Any]) -> None:
         self.publication = iana_asn_map.get(self._iana_publication_key)
@@ -594,8 +587,8 @@ class ASNClient(RDAPClient):
 
     def _get_rdap_server(self, asn_number: int) -> Optional[str]:
         for asn_range, server in self.iana_asn_server_map.items():
-            if '-' in asn_range:
-                lower, upper = [int(n) for n in asn_range.split('-')]
+            if "-" in asn_range:
+                lower, upper = [int(n) for n in asn_range.split("-")]
             else:
                 lower = upper = int(asn_range)
             if lower <= asn_number <= upper:

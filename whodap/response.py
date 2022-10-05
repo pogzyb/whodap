@@ -5,7 +5,7 @@ from typing import Dict, Any, List, Union
 
 from .utils import WHOISKeys, RDAPVCardKeys
 
-REDACTED = 'REDACTED FOR PRIVACY'
+REDACTED = "REDACTED FOR PRIVACY"
 
 
 class RDAPResponse(SimpleNamespace):
@@ -32,12 +32,12 @@ class RDAPResponse(SimpleNamespace):
         :return: a datetime object or the original string
         """
         known_rdap_formats = (
-            '%Y-%m-%dT%H:%M:%S',
-            '%Y-%m-%dT%H:%M:%SZ',
-            '%Y-%m-%dT%H:%M:%S.%f%z',
-            '%Y-%m-%dT%H:%M:%S%z',
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S.%f%z",
+            "%Y-%m-%dT%H:%M:%S%z",
             # https://stackoverflow.com/questions/53291250/python-3-6-datetime-strptime-returns-error-while-python-3-7-works-well
-            '%Y-%m-%dT%H:%M:%S.%fZ'
+            "%Y-%m-%dT%H:%M:%S.%fZ",
         )
         for date_format in known_rdap_formats:
             try:
@@ -68,7 +68,7 @@ class RDAPResponse(SimpleNamespace):
                 converted.append(obj)
         return converted
 
-    def _convert_self_to_dict(self, rdr: 'RDAPResponse') -> Dict[str, Any]:
+    def _convert_self_to_dict(self, rdr: "RDAPResponse") -> Dict[str, Any]:
         """
         Converts the RDAPResponse to a dictionary.
         Recursively calls itself to convert nested RDAPResponse.
@@ -104,8 +104,8 @@ class RDAPResponse(SimpleNamespace):
         :param kwargs: arguments to be passed to `json.dumps`
         :return: JSON string
         """
-        if not kwargs.get('default'):
-            kwargs['default'] = self._encoder
+        if not kwargs.get("default"):
+            kwargs["default"] = self._encoder
         return dumps(self.to_dict(), **kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -143,14 +143,13 @@ class RDAPResponse(SimpleNamespace):
 
 
 class DomainResponse(RDAPResponse):
-
     def __getattribute__(self, item):
         """
         Converts and returns an "eventDate" value to a datetime object;
         otherwise returns the value of the given attribute
         """
         val = super().__getattribute__(item)
-        if item == 'eventDate':
+        if item == "eventDate":
             return self._convert_date(val)
         return val
 
@@ -161,8 +160,8 @@ class DomainResponse(RDAPResponse):
         :param kwargs: arguments to be passed to `json.dumps`
         :return: JSON string
         """
-        if not kwargs.get('default'):
-            kwargs['default'] = self._encoder
+        if not kwargs.get("default"):
+            kwargs["default"] = self._encoder
         return dumps(self.to_whois_dict(), **kwargs)
 
     def to_whois_dict(self) -> Dict[WHOISKeys, Union[str, List[str], datetime, None]]:
@@ -175,19 +174,19 @@ class DomainResponse(RDAPResponse):
         flat = {}
 
         # traverse and extract information from RDAP fields
-        if getattr(self, 'nameservers', None):
-            flat_nameservers = {'nameservers': []}
+        if getattr(self, "nameservers", None):
+            flat_nameservers = {"nameservers": []}
             for obj in self.nameservers:
-                flat_nameservers['nameservers'].append(obj.ldhName)
+                flat_nameservers["nameservers"].append(obj.ldhName)
             flat.update(flat_nameservers)
 
-        if getattr(self, 'status', None):
-            flat.update({'status': self.status})
+        if getattr(self, "status", None):
+            flat.update({"status": self.status})
 
-        if getattr(self, 'events', None):
+        if getattr(self, "events", None):
             flat.update(self._flat_dates(self.events))
 
-        if getattr(self, 'entities', None):
+        if getattr(self, "entities", None):
             flat.update(self._flat_entities(self.entities))
 
         # convert dict keys over to "WHOISKeys"
@@ -197,8 +196,9 @@ class DomainResponse(RDAPResponse):
         flat[WHOISKeys.DOMAIN_NAME] = self.ldhName
 
         # add dnssec after ensuring that it exists
-        if getattr(self, 'secureDNS', None) and \
-                getattr(self.secureDNS, 'delegationSigned', None):
+        if getattr(self, "secureDNS", None) and getattr(
+            self.secureDNS, "delegationSigned", None
+        ):
             flat[WHOISKeys.DNSSEC] = self.secureDNS.delegationSigned
 
         return flat
@@ -214,58 +214,60 @@ class DomainResponse(RDAPResponse):
         dates = dict([(event.eventAction, event.eventDate) for event in events])
         return dates
 
-    def _flat_entities(self, entities: List[SimpleNamespace]) -> Dict[str, Dict[str, str]]:
+    def _flat_entities(
+        self, entities: List[SimpleNamespace]
+    ) -> Dict[str, Dict[str, str]]:
         entities_dict = {}
         for entity in entities:
             ent_dict = {}
             # check for redacted information
             mark_redacted = False
-            if hasattr(entity, 'remarks'):
+            if hasattr(entity, "remarks"):
                 for remark in entity.remarks:
-                    if hasattr(remark, 'title') and 'redact' in remark.title.lower():
+                    if hasattr(remark, "title") and "redact" in remark.title.lower():
                         mark_redacted = True
             # check for nested entities
-            if hasattr(entity, 'entities'):
+            if hasattr(entity, "entities"):
                 # recursive call for nested entities
                 ent_dict = self._flat_entities(entity.entities)
                 entities_dict.update(ent_dict)
             # iterate through vCard array
-            if hasattr(entity, 'vcardArray'):
+            if hasattr(entity, "vcardArray"):
                 for vcard in entity.vcardArray[-1]:
                     # vCard represents information about an individual or entity.
                     vcard_type = vcard[0]
                     vcard_value = vcard[-1]
                     # check for organization
                     if vcard_type == RDAPVCardKeys.ORG:
-                        ent_dict['org'] = vcard_value
+                        ent_dict["org"] = vcard_value
                     # check for email
                     elif vcard_type == RDAPVCardKeys.EMAIL:
-                        ent_dict['email'] = vcard_value
+                        ent_dict["email"] = vcard_value
                     # check for name
                     elif vcard_type == RDAPVCardKeys.FN:
-                        ent_dict['name'] = vcard_value
+                        ent_dict["name"] = vcard_value
                     # check for address
                     elif vcard_type == RDAPVCardKeys.ADR:
                         values = self._flatten_list(vcard_value)
-                        address_string = ', '.join([v for v in values if v])
-                        ent_dict['address'] = address_string.lstrip()
+                        address_string = ", ".join([v for v in values if v])
+                        ent_dict["address"] = address_string.lstrip()
                     # check for contact
                     elif vcard_type == RDAPVCardKeys.TEL:
                         # check the "type" of "tel" vcard (either voice or fax):
                         # vcard looks like: ['tel', {"type": "voice"}, 'uri', 'tel:0000000']
-                        if hasattr(vcard[1], 'type'):
-                            contact_type = vcard[1].to_dict().get('type')
-                            if contact_type == 'voice':
-                                ent_dict['phone'] = vcard_value
-                            elif contact_type == 'fax':
-                                ent_dict['fax'] = vcard_value
+                        if hasattr(vcard[1], "type"):
+                            contact_type = vcard[1].to_dict().get("type")
+                            if contact_type == "voice":
+                                ent_dict["phone"] = vcard_value
+                            elif contact_type == "fax":
+                                ent_dict["fax"] = vcard_value
                         else:
-                            ent_dict['phone'] = vcard_value
-                        
+                            ent_dict["phone"] = vcard_value
+
             # add roles for this entity
             for role in entity.roles:
                 if mark_redacted:
-                    for key in ('address', 'phone', 'name', 'org', 'email', 'fax'):
+                    for key in ("address", "phone", "name", "org", "email", "fax"):
                         if not ent_dict.get(key):
                             ent_dict[key] = REDACTED
                 # save the information under this "role"
@@ -277,42 +279,43 @@ class DomainResponse(RDAPResponse):
     @staticmethod
     def _construct_flat_dict(parsed: Dict[str, Any]) -> Dict[WHOISKeys, Any]:
         converted = {
-            WHOISKeys.ABUSE_EMAIL: parsed.get('abuse', {}).get('email'),
-            WHOISKeys.ABUSE_PHONE: parsed.get('abuse', {}).get('phone'),
-            WHOISKeys.ADMIN_NAME: parsed.get('administrative', {}).get('name'),
-            WHOISKeys.ADMIN_ORG: parsed.get('administrative', {}).get('org'),
-            WHOISKeys.ADMIN_EMAIL: parsed.get('administrative', {}).get('email'),
-            WHOISKeys.ADMIN_ADDRESS: parsed.get('administrative', {}).get('address'),
-            WHOISKeys.ADMIN_PHONE: parsed.get('administrative', {}).get('phone'),
-            WHOISKeys.ADMIN_FAX: parsed.get('administrative', {}).get('fax'),
-            WHOISKeys.BILLING_NAME: parsed.get('billing', {}).get('name'),
-            WHOISKeys.BILLING_ORG: parsed.get('billing', {}).get('org'),
-            WHOISKeys.BILLING_EMAIL: parsed.get('billing', {}).get('email'),
-            WHOISKeys.BILLING_ADDRESS: parsed.get('billing', {}).get('address'),
-            WHOISKeys.BILLING_PHONE: parsed.get('billing', {}).get('phone'),
-            WHOISKeys.BILLING_FAX: parsed.get('billing', {}).get('fax'),
-            WHOISKeys.REGISTRANT_NAME: parsed.get('registrant', {}).get('name'),
-            WHOISKeys.REGISTRANT_ORG: parsed.get('registrant', {}).get('organization'),
-            WHOISKeys.REGISTRANT_EMAIL: parsed.get('registrant', {}).get('email'),
-            WHOISKeys.REGISTRANT_ADDRESS: parsed.get('registrant', {}).get('address'),
-            WHOISKeys.REGISTRANT_PHONE: parsed.get('registrant', {}).get('phone'),
-            WHOISKeys.REGISTRANT_FAX: parsed.get('registrant', {}).get('fax'),
-            WHOISKeys.REGISTRAR_NAME: parsed.get('registrar', {}).get('name'),
-            WHOISKeys.REGISTRAR_EMAIL: parsed.get('registrar', {}).get('email'),
-            WHOISKeys.REGISTRAR_ADDRESS: parsed.get('registrar', {}).get('address'),
-            WHOISKeys.REGISTRAR_PHONE: parsed.get('registrar', {}).get('phone'),
-            WHOISKeys.REGISTRAR_FAX: parsed.get('registrar', {}).get('fax'),
-            WHOISKeys.TECHNICAL_NAME: parsed.get('technical', {}).get('name'),
-            WHOISKeys.TECHNICAL_ORG: parsed.get('technical', {}).get('org'),
-            WHOISKeys.TECHNICAL_EMAIL: parsed.get('technical', {}).get('email'),
-            WHOISKeys.TECHNICAL_ADDRESS: parsed.get('technical', {}).get('address'),
-            WHOISKeys.TECHNICAL_PHONE: parsed.get('technical', {}).get('phone'),
-            WHOISKeys.TECHNICAL_FAX: parsed.get('technical', {}).get('fax'),
-            WHOISKeys.CREATED_DATE: parsed.get('registration'),
-            WHOISKeys.UPDATED_DATE: parsed.get('last update') or parsed.get('last changed'),
-            WHOISKeys.EXPIRES_DATE: parsed.get('expiration'),
-            WHOISKeys.STATUS: parsed.get('status'),
-            WHOISKeys.NAMESERVERS: parsed.get('nameservers')
+            WHOISKeys.ABUSE_EMAIL: parsed.get("abuse", {}).get("email"),
+            WHOISKeys.ABUSE_PHONE: parsed.get("abuse", {}).get("phone"),
+            WHOISKeys.ADMIN_NAME: parsed.get("administrative", {}).get("name"),
+            WHOISKeys.ADMIN_ORG: parsed.get("administrative", {}).get("org"),
+            WHOISKeys.ADMIN_EMAIL: parsed.get("administrative", {}).get("email"),
+            WHOISKeys.ADMIN_ADDRESS: parsed.get("administrative", {}).get("address"),
+            WHOISKeys.ADMIN_PHONE: parsed.get("administrative", {}).get("phone"),
+            WHOISKeys.ADMIN_FAX: parsed.get("administrative", {}).get("fax"),
+            WHOISKeys.BILLING_NAME: parsed.get("billing", {}).get("name"),
+            WHOISKeys.BILLING_ORG: parsed.get("billing", {}).get("org"),
+            WHOISKeys.BILLING_EMAIL: parsed.get("billing", {}).get("email"),
+            WHOISKeys.BILLING_ADDRESS: parsed.get("billing", {}).get("address"),
+            WHOISKeys.BILLING_PHONE: parsed.get("billing", {}).get("phone"),
+            WHOISKeys.BILLING_FAX: parsed.get("billing", {}).get("fax"),
+            WHOISKeys.REGISTRANT_NAME: parsed.get("registrant", {}).get("name"),
+            WHOISKeys.REGISTRANT_ORG: parsed.get("registrant", {}).get("organization"),
+            WHOISKeys.REGISTRANT_EMAIL: parsed.get("registrant", {}).get("email"),
+            WHOISKeys.REGISTRANT_ADDRESS: parsed.get("registrant", {}).get("address"),
+            WHOISKeys.REGISTRANT_PHONE: parsed.get("registrant", {}).get("phone"),
+            WHOISKeys.REGISTRANT_FAX: parsed.get("registrant", {}).get("fax"),
+            WHOISKeys.REGISTRAR_NAME: parsed.get("registrar", {}).get("name"),
+            WHOISKeys.REGISTRAR_EMAIL: parsed.get("registrar", {}).get("email"),
+            WHOISKeys.REGISTRAR_ADDRESS: parsed.get("registrar", {}).get("address"),
+            WHOISKeys.REGISTRAR_PHONE: parsed.get("registrar", {}).get("phone"),
+            WHOISKeys.REGISTRAR_FAX: parsed.get("registrar", {}).get("fax"),
+            WHOISKeys.TECHNICAL_NAME: parsed.get("technical", {}).get("name"),
+            WHOISKeys.TECHNICAL_ORG: parsed.get("technical", {}).get("org"),
+            WHOISKeys.TECHNICAL_EMAIL: parsed.get("technical", {}).get("email"),
+            WHOISKeys.TECHNICAL_ADDRESS: parsed.get("technical", {}).get("address"),
+            WHOISKeys.TECHNICAL_PHONE: parsed.get("technical", {}).get("phone"),
+            WHOISKeys.TECHNICAL_FAX: parsed.get("technical", {}).get("fax"),
+            WHOISKeys.CREATED_DATE: parsed.get("registration"),
+            WHOISKeys.UPDATED_DATE: parsed.get("last update")
+            or parsed.get("last changed"),
+            WHOISKeys.EXPIRES_DATE: parsed.get("expiration"),
+            WHOISKeys.STATUS: parsed.get("status"),
+            WHOISKeys.NAMESERVERS: parsed.get("nameservers"),
         }
         return converted
 
