@@ -1,5 +1,6 @@
 import asynctest
 import asynctest.mock as mock
+import ipaddress
 
 from whodap import DNSClient, IPv4Client, IPv6Client, ASNClient
 from whodap.errors import RateLimitError, NotFoundError, MalformedQueryError
@@ -243,3 +244,38 @@ class TestDNSClient(asynctest.TestCase):
         #
         output_4 = client._check_next_href(current_href, links_4)
         self.assertEqual(output_4, 'https://the-authoritative-server/domain/domain.com')
+
+    def test__check_next_href_with_ip(self):
+        current_href = 'https://an-rdap-server/ip/8.8.8.8'
+        links_1 = [
+            {
+                'rel': 'self',
+                'href': 'https://an-rdap-server/ip/8.8.8.8',
+                'type': 'application/rdap+json'
+            },
+            {
+                'rel': 'related',
+                'href': 'https://the-authoritative-server/domain/8.8.8.255/something',
+                'type': 'application/rdap+json'
+            }
+        ]
+        links_2 = [
+            {
+                'rel': 'self',
+                'href': 'https://an-rdap-server/ip/8.8.8.8',
+                'type': 'application/rdap+json'
+            },
+            {
+                'rel': 'related',
+                'href': 'https://the-authoritative-server/ip/8.8.8.8',
+                'type': 'text/html'
+            }
+        ]
+        client = IPv4Client(None)
+        client._target = ipaddress.IPv4Address('8.8.8.8')
+        #
+        output_1 = client._check_next_href(current_href, links_1)
+        self.assertEqual(output_1, None)
+        #
+        output_2 = client._check_next_href(current_href, links_2)
+        self.assertEqual(output_2, None)
