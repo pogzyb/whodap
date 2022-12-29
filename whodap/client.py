@@ -261,10 +261,18 @@ class RDAPClient:
                 continue
             # otherwise compare the hrefs and check "rel"
             if href != current_href and rel == "related":
+                # special case for ipv4 and ipv6 checks
+                if isinstance(
+                    self._target, (ipaddress.IPv4Address, ipaddress.IPv6Address)
+                ):
+                    # ensure the href contains the IP, otherwise the link may be "related",
+                    # but a URI for something not useful for this information.
+                    if str(self._target) not in href:
+                        continue
                 # ensure href is properly formatted;
                 # sometimes it's just the server name e.g. "rdap.server.com"
                 if not href.endswith(str(self._target)):
-                    return self._build_query_href(href, self._target)
+                    return self._build_query_href(href, str(self._target))
                 else:
                     return href
 
@@ -408,7 +416,7 @@ class IPv4Client(RDAPClient):
         else:
             self._target = ipv4
         server = self._get_rdap_server(self._target)
-        href = self._build_query_href(server, str(ipv4))
+        href = self._build_query_href(server, str(self._target))
         rdap_resp = self._get_authoritative_response(href)
         ipv4_response = IPv4Response.from_json(rdap_resp.read())
         return ipv4_response
