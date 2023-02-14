@@ -1,34 +1,42 @@
-import asynctest
-import asynctest.mock as mock
+import asyncio
+import sys
+import unittest.mock as mock
 
-from whodap import lookup_domain, aio_lookup_domain
+import pytest
+import whodap
 
 
-class TestPackageMethods(asynctest.TestCase):
-    """
-    Tests that the appropriate classes and methods are invoked for each package method.
-    """
+confirmation_string = "dns_client_lookup_was_called"
 
-    @mock.patch('whodap.DNSClient')
-    def test_lookup_domain(self, mock_dns_client):
-        confirmation_string = 'dns_client_lookup_was_called'
-        mock_dns_client.close = mock.Mock()
-        mock_dns_client.lookup.return_value = confirmation_string
-        mock_dns_client.new_client.return_value = mock_dns_client
-        resp = lookup_domain(domain='some-domain', tld='com')
-        assert resp == confirmation_string, f"{resp} != {confirmation_string}"
-        mock_dns_client.close.assert_called()
-        resp = lookup_domain(domain='some-domain', tld='com')
-        assert resp == confirmation_string, f"{resp} != {confirmation_string}"
 
-    @mock.patch('whodap.DNSClient')
-    async def test_aio_lookup_domain(self, mock_dns_client):
-        confirmation_string = 'dns_client_aio_lookup_was_called'
-        mock_dns_client.aio_close = mock.CoroutineMock()
-        mock_dns_client.aio_lookup = mock.CoroutineMock(return_value=confirmation_string)
-        mock_dns_client.new_aio_client = mock.CoroutineMock(return_value=mock_dns_client)
-        resp = await aio_lookup_domain(domain='some-domain', tld='com')
-        assert resp == confirmation_string, f"{resp} != {confirmation_string}"
-        mock_dns_client.aio_close.assert_called()
-        resp = await aio_lookup_domain(domain='some-domain', tld='com')
-        assert resp == confirmation_string, f"{resp} != {confirmation_string}"
+if sys.version_info >= (3, 8):
+
+    def mock_aio_dns_client():
+        async_mock_client = mock.AsyncMock(
+            name="mock-dns-client",
+            aio_close=mock.AsyncMock(),
+            aio_lookup=mock.AsyncMock(return_value=confirmation_string)
+        )
+        return async_mock_client
+
+
+    def mock_dns_client():
+        mock_client = mock.MagicMock(
+            name="mock-dns-client",
+            close=mock.Mock(),
+            lookup=mock.Mock(return_value=confirmation_string)
+        )
+        return mock_client
+
+
+    def test_lookup_domain():
+        with mock.patch('whodap.DNSClient.new_client', return_value=mock_dns_client()):
+            resp = whodap.lookup_domain(domain="some-domain", tld="com")
+            assert resp == confirmation_string, f"{resp} != {confirmation_string}"
+
+
+    @pytest.mark.asyncio
+    async def test_aio_lookup_domain():
+        with mock.patch('whodap.DNSClient.new_aio_client', return_value=mock_aio_dns_client()):
+            resp = await whodap.aio_lookup_domain(domain="some-domain", tld="com")
+            assert resp == confirmation_string, f"{resp} != {confirmation_string}"

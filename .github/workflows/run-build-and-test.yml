@@ -1,4 +1,4 @@
-name: Build
+name: build
 
 on:
   - push
@@ -13,7 +13,7 @@ jobs:
           - ubuntu-latest  # ubuntu-20.04
           - macos-latest  # macOS-11
           - windows-latest  # windows-2022
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v3
