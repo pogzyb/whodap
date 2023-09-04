@@ -243,6 +243,9 @@ class DomainResponse(RDAPResponse):
                     # check for email
                     elif vcard_type == RDAPVCardKeys.EMAIL:
                         ent_dict["email"] = vcard_value
+                    # check for email
+                    elif vcard_type == RDAPVCardKeys.CONTACT:
+                        ent_dict["contact-uri"] = vcard_value
                     # check for name
                     elif vcard_type == RDAPVCardKeys.FN:
                         ent_dict["name"] = vcard_value
@@ -255,11 +258,12 @@ class DomainResponse(RDAPResponse):
                     elif vcard_type == RDAPVCardKeys.TEL:
                         # check the "type" of "tel" vcard (either voice or fax):
                         # vcard looks like: ['tel', {"type": "voice"}, 'uri', 'tel:0000000']
+                        #               or: ['tel', {"type": ["voice"]}, 'uri', 'tel:0000000']
                         if hasattr(vcard[1], "type"):
                             contact_type = vcard[1].to_dict().get("type")
-                            if contact_type == "voice":
+                            if contact_type == "voice" or "voice" in contact_type:
                                 ent_dict["phone"] = vcard_value
-                            elif contact_type == "fax":
+                            elif contact_type == "fax" or "fax" in contact_type:
                                 ent_dict["fax"] = vcard_value
                         else:
                             ent_dict["phone"] = vcard_value
@@ -279,7 +283,8 @@ class DomainResponse(RDAPResponse):
     @staticmethod
     def _construct_flat_dict(parsed: Dict[str, Any]) -> Dict[WHOISKeys, Any]:
         converted = {
-            WHOISKeys.ABUSE_EMAIL: parsed.get("abuse", {}).get("email"),
+            WHOISKeys.ABUSE_EMAIL: parsed.get("abuse", {}).get("email")
+            or parsed.get("abuse", {}).get("contact-uri"),
             WHOISKeys.ABUSE_PHONE: parsed.get("abuse", {}).get("phone"),
             WHOISKeys.ADMIN_NAME: parsed.get("administrative", {}).get("name"),
             WHOISKeys.ADMIN_ORG: parsed.get("administrative", {}).get("org"),

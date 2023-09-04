@@ -7,6 +7,7 @@ class RDAPVCardKeys(str, Enum):
     FN = "fn"
     ORG = "org"
     TEL = "tel"
+    CONTACT = "contact-uri"
 
     @staticmethod
     def values():
