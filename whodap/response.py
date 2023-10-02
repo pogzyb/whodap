@@ -165,11 +165,17 @@ class DomainResponse(RDAPResponse):
             kwargs["default"] = self._encoder
         return dumps(self.to_whois_dict(), **kwargs)
 
-    def to_whois_dict(self, strict: bool = False) -> Dict[WHOISKeys, Union[str, List[str], datetime, None]]:
+    def to_whois_dict(
+        self, strict: bool = False
+    ) -> Dict[WHOISKeys, Union[str, List[str], datetime, None]]:
         """
         Returns the DomainResponse as "flattened" WHOIS dictionary;
         does not modify the original DomainResponse object.
 
+        :param strict: If True, raises an RDAPConformanceException if
+          the given RDAP response is incorrectly formatted. Otherwise
+          if False, the method will attempt to parse the RDAP response
+          without raising any exception.
         :return: dict with WHOIS keys
         """
         flat = {}
@@ -221,7 +227,9 @@ class DomainResponse(RDAPResponse):
         #  by a formal "validation" feature for the library or an implementation
         #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
         if not isinstance(obj, list):
-            return RDAPConformanceException(f"entities type={type(obj)} is not an Array")
+            return RDAPConformanceException(
+                f"entities type={type(obj)} is not an Array"
+            )
 
     @staticmethod
     def _check_valid_vcardArray(obj: Any) -> Optional[RDAPConformanceException]:
@@ -229,7 +237,9 @@ class DomainResponse(RDAPResponse):
         #  by a formal "validation" feature for the library or an implementation
         #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
         if not isinstance(obj, list):
-            return RDAPConformanceException(f"vcardArray type={type(obj)} is not an Array")
+            return RDAPConformanceException(
+                f"vcardArray type={type(obj)} is not an Array"
+            )
         elif len(obj) < 2:
             return RDAPConformanceException("vcardArray is incorrectly formatted")
         elif obj[0] != "vcard" and not isinstance(obj[-1], list):
@@ -319,7 +329,10 @@ class DomainResponse(RDAPResponse):
                                 #               or: ['tel', {"type": ["voice"]}, 'uri', 'tel:0000000']
                                 if hasattr(vcard[1], "type"):
                                     contact_type = vcard[1].to_dict().get("type")
-                                    if contact_type == "voice" or "voice" in contact_type:
+                                    if (
+                                        contact_type == "voice"
+                                        or "voice" in contact_type
+                                    ):
                                         ent_dict["phone"] = vcard_value
                                     elif contact_type == "fax" or "fax" in contact_type:
                                         ent_dict["fax"] = vcard_value
