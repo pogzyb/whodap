@@ -16,3 +16,7 @@ class MalformedQueryError(WhodapError):
 
 class BadStatusCode(WhodapError):
     ...
+
+
+class RDAPConformanceException(WhodapError):
+    ...

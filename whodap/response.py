@@ -1,9 +1,10 @@
 from datetime import datetime
 from json import dumps, loads
 from types import SimpleNamespace
-from typing import Dict, Any, List, Union
+from typing import Dict, Any, List, Union, Optional
 
 from .utils import WHOISKeys, RDAPVCardKeys
+from .errors import RDAPConformanceException
 
 REDACTED = "REDACTED FOR PRIVACY"
 
@@ -164,11 +165,17 @@ class DomainResponse(RDAPResponse):
             kwargs["default"] = self._encoder
         return dumps(self.to_whois_dict(), **kwargs)
 
-    def to_whois_dict(self) -> Dict[WHOISKeys, Union[str, List[str], datetime, None]]:
+    def to_whois_dict(
+        self, strict: bool = False
+    ) -> Dict[WHOISKeys, Union[str, List[str], datetime, None]]:
         """
         Returns the DomainResponse as "flattened" WHOIS dictionary;
         does not modify the original DomainResponse object.
 
+        :param strict: If True, raises an RDAPConformanceException if
+          the given RDAP response is incorrectly formatted. Otherwise
+          if False, the method will attempt to parse the RDAP response
+          without raising any exception.
         :return: dict with WHOIS keys
         """
         flat = {}
@@ -186,8 +193,15 @@ class DomainResponse(RDAPResponse):
         if getattr(self, "events", None):
             flat.update(self._flat_dates(self.events))
 
-        if getattr(self, "entities", None):
-            flat.update(self._flat_entities(self.entities))
+        try:
+            # most common issues stem from nested "entities"
+            if getattr(self, "entities", None):
+                # _flat_entities will raise an RDAPConformanceException if strict=True
+                flat.update(self._flat_entities(self.entities, strict))
+        except (TypeError, KeyError, ValueError):
+            # handle other edge-cases that make this method "explode"
+            if strict:
+                raise RDAPConformanceException("Could not parse the response.")
 
         # convert dict keys over to "WHOISKeys"
         flat = self._construct_flat_dict(flat)
@@ -196,10 +210,13 @@ class DomainResponse(RDAPResponse):
         flat[WHOISKeys.DOMAIN_NAME] = self.ldhName
 
         # add dnssec after ensuring that it exists
-        if getattr(self, "secureDNS", None) and getattr(
-            self.secureDNS, "delegationSigned", None
+        if (
+            getattr(self, "secureDNS", None)
+            and getattr(self.secureDNS, "delegationSigned", None) is not None
         ):
-            flat[WHOISKeys.DNSSEC] = self.secureDNS.delegationSigned
+            flat[WHOISKeys.DNSSEC] = (
+                "unsigned" if not self.secureDNS.delegationSigned else "signed"
+            )
 
         return flat
 
@@ -214,9 +231,52 @@ class DomainResponse(RDAPResponse):
         dates = dict([(event.eventAction, event.eventDate) for event in events])
         return dates
 
+    @staticmethod
+    def _check_valid_entities(obj: Any) -> Optional[RDAPConformanceException]:
+        # todo: this method will be removed in the future; replaced
+        #  by a formal "validation" feature for the library or an implementation
+        #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
+        if not isinstance(obj, list):
+            return RDAPConformanceException(
+                f"entities type={type(obj)} is not an Array"
+            )
+
+    @staticmethod
+    def _check_valid_vcardArray(obj: Any) -> Optional[RDAPConformanceException]:  # noqa
+        # todo: this method will be removed in the future; replaced
+        #  by a formal "validation" feature for the library or an implementation
+        #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
+        if not isinstance(obj, list):
+            return RDAPConformanceException(
+                f"vcardArray type={type(obj)} is not an Array"
+            )
+        elif len(obj) < 2:
+            return RDAPConformanceException("vcardArray is incorrectly formatted")
+        elif obj[0] != "vcard" and not isinstance(obj[-1], list):
+            return RDAPConformanceException("vcardArray is incorrectly formatted")
+
+    @staticmethod
+    def _check_valid_vcard(obj: Any) -> Optional[RDAPConformanceException]:
+        # todo: this method will be removed in the future; replaced
+        #  by a formal "validation" feature for the library or an implementation
+        #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
+        if not isinstance(obj, list):
+            return RDAPConformanceException(f"vCard type={type(obj)} is not an Array")
+        elif len(obj) < 4:
+            return RDAPConformanceException("vCard array length is less than < 4")
+
     def _flat_entities(
-        self, entities: List[SimpleNamespace]
+        self, entities: List[SimpleNamespace], strict: bool
     ) -> Dict[str, Dict[str, str]]:
+        # validate that entities is at least iterable
+        conformance_check_exc = self._check_valid_entities(entities)
+        if conformance_check_exc is not None:
+            if strict:
+                raise conformance_check_exc
+            else:
+                # skip because entity parsing is likely to fail
+                return {}
+        # attempt to parse entities
         entities_dict = {}
         for entity in entities:
             ent_dict = {}
@@ -229,53 +289,75 @@ class DomainResponse(RDAPResponse):
             # check for nested entities
             if hasattr(entity, "entities"):
                 # recursive call for nested entities
-                ent_dict = self._flat_entities(entity.entities)
+                ent_dict = self._flat_entities(entity.entities, strict)
                 entities_dict.update(ent_dict)
             # iterate through vCard array
             if hasattr(entity, "vcardArray"):
-                for vcard in entity.vcardArray[-1]:
-                    # vCard represents information about an individual or entity.
-                    vcard_type = vcard[0]
-                    vcard_value = vcard[-1]
-                    # check for organization
-                    if vcard_type == RDAPVCardKeys.ORG:
-                        ent_dict["org"] = vcard_value
-                    # check for email
-                    elif vcard_type == RDAPVCardKeys.EMAIL:
-                        ent_dict["email"] = vcard_value
-                    # check for email
-                    elif vcard_type == RDAPVCardKeys.CONTACT:
-                        ent_dict["contact-uri"] = vcard_value
-                    # check for name
-                    elif vcard_type == RDAPVCardKeys.FN:
-                        ent_dict["name"] = vcard_value
-                    # check for address
-                    elif vcard_type == RDAPVCardKeys.ADR:
-                        values = self._flatten_list(vcard_value)
-                        address_string = ", ".join([v for v in values if v])
-                        ent_dict["address"] = address_string.lstrip()
-                    # check for contact
-                    elif vcard_type == RDAPVCardKeys.TEL:
-                        # check the "type" of "tel" vcard (either voice or fax):
-                        # vcard looks like: ['tel', {"type": "voice"}, 'uri', 'tel:0000000']
-                        #               or: ['tel', {"type": ["voice"]}, 'uri', 'tel:0000000']
-                        if hasattr(vcard[1], "type"):
-                            contact_type = vcard[1].to_dict().get("type")
-                            if contact_type == "voice" or "voice" in contact_type:
-                                ent_dict["phone"] = vcard_value
-                            elif contact_type == "fax" or "fax" in contact_type:
-                                ent_dict["fax"] = vcard_value
+                # basic validation for vcard
+                conformance_check_exc = self._check_valid_vcardArray(entity.vcardArray)
+                if conformance_check_exc is not None:
+                    if strict:
+                        raise conformance_check_exc
+                    else:
+                        # skip because vcardArray parsing is likely to fail
+                        continue
+                else:
+                    # parse vcards
+                    for vcard in entity.vcardArray[-1]:
+                        conformance_check_exc = self._check_valid_vcard(vcard)
+                        if conformance_check_exc is not None:
+                            if strict:
+                                raise conformance_check_exc
+                            else:
+                                # skip because vcard parsing is likely to fail
+                                continue
                         else:
-                            ent_dict["phone"] = vcard_value
+                            # vCard represents information about an individual or entity.
+                            vcard_type = vcard[0]
+                            vcard_value = vcard[-1]
+                            # check for organization
+                            if vcard_type == RDAPVCardKeys.ORG:
+                                ent_dict["org"] = vcard_value
+                            # check for email
+                            elif vcard_type == RDAPVCardKeys.EMAIL:
+                                ent_dict["email"] = vcard_value
+                            # check for email
+                            elif vcard_type == RDAPVCardKeys.CONTACT:
+                                ent_dict["contact-uri"] = vcard_value
+                            # check for name
+                            elif vcard_type == RDAPVCardKeys.FN:
+                                ent_dict["name"] = vcard_value
+                            # check for address
+                            elif vcard_type == RDAPVCardKeys.ADR:
+                                values = self._flatten_list(vcard_value)
+                                address_string = ", ".join([v for v in values if v])
+                                ent_dict["address"] = address_string.lstrip()
+                            # check for contact
+                            elif vcard_type == RDAPVCardKeys.TEL:
+                                # check the "type" of "tel" vcard (either voice or fax):
+                                # vcard looks like: ['tel', {"type": "voice"}, 'uri', 'tel:0000000']
+                                #               or: ['tel', {"type": ["voice"]}, 'uri', 'tel:0000000']
+                                if hasattr(vcard[1], "type"):
+                                    contact_type = vcard[1].to_dict().get("type")
+                                    if (
+                                        contact_type == "voice"
+                                        or "voice" in contact_type
+                                    ):
+                                        ent_dict["phone"] = vcard_value
+                                    elif contact_type == "fax" or "fax" in contact_type:
+                                        ent_dict["fax"] = vcard_value
+                                else:
+                                    ent_dict["phone"] = vcard_value
 
             # add roles for this entity
-            for role in entity.roles:
-                if mark_redacted:
-                    for key in ("address", "phone", "name", "org", "email", "fax"):
-                        if not ent_dict.get(key):
-                            ent_dict[key] = REDACTED
-                # save the information under this "role"
-                entities_dict[role.lower()] = ent_dict
+            if hasattr(entity, "roles"):
+                for role in entity.roles:
+                    if mark_redacted:
+                        for key in ("address", "phone", "name", "org", "email", "fax"):
+                            if not ent_dict.get(key):
+                                ent_dict[key] = REDACTED
+                    # save the information under this "role"
+                    entities_dict[role.lower()] = ent_dict
 
         # return parsed entities dict
         return entities_dict
