@@ -232,7 +232,7 @@ class DomainResponse(RDAPResponse):
             )
 
     @staticmethod
-    def _check_valid_vcardArray(obj: Any) -> Optional[RDAPConformanceException]:
+    def _check_valid_vcardArray(obj: Any) -> Optional[RDAPConformanceException]:  # noqa
         # todo: this method will be removed in the future; replaced
         #  by a formal "validation" feature for the library or an implementation
         #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
