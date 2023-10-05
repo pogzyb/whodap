@@ -193,8 +193,15 @@ class DomainResponse(RDAPResponse):
         if getattr(self, "events", None):
             flat.update(self._flat_dates(self.events))
 
-        if getattr(self, "entities", None):
-            flat.update(self._flat_entities(self.entities, strict))
+        try:
+            # most common issues stem from nested "entities"
+            if getattr(self, "entities", None):
+                # _flat_entities will raise an RDAPConformanceException if strict=True
+                flat.update(self._flat_entities(self.entities, strict))
+        except (TypeError, KeyError, ValueError):
+            # handle other edge-cases that make this method "explode"
+            if strict:
+                raise RDAPConformanceException("Could not parse the response.")
 
         # convert dict keys over to "WHOISKeys"
         flat = self._construct_flat_dict(flat)
@@ -203,10 +210,13 @@ class DomainResponse(RDAPResponse):
         flat[WHOISKeys.DOMAIN_NAME] = self.ldhName
 
         # add dnssec after ensuring that it exists
-        if getattr(self, "secureDNS", None) and getattr(
-            self.secureDNS, "delegationSigned", None
+        if (
+            getattr(self, "secureDNS", None)
+            and getattr(self.secureDNS, "delegationSigned", None) is not None
         ):
-            flat[WHOISKeys.DNSSEC] = self.secureDNS.delegationSigned
+            flat[WHOISKeys.DNSSEC] = (
+                "unsigned" if not self.secureDNS.delegationSigned else "signed"
+            )
 
         return flat
 
