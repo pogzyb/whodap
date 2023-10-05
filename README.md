@@ -184,14 +184,14 @@ rdap_response = lookup_domain("example", "com")
 whois_format = rdap_response.to_whois_dict()
 logger.info(f"whois={whois_format}")
 # Given a valid RDAP response, the `to_whois_dict` method will attempt to
-# convert the RDAP format into a flattened dictionary of Whois key/values
+# convert the RDAP format into a flattened dictionary of WHOIS key/values
 
 # strict = True
 try:
     # Unfortunately, there are instances in which the RDAP protocol is not
     # properly implemented by the registrar. By default, the `to_whois_dict`
-    # will still attempt to parse the into the whois dictionary. However,
-    # there is no guarantee that the information will be correct/non-null. 
+    # will still attempt to parse the into the WHOIS dictionary. However,
+    # there is no guarantee that the information will be correct or non-null. 
     # If your applications rely on accurate information, the `strict=True`
     # parameter will raise an `RDAPConformanceException` when encountering
     # invalid or incorrectly formatted RDAP responses.
@@ -215,11 +215,10 @@ Please post a question or comment.
 - ~~Support for RDAP "domain" queries~~
 - ~~Support for RDAP "ipv4" and "ipv6" queries~~
 - ~~Support for RDAP ASN queries~~
-- Add full-validation support
 - Abstract the HTTP Client (`httpx` is the defacto client for now)
 - Add parser utils/helpers for IPv4, IPv6, and ASN Responses (if someone shows interest)
+- Add RDAP response validation support leveraging [ICANN's tool](https://github.com/icann/rdap-conformance-tool/)
 
 #### RDAP Resources:
-- https://rdap.org/
-- https://tools.ietf.org/html/rfc7483 
-- https://tools.ietf.org/html/rfc6350
+- [rdap.org](https://rdap.org/)
+- [RFC 9082](https://datatracker.ietf.org/doc/html/rfc9082) 
