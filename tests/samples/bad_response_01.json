@@ -1,0 +1,420 @@
+{
+  "handle": null,
+  "ldhName": "something-not-real.com",
+  "nameServers": [
+    {
+      "ldhName": "a.share-dns.com",
+      "status": [
+        "active"
+      ],
+      "objectClassName": "nameserver",
+      "lang": "en"
+    },
+    {
+      "ldhName": "b.share-dns.net",
+      "status": [
+        "active"
+      ],
+      "objectClassName": "nameserver",
+      "lang": "en"
+    }
+  ],
+  "secureDNS": {
+    "delegationSigned": false
+  },
+  "entities": [
+    {
+      "vcardArray": [
+        "vcard",
+        [
+          "version",
+          "{}",
+          "text",
+          "4.0"
+        ],
+        [
+          "kind",
+          "{}",
+          "text",
+          "individual"
+        ],
+        [
+          "fn",
+          "{}",
+          "text",
+          "Domain"
+        ],
+        [
+          "adr",
+          "{}",
+          "text"
+        ],
+        [
+          [
+            "{}",
+            "{}",
+            "City, State, undefined"
+          ],
+          "New York",
+          "Nebraska",
+          "10001",
+          "United States"
+        ],
+        [
+          "email",
+          "{}",
+          "text",
+          "cwp7panel@gmail.com"
+        ],
+        [
+          "tel",
+          {
+            "type": "voice"
+          },
+          "uri",
+          "+1.123456789"
+        ]
+      ],
+      "status": [
+        "Active"
+      ],
+      "roles": [
+        "registrant"
+      ],
+      "objectClassName": "entity",
+      "lang": "en"
+    },
+    {
+      "vcardArray": [
+        "vcard",
+        [
+          "version",
+          "{}",
+          "text",
+          "4.0"
+        ],
+        [
+          "kind",
+          "{}",
+          "text",
+          "individual"
+        ],
+        [
+          "fn",
+          "{}",
+          "text",
+          "Domain"
+        ],
+        [
+          "adr",
+          "{}",
+          "text"
+        ],
+        [
+          [
+            "{}",
+            "{}",
+            "City, State, undefined"
+          ],
+          "New York",
+          "Nebraska",
+          "10001",
+          "United States"
+        ],
+        [
+          "email",
+          "{}",
+          "text",
+          "cwp7panel@gmail.com"
+        ],
+        [
+          "tel",
+          {
+            "type": "voice"
+          },
+          "uri",
+          "+1.123456789"
+        ]
+      ],
+      "status": [
+        "Active"
+      ],
+      "objectClassName": "entity",
+      "lang": "en"
+    },
+    {
+      "vcardArray": [
+        "vcard",
+        [
+          "version",
+          "{}",
+          "text",
+          "4.0"
+        ],
+        [
+          "kind",
+          "{}",
+          "text",
+          "individual"
+        ],
+        [
+          "fn",
+          "{}",
+          "text",
+          "Domain"
+        ],
+        [
+          "adr",
+          "{}",
+          "text"
+        ],
+        [
+          [
+            "{}",
+            "{}",
+            "City, State, undefined"
+          ],
+          "New York",
+          "Nebraska",
+          "10001",
+          "United States"
+        ],
+        [
+          "email",
+          "{}",
+          "text",
+          "cwp7panel@gmail.com"
+        ],
+        [
+          "tel",
+          {
+            "type": "voice"
+          },
+          "uri",
+          "+1.123456789"
+        ]
+      ],
+      "status": [
+        "Active"
+      ],
+      "roles": [
+        "billing"
+      ],
+      "objectClassName": "entity",
+      "lang": "en"
+    },
+    {
+      "vcardArray": [
+        "vcard",
+        [
+          "version",
+          "{}",
+          "text",
+          "4.0"
+        ],
+        [
+          "kind",
+          "{}",
+          "text",
+          "individual"
+        ],
+        [
+          "fn",
+          "{}",
+          "text",
+          "Domain"
+        ],
+        [
+          "adr",
+          "{}",
+          "text"
+        ],
+        [
+          [
+            "{}",
+            "{}",
+            "City, State, undefined"
+          ],
+          "New York",
+          "Nebraska",
+          "10001",
+          "United States"
+        ],
+        [
+          "email",
+          "{}",
+          "text",
+          "cwp7panel@gmail.com"
+        ],
+        [
+          "tel",
+          {
+            "type": "voice"
+          },
+          "uri",
+          "+1.123456789"
+        ]
+      ],
+      "status": [
+        "Active"
+      ],
+      "roles": [
+        "tech"
+      ],
+      "objectClassName": "entity",
+      "lang": "en"
+    },
+    {
+      "vcardArray": [
+        [
+          "version",
+          "{}",
+          "text",
+          "4.0"
+        ],
+        [
+          "version",
+          "{}",
+          "text",
+          "4.0"
+        ]
+      ],
+      "status": [
+        "active"
+      ],
+      "roles": [
+        "Registrar"
+      ],
+      "objectClassName": "entity",
+      "lang": "en",
+      "publicIds": [
+        {
+          "type": "IANA Registrar ID",
+          "identifier": "1250"
+        }
+      ],
+      "entities": {
+        "vcardArray": [
+          "vcard",
+          [
+            [
+              "version",
+              "{}",
+              "text",
+              "4.0"
+            ],
+            [
+              "org",
+              "{}",
+              "text",
+              "OwnRegistrar Inc"
+            ],
+            [
+              "fn",
+              "{}",
+              "text",
+              "individual"
+            ],
+            [
+              "tel",
+              {
+                "type": "voice"
+              },
+              "uri",
+              "+1.212 401 6235"
+            ],
+            [
+              "email",
+              "{}",
+              "text",
+              "abuse@ownregistrar.com"
+            ]
+          ]
+        ],
+        "status": [
+          "active"
+        ],
+        "roles": [
+          "Registrar"
+        ],
+        "objectClassName": "abuse",
+        "lang": "en"
+      },
+      "links": [
+        {
+          "title": "Registrar URL",
+          "type": "application/rdap+json",
+          "rel": "self",
+          "href": "www.ownregistrar.com"
+        }
+      ]
+    }
+  ],
+  "status": [
+    "active"
+  ],
+  "events": [
+    {
+      "eventAction": "registration",
+      "eventDate": "2023-07-05T00:00:00"
+    },
+    {
+      "eventAction": "expiration",
+      "eventDate": "2024-07-05T00:00:00"
+    },
+    {
+      "eventAction": "last changed",
+      "eventDate": "2023-07-05T00:00:00"
+    },
+    {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2023-10-02T15:31:50"
+    }
+  ],
+  "notices": [
+    {
+      "title": "Status Codes",
+      "description": [
+        "For more information on domain status codes, please visit https://icann.org/epp"
+      ],
+      "links": [
+        {
+          "title": "More information on domain status codes",
+          "type": "text/html",
+          "rel": "related",
+          "href": "https://icann.org/epp"
+        }
+      ]
+    },
+    {
+      "title": "RDDS Inaccuracy Complaint Form",
+      "description": [
+        "URL of the ICANN RDDS Inaccuracy Complaint Form: https://www.icann.org/wicf/."
+      ],
+      "links": [
+        {
+          "title": "CANN RDDS Inaccuracy Complaint Form",
+          "type": "text/html",
+          "rel": "related",
+          "href": "https://www.icann.org/wicf/"
+        }
+      ]
+    },
+    {
+      "title": "Terms of Use",
+      "links": [
+        {
+          "title": "Terms of Use",
+          "href": "https://rdapserver.net/terms-of-use/"
+        }
+      ]
+    }
+  ],
+  "rdapConformance": [
+    "icann_rdap_response_profile_0",
+    "icann_rdap_technical_implementation_guide_0",
+    "rdap_level_0"
+  ],
+  "objectClassName": "domain",
+  "lang": "en"
+}

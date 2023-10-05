@@ -4,19 +4,21 @@ import os
 from datetime import datetime
 
 from whodap.response import DomainResponse, WHOISKeys
+from whodap.errors import RDAPConformanceException
+
+
+def load_file(filename: str):
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(base_dir, "samples", filename)) as data:
+        return data.read()
 
 
 class TestDomainResponse(unittest.TestCase):
-    def load_file(self, filename: str):
-        base_dir = os.path.abspath(os.path.dirname(__file__))
-        with open(os.path.join(base_dir, "samples", filename)) as data:
-            return data.read()
-
     def setUp(self) -> None:
         self.address = "123 main street"
         self.phone = "tel+18005555555"
         self.test_filename = "google.com.json"
-        self.json_string = self.load_file(self.test_filename)
+        self.json_string = load_file(self.test_filename)
         self.resp = DomainResponse.from_json(self.json_string)
 
     def test_to_dict(self):
@@ -42,7 +44,19 @@ class TestDomainResponse(unittest.TestCase):
             ):
                 assert type(v) == datetime, f"{type(v)} is not datetime"
             if k == WHOISKeys.DNSSEC:
-                assert type(v) == bool, f"{type(v)} is not bool"
+                assert type(v) == str, f"{type(v)} is not bool"
+
+    def test_to_whois_dict_strict(self):
+        self.test_filename = "bad_response_01.json"
+        self.json_string = load_file(self.test_filename)
+        self.resp = DomainResponse.from_json(self.json_string)
+        self.assertRaises(
+            RDAPConformanceException, self.resp.to_whois_dict, strict=True
+        )
+        self.test_filename = "bad_response_02.json"
+        self.json_string = load_file(self.test_filename)
+        self.resp = DomainResponse.from_json(self.json_string)
+        self.assertRaises(RDAPConformanceException, self.resp.to_whois_dict, True)
 
     def test_to_whois_json(self):
         whois_dict = self.resp.to_whois_dict()
@@ -92,7 +106,7 @@ class TestDomainResponse(unittest.TestCase):
         ), f"unexpected output from _convert_date"
 
     def test_flat_entities(self):
-        flattened_entities = self.resp._flat_entities(self.resp.entities)
+        flattened_entities = self.resp._flat_entities(self.resp.entities, strict=False)
         for role, role_values in flattened_entities.items():
             assert role in (
                 "abuse",
