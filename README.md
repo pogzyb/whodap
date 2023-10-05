@@ -170,7 +170,7 @@ async with whodap.DNSClient.new_aio_client_context(aio_httpx_client) as dns_clie
         response = await dns_client.aio_lookup(domain, tld)
 ```
 
-- Using the `to_whois_dict` method
+- Using the `to_whois_dict` method and `RDAPConformanceException`
 ```python
 import logging
 
