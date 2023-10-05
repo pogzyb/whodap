@@ -20,7 +20,7 @@ __all__ = [
     "IPv6Client",
     "ASNClient",
 ]
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 
 
 def lookup_domain(
