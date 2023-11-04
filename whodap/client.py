@@ -3,6 +3,7 @@ import posixpath
 import ipaddress
 from typing import Dict, Any, Union, Optional, List
 from contextlib import contextmanager
+from json import JSONDecodeError
 
 # different installs for async contextmanager based on python version
 if sys.version_info < (3, 7):
@@ -198,7 +199,13 @@ class RDAPClient:
         # save href chain
         self.rdap_hrefs.append(href)
         # check for more authoritative source
-        rdap_json = resp.json()
+        try:
+            # If for some reason the response is invalid json, then just return None.
+            # This may happen if we request an authoritative href that is not actually
+            # rdap+json, but instead a webpage/html.
+            rdap_json = resp.json()
+        except JSONDecodeError:
+            return None
         links = rdap_json.get("links")
         if links:
             next_href = self._check_next_href(href, links)
@@ -231,7 +238,13 @@ class RDAPClient:
                 raise
         # save href chain
         self.rdap_hrefs.append(href)
-        rdap_json = resp.json()
+        try:
+            # If for some reason the response is invalid json, then just return None.
+            # This may happen if we request an authoritative href that is not actually
+            # rdap+json, but instead a webpage/html.
+            rdap_json = resp.json()
+        except JSONDecodeError:
+            return None
         links = rdap_json.get("links")
         if links:
             next_href = self._check_next_href(href, links)
