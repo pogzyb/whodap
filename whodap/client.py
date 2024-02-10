@@ -39,7 +39,6 @@ class RDAPClient:
         self.httpx_client = httpx_client
         self.version: str = ""
         self.publication: str = ""
-        self.rdap_hrefs: List[str] = []
         self._target: Union[str, int, ipaddress.IPv4Address, ipaddress.IPv6Address] = ""
 
     def lookup(self, *args, **kwargs):
@@ -202,8 +201,6 @@ class RDAPClient:
                 return None
             else:
                 raise
-        # save href chain
-        self.rdap_hrefs.append(href)
         # check for more authoritative source
         try:
             # If for some reason the response is invalid json, then just return None.
@@ -245,8 +242,6 @@ class RDAPClient:
                 return None
             else:
                 raise
-        # save href chain
-        self.rdap_hrefs.append(href)
         try:
             # If for some reason the response is invalid json, then just return None.
             # This may happen if we request an authoritative href that is not actually
