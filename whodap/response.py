@@ -173,7 +173,7 @@ class DomainResponse(RDAPResponse):
         does not modify the original DomainResponse object.
 
         :param strict: If True, raises an RDAPConformanceException if
-          the given RDAP response is incorrectly formatted. Otherwise
+          the given RDAP response is incorrectly formatted. Otherwise,
           if False, the method will attempt to parse the RDAP response
           without raising any exception.
         :return: dict with WHOIS keys
@@ -184,7 +184,13 @@ class DomainResponse(RDAPResponse):
         if getattr(self, "nameservers", None):
             flat_nameservers = {"nameservers": []}
             for obj in self.nameservers:
-                flat_nameservers["nameservers"].append(obj.ldhName)
+                if hasattr(obj, "ldhName"):
+                    flat_nameservers["nameservers"].append(obj.ldhName)
+                # if hostnames are not given, try ipv4 addresses
+                elif hasattr(obj, "ipAddresses"):
+                    if hasattr(obj.ipAddresses, "v4"):
+                        flat_nameservers["nameservers"].extend(obj.ipAddresses.v4)
+
             flat.update(flat_nameservers)
 
         if getattr(self, "status", None):
