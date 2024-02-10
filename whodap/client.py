@@ -14,7 +14,13 @@ else:
 import httpx
 
 from .codes import RDAPStatusCodes
-from .errors import RateLimitError, NotFoundError, MalformedQueryError, BadStatusCode
+from .errors import (
+    RateLimitError,
+    NotFoundError,
+    MalformedQueryError,
+    BadStatusCode,
+    WhodapError,
+)
 from .response import DomainResponse, IPv4Response, IPv6Response, ASNResponse
 
 
@@ -33,7 +39,6 @@ class RDAPClient:
         self.httpx_client = httpx_client
         self.version: str = ""
         self.publication: str = ""
-        self.rdap_hrefs: List[str] = []
         self._target: Union[str, int, ipaddress.IPv4Address, ipaddress.IPv6Address] = ""
 
     def lookup(self, *args, **kwargs):
@@ -97,7 +102,7 @@ class RDAPClient:
     @classmethod
     def new_client(cls, httpx_client: Optional[httpx.Client] = None):
         """
-        Classmethod for instantiating an synchronous instance of Client
+        Classmethod for instantiating a synchronous instance of Client
 
         :httpx_client: pre-configured instance of `httpx.Client`
         :return: DNSClient with a sync httpx_client
@@ -175,7 +180,7 @@ class RDAPClient:
         return await self.httpx_client.get(uri)
 
     def _get_authoritative_response(
-        self, href: str, depth: int = 0
+        self, href: str, seen: List[str], depth: int = 0
     ) -> Optional[httpx.Response]:
         """
         Makes HTTP calls to RDAP servers until it finds
@@ -196,8 +201,6 @@ class RDAPClient:
                 return None
             else:
                 raise
-        # save href chain
-        self.rdap_hrefs.append(href)
         # check for more authoritative source
         try:
             # If for some reason the response is invalid json, then just return None.
@@ -209,13 +212,16 @@ class RDAPClient:
         links = rdap_json.get("links")
         if links:
             next_href = self._check_next_href(href, links)
-            if next_href:
-                resp = self._get_authoritative_response(next_href, depth + 1) or resp
+            if next_href and next_href not in seen:
+                seen.append(next_href)
+                resp = (
+                    self._get_authoritative_response(next_href, seen, depth + 1) or resp
+                )
         # return authoritative response
         return resp
 
     async def _aio_get_authoritative_response(
-        self, href: str, depth: int = 0
+        self, href: str, seen: List[str], depth: int = 0
     ) -> Optional[httpx.Response]:
         """
         Makes HTTP calls to RDAP servers until it finds
@@ -236,8 +242,6 @@ class RDAPClient:
                 return None
             else:
                 raise
-        # save href chain
-        self.rdap_hrefs.append(href)
         try:
             # If for some reason the response is invalid json, then just return None.
             # This may happen if we request an authoritative href that is not actually
@@ -248,9 +252,12 @@ class RDAPClient:
         links = rdap_json.get("links")
         if links:
             next_href = self._check_next_href(href, links)
-            if next_href:
+            if next_href and next_href not in seen:
+                seen.append(next_href)
                 resp = (
-                    await self._aio_get_authoritative_response(next_href, depth + 1)
+                    await self._aio_get_authoritative_response(
+                        next_href, seen, depth + 1
+                    )
                     or resp
                 )
         return resp
@@ -341,7 +348,7 @@ class DNSClient(RDAPClient):
             # build query href
             href = self._build_query_href(base_href, self._target)
         # get response
-        rdap_resp = self._get_authoritative_response(href)
+        rdap_resp = self._get_authoritative_response(href, [href])
         # construct and return domain response
         domain_response = DomainResponse.from_json(rdap_resp.read())
         return domain_response
@@ -373,7 +380,7 @@ class DNSClient(RDAPClient):
             # build query href
             href = self._build_query_href(base_href, self._target)
         # get response
-        rdap_resp = await self._aio_get_authoritative_response(href)
+        rdap_resp = await self._aio_get_authoritative_response(href, [href])
         # construct and return domain response
         domain_response = DomainResponse.from_json(rdap_resp.read())
         return domain_response
@@ -430,7 +437,7 @@ class IPv4Client(RDAPClient):
             self._target = ipv4
         server = self._get_rdap_server(self._target)
         href = self._build_query_href(server, str(self._target))
-        rdap_resp = self._get_authoritative_response(href)
+        rdap_resp = self._get_authoritative_response(href, [href])
         ipv4_response = IPv4Response.from_json(rdap_resp.read())
         return ipv4_response
 
@@ -453,7 +460,7 @@ class IPv4Client(RDAPClient):
             self._target = ipv4
         server = self._get_rdap_server(self._target)
         href = self._build_query_href(server, str(self._target))
-        rdap_resp = await self._aio_get_authoritative_response(href)
+        rdap_resp = await self._aio_get_authoritative_response(href, [href])
         ipv4_response = IPv4Response.from_json(rdap_resp.read())
         return ipv4_response
 
@@ -507,8 +514,10 @@ class IPv6Client(RDAPClient):
         else:
             self._target = ipv6
         server = self._get_rdap_server(self._target)
+        if server is None:
+            raise WhodapError(f"No RDAP server found for IPv6={ipv6}")
         href = self._build_query_href(server, str(self._target))
-        rdap_resp = self._get_authoritative_response(href)
+        rdap_resp = self._get_authoritative_response(href, [href])
         ipv6_response = IPv6Response.from_json(rdap_resp.read())
         return ipv6_response
 
@@ -530,8 +539,10 @@ class IPv6Client(RDAPClient):
         else:
             self._target = ipv6
         server = self._get_rdap_server(self._target)
+        if server is None:
+            raise WhodapError(f"No RDAP server found for IPv6={ipv6}")
         href = self._build_query_href(server, str(self._target))
-        rdap_resp = await self._aio_get_authoritative_response(href)
+        rdap_resp = await self._aio_get_authoritative_response(href, [href])
         ipv6_response = IPv6Response.from_json(rdap_resp.read())
         return ipv6_response
 
@@ -575,7 +586,7 @@ class ASNClient(RDAPClient):
         self._target = asn
         server = self._get_rdap_server(asn)
         href = self._build_query_href(server, str(asn))
-        rdap_resp = self._get_authoritative_response(href)
+        rdap_resp = self._get_authoritative_response(href, [href])
         asn_response = ASNResponse.from_json(rdap_resp.read())
         return asn_response
 
@@ -590,7 +601,7 @@ class ASNClient(RDAPClient):
         self._target = asn
         server = self._get_rdap_server(asn)
         href = self._build_query_href(server, str(asn))
-        rdap_resp = await self._aio_get_authoritative_response(href)
+        rdap_resp = await self._aio_get_authoritative_response(href, [href])
         asn_response = ASNResponse.from_json(rdap_resp.read())
         return asn_response
 

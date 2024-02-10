@@ -31,7 +31,7 @@ def lookup_domain(
     submits an RDAP query for the given domain, and returns
     the result as a DomainResponse.
 
-    :param domain: the domain name to lookup
+    :param domain: the domain name to query
     :param tld: the top level domain (e.g. "com", "net", "buzz")
     :param httpx_client: Optional preconfigured instance of `httpx.Client`
     :return: an instance of DomainResponse
@@ -55,7 +55,7 @@ async def aio_lookup_domain(
     a DNSClient, submits an RDAP query for the given domain,
     and returns the result as a DomainResponse.
 
-    :param domain: the domain name to lookup
+    :param domain: the domain name to query
     :param tld: the top level domain (e.g. "com", "net", "buzz")
     :param httpx_client: Optional preconfigured instance of `httpx.AsyncClient`
     :return: an instance of DomainResponse
