@@ -150,7 +150,7 @@ class DomainResponse(RDAPResponse):
         otherwise returns the value of the given attribute
         """
         val = super().__getattribute__(item)
-        if item == "eventDate":
+        if item == "eventDate" and val:
             return self._convert_date(val)
         return val
 
