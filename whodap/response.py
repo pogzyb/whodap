@@ -387,7 +387,7 @@ class DomainResponse(RDAPResponse):
             WHOISKeys.BILLING_PHONE: parsed.get("billing", {}).get("phone"),
             WHOISKeys.BILLING_FAX: parsed.get("billing", {}).get("fax"),
             WHOISKeys.REGISTRANT_NAME: parsed.get("registrant", {}).get("name"),
-            WHOISKeys.REGISTRANT_ORG: parsed.get("registrant", {}).get("organization"),
+            WHOISKeys.REGISTRANT_ORG: parsed.get("registrant", {}).get("org"),
             WHOISKeys.REGISTRANT_EMAIL: parsed.get("registrant", {}).get("email"),
             WHOISKeys.REGISTRANT_ADDRESS: parsed.get("registrant", {}).get("address"),
             WHOISKeys.REGISTRANT_PHONE: parsed.get("registrant", {}).get("phone"),
