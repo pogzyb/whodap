@@ -3,7 +3,8 @@
 [![PyPI version](https://badge.fury.io/py/whodap.svg)](https://badge.fury.io/py/whodap)
 ![example workflow](https://github.com/pogzyb/whodap/actions/workflows/run-build-and-test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/pogzyb/whodap/branch/main/graph/badge.svg?token=NCfdf6ftb9)](https://codecov.io/gh/pogzyb/whodap)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code style: black](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://docs.astral.sh/ruff/)
+[![Spectra Assure Community Badge](https://secure.software/pypi/badge/whodap)](https://secure.software/pypi/packages/whodap)
 
 `whodap` | Simple RDAP Utility for Python
 
@@ -20,7 +21,7 @@ from pprint import pprint
 import whodap
 
 # Looking up a domain name
-response = whodap.lookup_domain(domain='bitcoin', tld='org') 
+response = whodap.lookup_domain(domain='bitcoin', tld='org')
 # Equivalent asyncio call
 loop = asyncio.get_event_loop()
 response = loop.run_until_complete(whodap.aio_lookup_domain(domain='bitcoin', tld='org'))
@@ -116,12 +117,12 @@ import whodap
 dns_client = whodap.DNSClient.new_client()
 for domain, tld in [('google', 'com'), ('google', 'buzz')]:
     response = dns_client.lookup(domain, tld)
-    
+
 # Equivalent asyncio call
 dns_client = await whodap.DNSClient.new_aio_client()
 for domain, tld in [('google', 'com'), ('google', 'buzz')]:
     response = await dns_client.aio_lookup(domain, tld)
-    
+
 # Use the DNSClient contextmanagers: `new_client_context` or `new_aio_client_context`
 with whodap.DNSClient.new_client_context() as dns_client:
     for domain, tld in [('google', 'com'), ('google', 'buzz')]:
@@ -191,7 +192,7 @@ try:
     # Unfortunately, there are instances in which the RDAP protocol is not
     # properly implemented by the registrar. By default, the `to_whois_dict`
     # will still attempt to parse the into the WHOIS dictionary. However,
-    # there is no guarantee that the information will be correct or non-null. 
+    # there is no guarantee that the information will be correct or non-null.
     # If your applications rely on accurate information, the `strict=True`
     # parameter will raise an `RDAPConformanceException` when encountering
     # invalid or incorrectly formatted RDAP responses.
@@ -202,8 +203,8 @@ except RDAPConformanceException:
 ```
 
 #### Contributions
-- Interested in contributing? 
-- Have any questions or comments? 
+- Interested in contributing?
+- Have any questions or comments?
 - Anything that you'd like to see?
 - Anything that doesn't look right?
 
@@ -221,4 +222,4 @@ Please post a question or comment.
 
 #### RDAP Resources:
 - [rdap.org](https://rdap.org/)
-- [RFC 9082](https://datatracker.ietf.org/doc/html/rfc9082) 
+- [RFC 9082](https://datatracker.ietf.org/doc/html/rfc9082)
