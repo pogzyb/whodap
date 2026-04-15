@@ -5,11 +5,7 @@ from typing import Any, Union, cast, TypeAlias
 from contextlib import contextmanager
 from json import JSONDecodeError
 
-# different installs for async contextmanager based on python version
-if sys.version_info < (3, 7):
-    from async_generator import asynccontextmanager
-else:
-    from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 
 import httpx
 
