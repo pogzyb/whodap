@@ -1,12 +1,22 @@
 from datetime import datetime
 from json import dumps, loads
 from types import SimpleNamespace
-from typing import Dict, Any, List, Union, Optional
+from typing import Any, Union, TypeAlias, cast
 
 from .utils import WHOISKeys, RDAPVCardKeys
 from .errors import RDAPConformanceException
 
 REDACTED = "REDACTED FOR PRIVACY"
+
+WhoisDict: TypeAlias = dict[
+    WHOISKeys,
+    Union[
+        str,
+        list[str],
+        datetime,
+        None,
+    ],
+]
 
 
 class RDAPResponse(SimpleNamespace):
@@ -14,13 +24,13 @@ class RDAPResponse(SimpleNamespace):
     Base class representing an RDAP Response
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_json(indent=2)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.to_json(indent=2)
 
     @staticmethod
@@ -50,7 +60,7 @@ class RDAPResponse(SimpleNamespace):
         # return original date string if unsuccessful
         return ds
 
-    def _convert_list(self, ls: List[Any]) -> List[Any]:
+    def _convert_list(self, ls: list[Any]) -> list[Any]:
         """
         Iterates over the given list checking for nested RDAPResponses;
         Recursively calls itself when it encounters another list otherwise
@@ -59,7 +69,7 @@ class RDAPResponse(SimpleNamespace):
         :param ls: any list
         :return: another list
         """
-        converted = []
+        converted: list[Any] = []
         for obj in ls:
             if isinstance(obj, type(self)):
                 converted.append(self._convert_self_to_dict(obj))
@@ -69,7 +79,7 @@ class RDAPResponse(SimpleNamespace):
                 converted.append(obj)
         return converted
 
-    def _convert_self_to_dict(self, rdr: "RDAPResponse") -> Dict[str, Any]:
+    def _convert_self_to_dict(self, rdr: "RDAPResponse") -> dict[str, Any]:
         """
         Converts the RDAPResponse to a dictionary.
         Recursively calls itself to convert nested RDAPResponse.
@@ -77,7 +87,7 @@ class RDAPResponse(SimpleNamespace):
         :param rdr: an instance of RDAPResponse
         :return: the RDAPResponse converted to a dictionary
         """
-        converted = {}
+        converted: dict[str, Any] = {}
         for key, value in rdr.__dict__.items():
             if isinstance(value, list):
                 converted[key] = self._convert_list(value)
@@ -88,7 +98,7 @@ class RDAPResponse(SimpleNamespace):
         return converted
 
     @classmethod
-    def from_json(cls, json: Union[str, bytes]):
+    def from_json(cls, json: Union[str, bytes]) -> Any:
         """
         Initializes an instance of DomainResponse from the
         JSON output of an RDAP HTTP query.
@@ -98,7 +108,7 @@ class RDAPResponse(SimpleNamespace):
         """
         return loads(json, object_hook=lambda d: cls(**d))
 
-    def to_json(self, **kwargs) -> str:
+    def to_json(self, **kwargs: Any) -> str:
         """
         Converts the DomainResponse to a JSON string.
 
@@ -109,14 +119,14 @@ class RDAPResponse(SimpleNamespace):
             kwargs["default"] = self._encoder
         return dumps(self.to_dict(), **kwargs)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Converts the DomainResponse to a dictionary.
         """
         return self._convert_self_to_dict(self)
 
     @staticmethod
-    def _encoder(x: Any):
+    def _encoder(x: Any) -> str | Any:
         """
         JSON encoding helper for "datetime" objects.
 
@@ -127,14 +137,14 @@ class RDAPResponse(SimpleNamespace):
             return x.isoformat()
         return x
 
-    def _flatten_list(self, ls: List[Any]):
+    def _flatten_list(self, ls: list[Any]) -> list[Any]:
         """
         Recursively flattens the input list.
 
         :param ls: any list
         :return: a flattened list
         """
-        flattened = []
+        flattened: list[Any] = []
         for i in ls:
             if isinstance(i, list):
                 flattened.extend(self._flatten_list(i))
@@ -144,7 +154,7 @@ class RDAPResponse(SimpleNamespace):
 
 
 class DomainResponse(RDAPResponse):
-    def __getattribute__(self, item):
+    def __getattribute__(self, item: Any) -> Any:
         """
         Converts and returns an "eventDate" value to a datetime object;
         otherwise returns the value of the given attribute
@@ -154,7 +164,7 @@ class DomainResponse(RDAPResponse):
             return self._convert_date(val)
         return val
 
-    def to_whois_json(self, **kwargs) -> str:
+    def to_whois_json(self, **kwargs: Any) -> str:
         """
         Converts the DomainResponse to a WHOIS JSON string.
 
@@ -165,9 +175,7 @@ class DomainResponse(RDAPResponse):
             kwargs["default"] = self._encoder
         return dumps(self.to_whois_dict(), **kwargs)
 
-    def to_whois_dict(
-        self, strict: bool = False
-    ) -> Dict[WHOISKeys, Union[str, List[str], datetime, None]]:
+    def to_whois_dict(self, strict: bool = False) -> WhoisDict:
         """
         Returns the DomainResponse as "flattened" WHOIS dictionary;
         does not modify the original DomainResponse object.
@@ -178,39 +186,42 @@ class DomainResponse(RDAPResponse):
           without raising any exception.
         :return: dict with WHOIS keys
         """
-        flat = {}
+        flat: WhoisDict = {}
 
         # traverse and extract information from RDAP fields
-        if getattr(self, "nameservers", None):
-            flat_nameservers = {"nameservers": []}
+        k: str = "nameservers"
+        if getattr(self, k, None):
+            flat_nameservers: dict[str, list[str]] = {k: []}
             for obj in self.nameservers:
                 if hasattr(obj, "ldhName"):
-                    flat_nameservers["nameservers"].append(obj.ldhName)
+                    flat_nameservers[k].append(obj.ldhName)
                 # if hostnames are not given, try ipv4 addresses
                 elif hasattr(obj, "ipAddresses"):
                     if hasattr(obj.ipAddresses, "v4"):
-                        flat_nameservers["nameservers"].extend(obj.ipAddresses.v4)
+                        flat_nameservers[k].extend(obj.ipAddresses.v4)
 
-            flat.update(flat_nameservers)
+            flat.update(cast(WhoisDict, flat_nameservers))
 
         if getattr(self, "status", None):
-            flat.update({"status": self.status})
+            flat.update(cast(WhoisDict, {"status": self.status}))
 
         if getattr(self, "events", None):
-            flat.update(self._flat_dates(self.events))
+            flat.update(cast(WhoisDict, self._flat_dates(self.events)))
 
         try:
             # most common issues stem from nested "entities"
             if getattr(self, "entities", None):
                 # _flat_entities will raise an RDAPConformanceException if strict=True
-                flat.update(self._flat_entities(self.entities, strict))
+                flat.update(cast(WhoisDict, self._flat_entities(self.entities, strict)))
         except (TypeError, KeyError, ValueError):
             # handle other edge-cases that make this method "explode"
             if strict:
-                raise RDAPConformanceException("Could not parse the response.")
+                raise RDAPConformanceException(
+                    "Could not parse the response."
+                ) from None
 
         # convert dict keys over to "WHOISKeys"
-        flat = self._construct_flat_dict(flat)
+        flat = self._construct_flat_dict(cast(dict[str, Any], flat))
 
         # add domain name
         flat[WHOISKeys.DOMAIN_NAME] = self.ldhName
@@ -227,7 +238,7 @@ class DomainResponse(RDAPResponse):
         return flat
 
     @staticmethod
-    def _flat_dates(events: List[SimpleNamespace]) -> Dict[str, datetime]:
+    def _flat_dates(events: list[SimpleNamespace]) -> dict[str, datetime]:
         """
         Returns the list of events as a flattened dict of date keys and values
 
@@ -238,7 +249,7 @@ class DomainResponse(RDAPResponse):
         return dates
 
     @staticmethod
-    def _check_valid_entities(obj: Any) -> Optional[RDAPConformanceException]:
+    def _check_valid_entities(obj: Any) -> RDAPConformanceException | None:
         # todo: this method will be removed in the future; replaced
         #  by a formal "validation" feature for the library or an implementation
         #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
@@ -246,9 +257,10 @@ class DomainResponse(RDAPResponse):
             return RDAPConformanceException(
                 f"entities type={type(obj)} is not an Array"
             )
+        return None
 
     @staticmethod
-    def _check_valid_vcardArray(obj: Any) -> Optional[RDAPConformanceException]:  # noqa
+    def _check_valid_vcardArray(obj: Any) -> RDAPConformanceException | None:
         # todo: this method will be removed in the future; replaced
         #  by a formal "validation" feature for the library or an implementation
         #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
@@ -256,24 +268,31 @@ class DomainResponse(RDAPResponse):
             return RDAPConformanceException(
                 f"vcardArray type={type(obj)} is not an Array"
             )
-        elif len(obj) < 2:
-            return RDAPConformanceException("vcardArray is incorrectly formatted")
-        elif obj[0] != "vcard" and not isinstance(obj[-1], list):
+
+        if len(obj) < 2:
             return RDAPConformanceException("vcardArray is incorrectly formatted")
 
+        if obj[0] != "vcard" and not isinstance(obj[-1], list):
+            return RDAPConformanceException("vcardArray is incorrectly formatted")
+
+        return None
+
     @staticmethod
-    def _check_valid_vcard(obj: Any) -> Optional[RDAPConformanceException]:
+    def _check_valid_vcard(obj: Any) -> RDAPConformanceException | None:
         # todo: this method will be removed in the future; replaced
         #  by a formal "validation" feature for the library or an implementation
         #  of the icann-tool: https://github.com/icann/rdap-conformance-tool
         if not isinstance(obj, list):
             return RDAPConformanceException(f"vCard type={type(obj)} is not an Array")
-        elif len(obj) < 4:
+
+        if len(obj) < 4:
             return RDAPConformanceException("vCard array length is less than < 4")
 
+        return None
+
     def _flat_entities(
-        self, entities: List[SimpleNamespace], strict: bool
-    ) -> Dict[str, Dict[str, str]]:
+        self, entities: list[SimpleNamespace], strict: bool
+    ) -> dict[str, dict[str, str]]:
         # validate that entities is at least iterable
         conformance_check_exc = self._check_valid_entities(entities)
         if conformance_check_exc is not None:
@@ -283,9 +302,9 @@ class DomainResponse(RDAPResponse):
                 # skip because entity parsing is likely to fail
                 return {}
         # attempt to parse entities
-        entities_dict = {}
+        entities_dict: dict[str, Any] = {}
         for entity in entities:
-            ent_dict = {}
+            ent_dict: dict[str, Any] = {}
             # check for redacted information
             mark_redacted = False
             if hasattr(entity, "remarks"):
@@ -369,8 +388,8 @@ class DomainResponse(RDAPResponse):
         return entities_dict
 
     @staticmethod
-    def _construct_flat_dict(parsed: Dict[str, Any]) -> Dict[WHOISKeys, Any]:
-        converted = {
+    def _construct_flat_dict(parsed: dict[str, Any]) -> WhoisDict:
+        converted: dict[str, Any] = {
             WHOISKeys.ABUSE_EMAIL: parsed.get("abuse", {}).get("email")
             or parsed.get("abuse", {}).get("contact-uri"),
             WHOISKeys.ABUSE_PHONE: parsed.get("abuse", {}).get("phone"),
@@ -410,7 +429,7 @@ class DomainResponse(RDAPResponse):
             WHOISKeys.STATUS: parsed.get("status"),
             WHOISKeys.NAMESERVERS: parsed.get("nameservers"),
         }
-        return converted
+        return cast(WhoisDict, converted)
 
 
 class IPv4Response(RDAPResponse):

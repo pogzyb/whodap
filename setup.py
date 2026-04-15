@@ -26,6 +26,7 @@ setup(
     author_email='pogzyb@umich.edu',
     python_requires='>=3.10, <4',
     keywords='security, whois, rdap, research',
+    license="MIT",
     install_requires=[
         'httpx>=0.28.1',
     ],
@@ -34,7 +35,6 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development',
         'Topic :: Security',
-        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
