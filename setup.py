@@ -24,11 +24,10 @@ setup(
     url='https://github.com/pogzyb/whodap',
     author='Joseph Obarzanek',
     author_email='pogzyb@umich.edu',
-    python_requires='>=3.6, <4',
+    python_requires='>=3.10, <4',
     keywords='security, whois, rdap, research',
     install_requires=[
         'httpx>=0.20.0',
-        'async_generator>=1.10; python_version < "3.7.0"'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -37,12 +36,11 @@ setup(
         'Topic :: Security',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Programming Language :: Python :: 3 :: Only',
     ],
     packages=['whodap'],
