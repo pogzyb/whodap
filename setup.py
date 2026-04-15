@@ -27,7 +27,7 @@ setup(
     python_requires='>=3.10, <4',
     keywords='security, whois, rdap, research',
     install_requires=[
-        'httpx>=0.20.0',
+        'httpx>=0.28.1',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
