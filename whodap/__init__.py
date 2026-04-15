@@ -1,5 +1,5 @@
 import ipaddress
-from typing import Optional, Union
+from typing import Union, cast
 
 from httpx import Client, AsyncClient
 
@@ -24,7 +24,7 @@ __version__ = "0.1.14"
 
 
 def lookup_domain(
-    domain: str, tld: str, httpx_client: Optional[Client] = None
+    domain: str, tld: str, httpx_client: Client | None = None
 ) -> DomainResponse:
     """
     Convenience function that instantiates a DNSClient,
@@ -44,11 +44,11 @@ def lookup_domain(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             dns_client.close()
-    return resp
+    return cast(DomainResponse, resp)
 
 
 async def aio_lookup_domain(
-    domain: str, tld: str, httpx_client: Optional[AsyncClient] = None
+    domain: str, tld: str, httpx_client: AsyncClient | None = None
 ) -> DomainResponse:
     """
     Async-compatible convenience function that instantiates
@@ -68,11 +68,11 @@ async def aio_lookup_domain(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             await dns_client.aio_close()
-    return resp
+    return cast(DomainResponse, resp)
 
 
 def lookup_ipv4(
-    ipv4: Union[str, ipaddress.IPv4Address], httpx_client: Optional[Client] = None
+    ipv4: Union[str, ipaddress.IPv4Address], httpx_client: Client | None = None
 ) -> IPv4Response:
     """
     Convenience function that instantiates an IPv4Client,
@@ -91,11 +91,11 @@ def lookup_ipv4(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             ipv4_client.close()
-    return resp
+    return cast(IPv4Response, resp)
 
 
 async def aio_lookup_ipv4(
-    ipv4: Union[str, ipaddress.IPv4Address], httpx_client: Optional[AsyncClient] = None
+    ipv4: Union[str, ipaddress.IPv4Address], httpx_client: AsyncClient | None = None
 ) -> IPv4Response:
     """
     Convenience function that instantiates an IPv4Client,
@@ -114,11 +114,11 @@ async def aio_lookup_ipv4(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             await ipv4_client.aio_close()
-    return resp
+    return cast(IPv4Response, resp)
 
 
 def lookup_ipv6(
-    ipv6: Union[str, ipaddress.IPv6Address], httpx_client: Optional[Client] = None
+    ipv6: Union[str, ipaddress.IPv6Address], httpx_client: Client | None = None
 ) -> IPv6Response:
     """
     Convenience function that instantiates an IPv6Client,
@@ -137,11 +137,11 @@ def lookup_ipv6(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             ipv6_client.close()
-    return resp
+    return cast(IPv6Response, resp)
 
 
 async def aio_lookup_ipv6(
-    ipv6: Union[str, ipaddress.IPv6Address], httpx_client: Optional[AsyncClient] = None
+    ipv6: Union[str, ipaddress.IPv6Address], httpx_client: AsyncClient | None = None
 ) -> IPv6Response:
     """
     Convenience function that instantiates an IPv6Client,
@@ -160,10 +160,10 @@ async def aio_lookup_ipv6(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             await ipv6_client.aio_close()
-    return resp
+    return cast(IPv6Response, resp)
 
 
-def lookup_asn(asn: int, httpx_client: Optional[Client] = None) -> ASNResponse:
+def lookup_asn(asn: int, httpx_client: Client | None = None) -> ASNResponse:
     """
     Convenience function that instantiates an ASNClient,
     submits an RDAP query for the given ASN, and returns
@@ -181,11 +181,11 @@ def lookup_asn(asn: int, httpx_client: Optional[Client] = None) -> ASNResponse:
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             asn_client.close()
-    return resp
+    return cast(ASNResponse, resp)
 
 
 async def aio_lookup_asn(
-    asn: int, httpx_client: Optional[AsyncClient] = None
+    asn: int, httpx_client: AsyncClient | None = None
 ) -> ASNResponse:
     """
     Convenience function that instantiates an ASNClient,
@@ -204,4 +204,4 @@ async def aio_lookup_asn(
         # otherwise it's up to the user to close their `httpx_client`
         if not httpx_client:
             await asn_client.aio_close()
-    return resp
+    return cast(ASNResponse, resp)

@@ -10,7 +10,7 @@ class RDAPVCardKeys(str, Enum):
     CONTACT = "contact-uri"
 
     @staticmethod
-    def values():
+    def values() -> list[str]:
         return [rdk.value for rdk in RDAPVCardKeys]
 
 
@@ -58,8 +58,8 @@ class WHOISKeys(str, Enum):
     TECHNICAL_PHONE = "technical_phone"
     TECHNICAL_FAX = "technical_fax"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.value
