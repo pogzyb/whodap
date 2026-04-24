@@ -1,4 +1,3 @@
-import sys
 import posixpath
 import ipaddress
 from typing import Any, Union, cast, TypeAlias
