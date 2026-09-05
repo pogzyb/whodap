@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "test_rdap_notices.json",
+  "title": "notices",
+  "type": "object",
+  "properties": {
+    "notices": {
+      "$ref": "rdap_notices.json#"
+    }
+  }
+}

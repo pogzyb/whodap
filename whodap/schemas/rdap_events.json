@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "events",
+  "$id": "rdap_events.json",
+  "type": "array",
+  "items": {
+    "$ref": "rdap_event.json#"
+  },
+  "validationName": "stdRdapEventsValidation",
+  "structureInvalid": -10900
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_nameserver.json",
+  "title": "nameserver",
+  "properties": {
+    "objectClassName": {
+      "const": "nameserver",
+      "errorCode": -12403
+    },
+    "ldhName": {
+      "$ref": "rdap_common.json#/definitions/ldhName"
+    },
+    "unicodeName": {
+      "$ref": "rdap_common.json#/definitions/unicodeName"
+    },
+    "ipAddresses": {
+      "$ref": "rdap_ipAddress.json"
+    },
+    "entities": {
+      "$ref": "rdap_entities.json#"
+    },
+    "rdapConformance": {
+      "$ref": "rdap_common.json#/definitions/rdapConformance"
+    },
+    "lang" : {
+      "$ref": "rdap_common.json#/definitions/lang"
+    },
+    "notices" : {
+      "$ref": "rdap_notices.json#"
+    },
+    "handle": {
+      "type": "string",
+      "errorCode": -12404
+    },
+    "status": {
+      "$ref": "rdap_status.json#"
+    },
+    "port43": {
+      "$ref": "rdap_port43.json#"
+    },
+    "events": {
+      "$ref": "rdap_events.json#"
+    },
+    "remarks": {
+      "$ref": "rdap_common.json#/definitions/remarks"
+    },
+    "links" : {
+      "$ref": "rdap_common.json#/definitions/links"
+    }
+  },
+  "links": [
+    {
+      "description": "Get nameserver",
+      "href": "/nameserver/{domainName}",
+      "hrefSchema": {
+        "properties": {
+          "domainName": {
+            "$ref": "rdap_common.json#/domainName"
+          }
+        }
+      },
+      "method": "GET",
+      "rel": "self",
+      "title": "nameserver",
+      "targetSchema" : {"$ref":"#"}
+    }
+  ],
+  "additionalProperties": false,
+  "structureInvalid": -12400,
+  "unknownKeys": -12401,
+  "duplicateKeys": -12402,
+  "stdRdapLdhNameValidation": -12405,
+  "stdRdapUnicodeNameValidation": -12406,
+  "stdRdapIpAddressesValidation": -12407,
+  "stdRdapEntitiesValidation": -12408,
+  "stdRdapStatusValidation": -12409,
+  "stdRdapRemarksValidation": -12410,
+  "stdRdapLinksValidation": -12411,
+  "stdRdapPort43WhoisServerValidation": -12412,
+  "stdRdapEventsValidation": -12413,
+  "stdRdapNoticesRemarksValidation": -12414,
+  "stdRdapConformanceValidation": -12416,
+  "validationName": "stdRdapNameserverLookupValidation",
+  "noticesTopMost": -12415
+}

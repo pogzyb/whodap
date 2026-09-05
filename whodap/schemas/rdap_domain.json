@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "domain",
+  "$id": "rdap_domain.json",
+  "definitions": {
+    "domainClass": {
+      "const": "domain",
+      "errorCode": -12203
+    }
+  },
+  "properties": {
+    "objectClassName": {
+      "$ref": "#/definitions/domainClass"
+    },
+    "handle": {
+      "type": "string",
+      "errorCode": -12204
+    },
+    "ldhName": {
+      "$ref": "rdap_common.json#/definitions/ldhName"
+    },
+    "unicodeName": {
+      "$ref": "rdap_common.json#/definitions/unicodeName"
+    },
+    "variants": {
+      "$ref": "rdap_variants.json#"
+    },
+    "nameservers": {
+      "type": "array",
+      "items": {
+        "$ref": "rdap_nameserver.json#"
+      },
+      "validationName": "stdRdapNameserverLookupValidation"
+    },
+    "secureDNS": {
+      "$ref": "rdap_secureDNS.json#"
+    },
+    "entities": {
+      "$ref": "rdap_entities.json#"
+    },
+    "status": {
+      "$ref": "rdap_status.json#"
+    },
+    "port43": {
+      "$ref": "rdap_port43.json#"
+    },
+    "publicIds": {
+      "$ref": "rdap_publicIds.json#"
+    },
+    "events": {
+      "$ref": "rdap_events.json#"
+    },
+    "remarks": {
+      "$ref": "rdap_common.json#/definitions/remarks"
+    },
+    "links": {
+      "$ref": "rdap_common.json#/definitions/links"
+    },
+    "rdapConformance": {
+      "$ref": "rdap_common.json#/definitions/rdapConformance"
+    },
+    "lang": {
+      "$ref": "rdap_common.json#/definitions/lang"
+    },
+    "notices": {
+      "$ref": "rdap_notices.json#"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "objectClassName",
+    "ldhName"
+  ],
+  "links": [
+    {
+      "description": "Get domain",
+      "href": "/domain/{domainName}",
+      "hrefSchema": {
+        "properties": {
+          "domainName": {
+            "$ref": "rdap_common.json#/definitions/domainName"
+          }
+        }
+      },
+      "method": "GET",
+      "rel": "self",
+      "title": "domain",
+      "targetSchema": {
+        "$ref": "#"
+      }
+    }
+  ],
+  "stdRdapLdhNameValidation": -12205,
+  "stdRdapUnicodeNameValidation": -12206,
+  "stdRdapVariantsValidation": -12207,
+  "stdRdapNameserverLookupValidation": -12208,
+  "stdRdapSecureDnsValidation": -12209,
+  "stdRdapEntitiesValidation": -12210,
+  "stdRdapStatusValidation": -12211,
+  "stdRdapPublicIdsValidation": -12212,
+  "stdRdapRemarksValidation": -12213,
+  "stdRdapLinksValidation": -12214,
+  "stdRdapPort43WhoisServerValidation": -12215,
+  "stdRdapEventsValidation": -12216,
+  "stdRdapNoticesRemarksValidation": -12217,
+  "stdRdapConformanceValidation": -12219,
+  "structureInvalid": -12200,
+  "unknownKeys": -12201,
+  "duplicateKeys": -12202,
+  "noticesTopMost": -12218,
+  "validationName": "stdRdapDomainLookupValidation"
+}

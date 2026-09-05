@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_conformance.json",
+  "title": "rdapConformance",
+  "type": "array",
+  "items": {
+    "$ref": "rdap_common.json#/definitions/rdapExtensions"
+  },
+  "contains": {
+    "const": "rdap_level_0",
+    "errorCode": -10503
+  },
+  "additionalItems": false,
+  "uniqueItems": true,
+  "validationName": "stdRdapConformanceValidation",
+  "structureInvalid": -10500,
+  "rdapExtensionsDataset": "https://www.iana.org/assignments/rdap-extensions/rdap-extensions.xml"
+}

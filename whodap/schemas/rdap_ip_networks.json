@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_ip_networks.json",
+  "type": "array",
+  "items": {
+    "$ref": "rdap_ip_network.json#"
+  },
+  "validationName": "stdRdapIpNetworksValidation",
+  "stdRdapIpNetworkLookupValidation": -11901,
+  "structureInvalid": -11900
+}

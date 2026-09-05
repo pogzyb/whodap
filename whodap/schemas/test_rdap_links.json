@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "test_rdap_links.json",
+  "title": "links",
+  "type": "object",
+  "properties": {
+    "links" : {
+      "$ref": "rdap_common.json#/definitions/links"
+    }
+  },
+  "structureInvalid": -10600,
+  "duplicateKeys": -10602
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "variant",
+  "$id": "rdap_variant.json",
+  "definitions": {
+    "variantRelation": {
+      "allOf": [
+        {
+          "type": "string",
+          "errorCode": -11504
+        },
+        {
+          "type": "string",
+          "format": "variantRelation",
+          "errorCode": -11505,
+          "errorMsg": "The JSON string is not included as a Value with Type=\"domain variant relation\"."
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "relation": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/variantRelation"
+      },
+      "structureInvalid": -11503
+    },
+    "idnTable": {
+      "type": "string",
+      "errorCode": -11506
+    },
+    "variantNames": {
+      "type": "array",
+      "items": {
+        "$ref": "rdap_variantName.json#"
+      },
+      "structureInvalid": -11507
+    }
+  },
+  "additionalProperties": false,
+  "unknownKeys": -11501,
+  "validationName": "stdRdapVariantsValidation"
+}

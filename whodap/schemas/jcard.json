@@ -1,0 +1,425 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "jcard.json",
+  "definitions": {
+    "string-or-string-array": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "language": {
+      "type": "string",
+      "pattern": "[a-z]{2}(-[A-Z][a-zA-Z]*(\\-[A-Z]{2})?)?"
+    },
+    "tel-uri": {
+      "type": "string",
+      "pattern": "^tel:((?:\\+[\\d().-]*\\d[\\d().-]*|[0-9A-F*#().-]*[0-9A-F*#][0-9A-F*#().-]*(?:;[a-z\\d-]+(?:=(?:[a-z\\d\\[\\]\\/:&+$_!~*'().-]|%[\\dA-F]{2})+)?)*;phone-context=(?:\\+[\\d().-]*\\d[\\d().-]*|(?:[a-z0-9]\\.|[a-z0-9][a-z0-9-]*[a-z0-9]\\.)*(?:[a-z]|[a-z][a-z0-9-]*[a-z0-9])))(?:;[a-z\\d-]+(?:=(?:[a-z\\d\\[\\]\\/:&+$_!~*'().-]|%[\\dA-F]{2})+)?)*(?:,(?:\\+[\\d().-]*\\d[\\d().-]*|[0-9A-F*#().-]*[0-9A-F*#][0-9A-F*#().-]*(?:;[a-z\\d-]+(?:=(?:[a-z\\d\\[\\]\\/:&+$_!~*'().-]|%[\\dA-F]{2})+)?)*;phone-context=\\+[\\d().-]*\\d[\\d().-]*)(?:;[a-z\\d-]+(?:=(?:[a-z\\d\\[\\]\\/:&+$_!~*'().-]|%[\\dA-F]{2})+)?)*)*)$"
+    },
+    "geo-uri": {
+      "type": "string",
+      "pattern": "geo:([\\-0-9.]+),([\\-0-9.]+)(?:,([\\-0-9.]+))?(?:\\?(.*))?$"
+    },
+    "utc-offset": {
+      "type": "string",
+      "pattern": "^(([-+]\\d{1,2}):?(\\d{2})?)?$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "time"
+    },
+    "date-or-time": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "date-and-or-time": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/date-or-time"
+        },
+        {
+          "$ref": "#/definitions/timestamp"
+        }
+      ]
+    },
+    "email": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "email"
+        },
+        {
+          "type": "string",
+          "format": "idn-email"
+        }
+      ]
+    },
+    "mediatype-type": {
+      "type": "string",
+      "pattern": "^\\w+/[-.\\w]+(?:\\+[-.\\w]+)?$"
+    },
+    "group-type": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9\\-]+$"
+    },
+    "tag-type": {
+      "type": "string",
+      "enum": [
+        "home",
+        "work"
+      ]
+    },
+    "tel-type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "voice",
+        "fax",
+        "cell",
+        "video",
+        "pager",
+        "textphone",
+        "main-number"
+      ]
+    },
+    "related-type": {
+      "type": "string",
+      "enum": [
+        "contact",
+        "acquaintance",
+        "friend",
+        "met",
+        "co-worker",
+        "colleague",
+        "co-resident",
+        "neighbor",
+        "child",
+        "parent",
+        "sibling",
+        "spouse",
+        "kin",
+        "muse",
+        "crush",
+        "date",
+        "sweetheart",
+        "me",
+        "agent",
+        "emergency"
+      ]
+    },
+    "index-type": {
+      "type": "string",
+      "pattern": "^[1-9]?[0-9]*$"
+    },
+    "expertise-level-type": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "average",
+        "expert"
+      ]
+    },
+    "hobby-level-type": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "pref-type": {
+      "type": "string",
+      "pattern": "^[1-9]?[0-9]{1}$|^100$"
+    },
+    "calscale-type": {
+      "const": "gregorian"
+    },
+    "tel-type-array": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/tel-type"
+          },
+          {
+            "$ref": "#/definitions/tag-type"
+          }
+        ]
+      }
+    },
+    "tag-type-array": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "items": {
+        "$ref": "#/definitions/tag-type"
+      }
+    },
+    "related-type-array": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "items": {
+        "$ref": "#/definitions/related-type"
+      }
+    },
+    "pid-type-array": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9]+(\\.[0-9]+)?$"
+      }
+    },
+    "fn-type": {
+      "type": [
+        "string",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "n-type": {
+      "type": "array",
+      "items": [
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "family-name"
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "given-name"
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "additional-name"
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "honorific-prefix"
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "honorific-suffix"
+        }
+      ]
+    },
+    "gender-type": {
+      "type": "string",
+      "enum": [
+        "",
+        "M",
+        "F",
+        "O",
+        "N",
+        "U"
+      ]
+    },
+    "adr-type": {
+      "type": "array",
+      "items": [
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The post office box."
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The extended address (e.g. apartment or suite number)."
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The street address."
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The locality (e.g., city)."
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The region (e.g., state or province)."
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The postal code."
+        },
+        {
+          "$ref": "#/definitions/string-or-string-array",
+          "description": "The country name."
+        }
+      ],
+			"errorCode": -20800
+    },
+    "kind-type": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "group",
+        "org",
+        "location",
+        "application",
+        "device"
+      ],
+      "description": "To specify the kind of object the jCard represents.",
+      "default": "individual"
+    },
+    "clientpidmap-type": {
+      "type": "string",
+      "pattern": "^[0-9]+;(\\w+:(\\/?\\/?)[^\\s]+)$"
+    },
+    "any-param-type": {
+      "type": "object",
+      "patternProperties": {
+        "^x-": {
+          "$ref": "#/definitions/string-or-string-array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "any-type": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "array"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "vcard": {
+      "allOf": [
+        {
+          "type": "array",
+          "contains": {
+            "type": "array",
+            "description": "To specify the formatted text corresponding to the name of the object the jCard represents.",
+            "items": [
+              {
+                "const": "fn"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "pref": {
+                    "$ref": "#/definitions/pref-type"
+                  },
+                  "altid": {
+                    "type": "string"
+                  },
+                  "group": {
+                    "$ref": "#/definitions/group-type"
+                  },
+                  "pid": {
+                    "$ref": "#/definitions/pid-type-array"
+                  },
+                  "lang": {
+                    "$ref": "#/definitions/language"
+                  },
+                  "type": {
+                    "$ref": "#/definitions/tag-type-array"
+                  }
+                },
+                "additionalProperties": {
+                  "$ref": "#/definitions/any-param-type"
+                }
+              },
+              {
+                "const": "text"
+              },
+              {
+                "$ref": "#/definitions/fn-type"
+              }
+            ],
+            "additionalItems": {
+              "$ref": "#/definitions/fn-type"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": [
+            {
+              "type": "array",
+              "items": [
+                {
+                  "const": "version"
+                },
+                {},
+                {
+                  "const": "text"
+                },
+                {
+                  "const": "4.0"
+                }
+              ],
+              "additionalProperties": {
+                "$ref": "#/definitions/any-param-type"
+              }
+            }
+          ],
+          "additionalItems": {
+            "type": "array",
+            "description": "any other category",
+            "items": [
+              {
+                "type": "string"
+              },
+              {},
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/any-type"
+              }
+            ],
+            "additionalProperties": false
+          }
+        }
+      ]
+    },
+    "vcardArray": {
+      "$id": "vcardArray",
+      "type": "array",
+      "items": [
+        {
+          "const": "vcard"
+        },
+        {
+          "$ref": "#/definitions/vcard"
+        }
+      ],
+      "additionalItems": {
+        "$ref": "#/definitions/vcard"
+      },
+      "structureInvalid": -12305
+    }
+  }
+}

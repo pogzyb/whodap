@@ -1,0 +1,194 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "rdap_secureDNS.json",
+  "title": "secureDNS",
+  "type": "object",
+  "definitions": {
+    "dsData": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyTag": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 65535,
+            "errorCode": -12012
+          },
+          "algorithm": {
+            "type": "integer",
+            "enum": [
+              3,
+              5,
+              6,
+              7,
+              8,
+              10,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "errorCode": -12013,
+            "errorMsg": "The JSON value is not listed with Zone Signing=Y in dnsSecAlgNumbers, or it's 253 or 254."
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "[0-9a-fA-F]+",
+            "errorMsg": "The JSON value is not a string of case-insensitive hexadecimal digits. Whitespace is allowed within the hexadecimal text.",
+            "errorCode": -12014
+          },
+          "digestType": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "errorCode": -12015,
+            "errorMsg": "The JSON value is not assigned in dsRrTypes."
+          },
+          "events": {
+            "$ref": "rdap_events.json#"
+          },
+          "links": {
+            "$ref": "rdap_common.json#/definitions/links"
+          }
+        },
+        "additionalProperties": false,
+        "unknownKeys": -12009,
+        "required": [
+          "keyTag",
+          "algorithm",
+          "digest",
+          "digestType"
+        ],
+        "algorithmMissing": -12011,
+        "digestMissing": -12011,
+        "digestTypeMissing": -12011,
+        "keyTagMissing": -12011,
+        "stdRdapEventsValidation": -12016,
+        "stdRdapLinksValidation": -12017
+      },
+      "structureInvalid": -12008
+    },
+    "keyData": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "flags": {
+            "type": "integer",
+            "enum": [
+              256,
+              257
+            ],
+            "errorCode": -12022
+          },
+          "protocol": {
+            "const": 3,
+            "errorCode": -12023
+          },
+          "publicKey": {
+            "type": "string",
+            "pattern": "[0-9a-fA-F]+",
+            "errorMsg": "The JSON value is not a string of case-insensitive hexadecimal digits. Whitespace is allowed within the hexadecimal text.",
+            "errorCode": -12024
+          },
+          "algorithm": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              5,
+              6,
+              7,
+              8,
+              10,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "errorCode": -12025
+          },
+          "events": {
+            "$ref": "rdap_events.json#"
+          },
+          "links": {
+            "$ref": "rdap_common.json#/definitions/links"
+          }
+        },
+        "additionalProperties": false,
+        "unknownKeys": -12019,
+        "required": [
+          "algorithm",
+          "flags",
+          "publicKey",
+          "protocol"
+        ],
+        "algorithmMissing": -12021,
+        "flagsMissing": -12021,
+        "publicKeyMissing": -12021,
+        "protocolMissing": -12021,
+        "stdRdapEventsValidation": -12026,
+        "stdRdapLinksValidation": -12027
+      },
+      "structureInvalid": -12018
+    }
+  },
+  "properties": {
+    "zoneSigned": {
+      "type": "boolean",
+      "errorCode": -12003
+    },
+    "delegationSigned": {
+      "type": "boolean",
+      "errorCode": -12005
+    },
+    "maxSigLife": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 2147483647,
+      "errorCode": -12006
+    },
+    "dsData": {
+      "$ref": "#/definitions/dsData"
+    },
+    "keyData": {
+      "$ref": "#/definitions/keyData"
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "delegationSigned": { "const": true }
+      },
+      "required": ["delegationSigned", "dsData"]
+    },
+    {
+      "properties": {
+        "delegationSigned": { "const": true }
+      },
+      "required": ["delegationSigned", "keyData"]
+    },
+    {
+      "properties": {
+        "delegationSigned": { "const": false }
+      },
+      "required": ["delegationSigned"]
+    }
+  ],
+  "additionalProperties": false,
+  "validationName": "stdRdapSecureDnsValidation",
+  "structureInvalid": -12000,
+  "unknownKeys": -12001,
+  "duplicateKeys": -12002,
+  "delegationSignedMissing": -12004,
+  "dsDataMissing": -12007,
+  "keyDataMissing": -12007
+}

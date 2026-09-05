@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ipv4_address.json",
+  "title": "ipv4Address",
+  "definitions": {
+    "properties": {
+      "ip": {
+        "format": "ipv4-validation",
+        "validationName": "IPv4Validation"
+      }
+    }
+  }
+}

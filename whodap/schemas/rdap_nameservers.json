@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_nameservers.json",
+  "title": "nameservers",
+  "properties": {
+    "nameserverSearchResults": {
+      "type": "array",
+      "items": {
+        "$ref": "rdap_nameserver.json#"
+      },
+      "minItems" : 1,
+      "validationName": "stdRdapNameserverLookupValidation"
+    },
+    "rdapConformance": {
+      "$ref": "rdap_common.json#/definitions/rdapConformance"
+    },
+    "lang" : {
+      "$ref": "rdap_common.json#/definitions/lang"
+    },
+    "notices" : {
+      "$ref": "rdap_notices.json#"
+    },
+    "events": {
+      "$ref": "rdap_events.json#"
+    },
+    "remarks": {
+      "$ref": "rdap_common.json#/definitions/remarks"
+    }
+  },
+  "links": [
+    {
+      "description": "Get nameservers by name",
+      "href": "/nameservers{?name}",
+      "hrefSchema": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "method": "GET",
+      "rel": "self",
+      "title": "nameservers by name",
+      "targetSchema" : {"$ref":"#"}      
+    },
+    {
+      "description": "Get nameservers by ip",
+      "href": "/nameservers{?ip}",
+      "hrefSchema": {
+        "properties": {
+          "ip": {
+            "type": "string"
+          }
+        }
+      },
+      "method": "GET",
+      "rel": "self",
+      "title": "nameservers by ip",
+      "targetSchema" : {"$ref":"#"}
+    }
+  ],
+  "required": [
+    "nameserverSearchResults"
+  ],
+  "additionalProperties": false,
+  "structureInvalid": -12600,
+  "unknownKeys": -12601,
+  "duplicateKeys": -12602,
+  "stdRdapNameserverLookupValidation": -12604,
+  "stdRdapRemarksValidation": -12605,
+  "stdRdapEventsValidation": -12606,
+  "stdRdapNoticesRemarksValidation": -12607,
+  "stdRdapConformanceValidation": -12609,
+  "validationName": "stdRdapNameserversSearchValidation",
+  "noticesTopMost": -12608
+}

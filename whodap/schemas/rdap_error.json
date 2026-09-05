@@ -1,0 +1,30 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id" : "rdap_error.json",
+	"title": "error",
+	"properties": {
+		"errorCode": {
+			"type": "number",
+			"errorCode": -12103
+		},
+		"title": {
+			"type": "string",
+			"errorCode": -12104
+		},
+		"description": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"errorCode": -12106
+			},
+			"structureInvalid": -12105
+		}
+	},
+	"required": [
+		"errorCode"
+	],
+	"errorCodeMissing": -12101,
+	"structureInvalid": -12100,
+	"duplicateKeys": -12102,
+	"validationName": "stdRdapErrorResponseBodyValidation"
+}

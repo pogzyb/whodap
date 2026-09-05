@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "test_rdap_variants.json",
+  "title": "variants",
+  "type": "object",
+  "properties": {
+    "variants" : {
+      "$ref": "rdap_variants.json#"
+    }
+  }
+}

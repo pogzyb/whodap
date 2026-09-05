@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "variantName",
+  "$id": "rdap_variantName.json",
+  "type": "object",
+  "properties": {
+    "ldhName": {
+      "$ref": "rdap_common.json#/definitions/ldhName"
+    },
+    "unicodeName": {
+      "$ref": "rdap_common.json#/definitions/unicodeName"
+    }
+  },
+  "unknownKeys": -11508,
+  "additionalProperties": false,
+  "stdRdapLdhNameValidation": -11510,
+  "stdRdapUnicodeNameValidation": -11511
+}

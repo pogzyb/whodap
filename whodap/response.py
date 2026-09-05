@@ -5,6 +5,7 @@ from typing import Any, Union, TypeAlias, cast
 
 from .utils import WHOISKeys, RDAPVCardKeys
 from .errors import RDAPConformanceException
+from .validation import validate_rdap_payload
 
 REDACTED = "REDACTED FOR PRIVACY"
 
@@ -23,6 +24,8 @@ class RDAPResponse(SimpleNamespace):
     """
     Base class representing an RDAP Response
     """
+
+    _schema_name: str | None = None
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -125,6 +128,16 @@ class RDAPResponse(SimpleNamespace):
         """
         return self._convert_self_to_dict(self)
 
+    def validate(self) -> None:
+        """
+        Validates the RDAP response against the bundled ICANN-derived schema.
+        """
+        if not self._schema_name:
+            raise RDAPConformanceException(
+                "No RDAP schema is configured for this response type."
+            )
+        validate_rdap_payload(self.to_dict(), self._schema_name)
+
     @staticmethod
     def _encoder(x: Any) -> str | Any:
         """
@@ -154,6 +167,8 @@ class RDAPResponse(SimpleNamespace):
 
 
 class DomainResponse(RDAPResponse):
+    _schema_name = "rdap_domain.json"
+
     def __getattribute__(self, item: Any) -> Any:
         """
         Converts and returns an "eventDate" value to a datetime object;
@@ -186,6 +201,9 @@ class DomainResponse(RDAPResponse):
           without raising any exception.
         :return: dict with WHOIS keys
         """
+        if strict:
+            self.validate()
+
         flat: WhoisDict = {}
 
         # traverse and extract information from RDAP fields
@@ -434,14 +452,14 @@ class DomainResponse(RDAPResponse):
 
 class IPv4Response(RDAPResponse):
     # IPv4Response has no specific parser utils at this time
-    ...
+    _schema_name = "rdap_ip_network.json"
 
 
 class IPv6Response(RDAPResponse):
     # IPv6Response has no specific parser utils at this time
-    ...
+    _schema_name = "rdap_ip_network.json"
 
 
 class ASNResponse(RDAPResponse):
     # ASNClient has no specific parser utils at this time
-    ...
+    _schema_name = "rdap_autnum.json"

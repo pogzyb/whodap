@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_notice.json",
+  "title": "notice",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "errorCode": -10703
+    },
+    "type": {
+      "$ref": "rdap_common.json#/definitions/noticeType"
+    },
+    "description": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "errorCode": -10709
+      },
+      "structureInvalid": -10708
+    },
+    "links": {
+      "$ref": "rdap_common.json#/definitions/links"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "description"
+  ],
+  "descriptionMissing": -10707,
+  "structureInvalid": -10700,
+  "unknownKeys": -10701,
+  "duplicateKeys": -10702,
+  "stdRdapLinksValidation": -10704
+}

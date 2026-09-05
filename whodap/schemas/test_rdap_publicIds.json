@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "test_rdap_publicIds.json",
+  "title": "publicIds",
+  "type": "object",
+  "properties": {
+    "publicIds": {
+      "$ref": "rdap_publicIds.json#"
+    }
+  }
+}

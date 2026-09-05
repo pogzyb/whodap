@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "test_rdap_general_tests.json",
+  "title": "general_tests",
+  "type": "object",
+  "properties": {
+    "ipv4": {
+      "$ref": "rdap_ipAddress.json#/definitions/ipv4"
+    },
+    "ipv6": {
+      "$ref": "rdap_ipAddress.json#/definitions/ipv6"
+    },
+    "domainName": {
+      "$ref": "rdap_domain_name.json#"
+    },
+    "webUri": {
+      "$ref": "rdap_common.json#/definitions/uri"
+    }
+  }
+}

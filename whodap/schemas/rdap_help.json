@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "rdap_help.json",
+  "title": "help",
+  "type": "object",
+  "properties": {
+    "rdapConformance": {
+      "$ref": "rdap_common.json#/definitions/rdapConformance"
+    },
+    "lang": {
+      "$ref": "rdap_common.json#/definitions/lang"
+    },
+    "notices": {
+      "$ref": "rdap_notices.json#"
+    }
+  },
+  "additionalProperties": false,
+  "links": [
+    {
+      "description": "Get help",
+      "href": "/help",
+      "method": "GET",
+      "rel": "self",
+      "title": "help",
+      "targetSchema": {
+        "$ref": "#"
+      }
+    }
+  ],
+  "stdRdapNoticesRemarksValidation": -12503,
+  "stdRdapConformanceValidation": -12505,
+  "structureInvalid": -12500,
+  "unknownKeys": -12501,
+  "duplicateKeys": -12502,
+  "validationName": "stdRdapHelpValidation"
+}

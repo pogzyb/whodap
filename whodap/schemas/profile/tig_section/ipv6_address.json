@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ipv6_address.json",
+  "title": "ipv6Address",
+  "definitions": {
+    "properties": {
+      "ip": {
+        "format": "ipv6-validation",
+        "validationName": "IPv6Validation"
+      }
+    }
+  }
+}

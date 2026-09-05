@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "test_rdap_lang.json",
+  "title": "lang",
+  "type": "object",
+  "properties": {
+    "lang": {
+      "$ref": "rdap_common.json#/definitions/lang"
+    }
+  }
+}

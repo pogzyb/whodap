@@ -8,7 +8,7 @@
 
 `whodap` | Simple RDAP Utility for Python
 
-- Support for asyncio HTTP requests ([`httpx`](https://www.python-httpx.org/))
+- Support for asyncio HTTP requests via [`httpx2`](https://pypi.org/project/httpx2/)
 - Leverages the [`SimpleNamespace`](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
 - Keeps the familiar look of WHOIS via the `to_whois_dict` method for DNS lookups
 
@@ -134,24 +134,24 @@ async with whodap.DNSClient.new_aio_client_context() as dns_client:
         response = await dns_client.aio_lookup(domain, tld)
 ```
 
-- Configurable `httpx` client:
+- Configurable `httpx2` client:
 
 ```python
 import asyncio
 
-import httpx
+import httpx2
 import whodap
 
-# Initialize a custom, pre-configured httpx client ...
-httpx_client = httpx.Client(proxies=httpx.Proxy('https://user:pw@proxy_url.net'))
+# Initialize a custom, pre-configured httpx2 client ...
+httpx_client = httpx2.Client(proxy=httpx2.Proxy('https://user:pw@proxy_url.net'))
 # ... or an async client
-aio_httpx_client = httpx.AsyncClient(proxies=httpx.Proxy('http://user:pw@proxy_url.net'))
+aio_httpx_client = httpx2.AsyncClient(proxy=httpx2.Proxy('http://user:pw@proxy_url.net'))
 
-# Three common methods for leveraging httpx clients are outlined below:
+# Three common methods for leveraging httpx2 clients are outlined below:
 
-# 1) Pass the httpx client directly into the convenience functions: `lookup_domain` or `aio_lookup_domain`
-# Important: In this scenario, you are responsible for closing the httpx client.
-# In this example, the given httpx client is used as a contextmanager; ensuring it is "closed" when finished.
+# 1) Pass the httpx2 client directly into the convenience functions: `lookup_domain` or `aio_lookup_domain`
+# Important: In this scenario, you are responsible for closing the httpx2 client.
+# In this example, the given httpx2 client is used as a contextmanager; ensuring it is "closed" when finished.
 async with aio_httpx_client:
     futures = []
     for domain, tld in [('google', 'com'), ('google', 'buzz')]:
@@ -202,6 +202,21 @@ except RDAPConformanceException:
     logger.exception("RDAP response is incorrectly formatted.")
 ```
 
+- Validating an RDAP response against the bundled ICANN-derived JSON schemas
+```python
+from whodap import lookup_domain
+from whodap.errors import RDAPConformanceException
+
+rdap_response = lookup_domain("example", "com")
+
+try:
+    rdap_response.validate()
+except RDAPConformanceException:
+    # Non-conformant responses can still be inspected with to_dict()/to_json()
+    # or parsed leniently with to_whois_dict(strict=False).
+    raise
+```
+
 #### Contributions
 - Interested in contributing?
 - Have any questions or comments?
@@ -216,9 +231,9 @@ Please post a question or comment.
 - ~~Support for RDAP "domain" queries~~
 - ~~Support for RDAP "ipv4" and "ipv6" queries~~
 - ~~Support for RDAP ASN queries~~
-- Abstract the HTTP Client (`httpx` is the defacto client for now)
+- Abstract the HTTP Client (`httpx2` is the current default client)
 - Add parser utils/helpers for IPv4, IPv6, and ASN Responses (if someone shows interest)
-- Add RDAP response validation support leveraging [ICANN's tool](https://github.com/icann/rdap-conformance-tool/)
+- ~~Add RDAP response validation support leveraging [ICANN's tool](https://github.com/icann/rdap-conformance-tool/)~~
 
 #### RDAP Resources:
 - [rdap.org](https://rdap.org/)

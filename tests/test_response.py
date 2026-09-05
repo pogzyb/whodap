@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 
-from whodap.response import DomainResponse, WHOISKeys
+from whodap.response import DomainResponse, IPv4Response, IPv6Response, ASNResponse, WHOISKeys
 from whodap.errors import RDAPConformanceException
 
 
@@ -66,6 +66,16 @@ class TestDomainResponse(unittest.TestCase):
             assert (
                 k in whois_dict.keys()
             ), f"key {k} from whois_json is not in whois_dict"
+
+    def test_validate(self):
+        resp = DomainResponse.from_json(
+            '{"objectClassName": "domain", "ldhName": "example.com"}'
+        )
+        resp.validate()
+
+    def test_validate_bad_response(self):
+        resp = DomainResponse.from_json(load_file("bad_response_02.json"))
+        self.assertRaises(RDAPConformanceException, resp.validate)
 
     def test_convert_self_to_dict(self):
         json_string = (
@@ -148,3 +158,21 @@ class TestDomainResponse(unittest.TestCase):
         ), f"{flat_converted['admin_name']} != test"
         for key, value in flat_converted.items():
             assert type(key) == WHOISKeys
+
+    def test_validate_ipv4_response(self):
+        resp = IPv4Response.from_json(
+            '{"objectClassName": "ip network", "startAddress": "8.8.8.0", "endAddress": "8.8.8.255"}'
+        )
+        resp.validate()
+
+    def test_validate_ipv6_response(self):
+        resp = IPv6Response.from_json(
+            '{"objectClassName": "ip network", "startAddress": "2001:4860::", "endAddress": "2001:4860::ffff"}'
+        )
+        resp.validate()
+
+    def test_validate_asn_response(self):
+        resp = ASNResponse.from_json(
+            '{"objectClassName": "autnum", "startAutnum": 64496, "endAutnum": 64496}'
+        )
+        resp.validate()

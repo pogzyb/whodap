@@ -28,8 +28,11 @@ setup(
     keywords='security, whois, rdap, research',
     license="MIT",
     install_requires=[
-        'httpx>=0.28.1',
+        'httpx2>=2.12.0',
+        'jsonschema>=4.26.0',
     ],
+    include_package_data=True,
+    package_data={'whodap': ['schemas/*.json', 'schemas/profile/tig_section/*.json']},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

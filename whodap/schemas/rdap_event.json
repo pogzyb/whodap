@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "event",
+  "$id": "rdap_event.json",
+  "definitions": {
+    "eventAction": {
+      "allOf": [
+        {
+          "type": "string",
+          "errorCode": -10904
+        },
+        {
+          "type": "string",
+          "format": "eventAction",
+          "errorCode": -10905,
+          "errorMsg": "The JSON string is not included as a Value with Type=\"event action\" in the RDAPJSONValues data set."
+        }
+      ]
+    },
+    "eventDate": {
+      "allOf": [
+        {
+          "type": "string",
+          "errorCode": -10907
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "errorCode": -10908
+        }
+      ]
+    }
+  },
+  "properties": {
+    "eventActor": {
+      "type": "string",
+      "errorCode": -10909
+    },
+    "eventAction": {
+      "$ref": "#/definitions/eventAction"
+    },
+    "eventDate": {
+      "$ref": "#/definitions/eventDate"
+    },
+    "links": {
+      "$ref": "rdap_common.json#/definitions/links"
+    }
+  },
+  "additionalProperties": false,
+  "unknownKeys": -10901,
+  "eventActionMissing": -10903,
+  "eventDateMissing": -10906,
+  "eventActorMissing": -10910,
+  "stdRdapLinksValidation": -10911,
+  "required": [
+    "eventAction",
+    "eventDate"
+  ],
+  "dependencies": {
+    "links": ["eventActor"]
+  }
+}

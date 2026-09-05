@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "port43",
+  "$id": "rdap_port43.json",
+  "oneOf": [
+    {
+      "$ref": "rdap_ipAddress.json#/definitions/ip"
+    },
+    {
+      "type": "string",
+      "format": "idn-hostname",
+      "validationName": "DomainNameValidation"
+    }
+  ],
+  "validationName": "stdRdapPort43WhoisServerValidation",
+  "IPv4Validation": -11100,
+  "IPv6Validation": -11100,
+  "DomainNameValidation": -11100
+}

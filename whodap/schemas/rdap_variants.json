@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "variants",
+  "$id": "rdap_variants.json",
+  "type": "array",
+  "items": {
+    "$ref": "rdap_variant.json#"
+  },
+  "validationName": "stdRdapVariantsValidation",
+  "structureInvalid": -11500
+}

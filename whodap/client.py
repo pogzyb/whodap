@@ -6,7 +6,7 @@ from json import JSONDecodeError
 
 from contextlib import asynccontextmanager
 
-import httpx
+import httpx2 as httpx
 
 from .codes import RDAPStatusCodes
 from .errors import (
@@ -75,7 +75,7 @@ class RDAPClient:
 
     def close(self) -> None:
         """
-        Closes the underlying `httpx.Client`
+        Closes the underlying `httpx2.Client`
         """
         if isinstance(self.httpx_client, httpx.Client):
             if not self.httpx_client.is_closed:
@@ -83,7 +83,7 @@ class RDAPClient:
 
     async def aio_close(self) -> None:
         """
-        Closes the underlying `httpx.AsyncClient`
+        Closes the underlying `httpx2.AsyncClient`
         """
         if isinstance(self.httpx_client, httpx.AsyncClient):
             if not self.httpx_client.is_closed:
@@ -95,7 +95,7 @@ class RDAPClient:
         """
         Contextmanager for instantiating a Synchronous DNSClient
 
-        :httpx_client: pre-configured instance of `httpx.Client`
+        :httpx_client: pre-configured instance of `httpx2.Client`
         :return: yields the initialized DNSClient
         """
         client = cls(httpx_client or httpx.Client(follow_redirects=True, timeout=10))
@@ -113,10 +113,10 @@ class RDAPClient:
         """
         Classmethod for instantiating a synchronous instance of Client
 
-        :httpx_client: pre-configured instance of `httpx.Client`
+        :httpx_client: pre-configured instance of `httpx2.Client`
         :return: DNSClient with a sync httpx_client
         """
-        # init the client with a default httpx.Client if one is not provided
+        # init the client with a default httpx2.Client if one is not provided
         client = cls(httpx_client or httpx.Client(follow_redirects=True, timeout=10))
         # load the dns server information from IANA
         iana_info = client._get_iana_info()
@@ -133,7 +133,7 @@ class RDAPClient:
         """
         Contextmanager for instantiating an Asynchronous DNSClient
 
-        :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
+        :httpx_client: Optional pre-configured instance of `httpx2.AsyncClient`
         :return: yields the initialized DNSClient
         """
         client = cls(
@@ -153,7 +153,7 @@ class RDAPClient:
         """
         Classmethod for instantiating an asynchronous instance of DNSClient
 
-        :httpx_client: pre-configured instance of `httpx.AsyncClient`
+        :httpx_client: pre-configured instance of `httpx2.AsyncClient`
         :return: DNSClient with an async httpx_client
         """
         client = cls(
@@ -201,7 +201,7 @@ class RDAPClient:
 
         :param href: href containing the location of an RDAP
         :param depth: recursion counter
-        :return: `httpx` response object
+        :return: `httpx2` response object
         """
         resp = self._get_request(href)
         try:
@@ -242,7 +242,7 @@ class RDAPClient:
 
         :param href: href containing the location of an RDAP
         :param depth: recursion counter
-        :return: `httpx` response object
+        :return: `httpx2` response object
         """
         resp = await self._aio_get_request(href)
         try:

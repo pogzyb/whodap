@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_autnum.json",
+  "title": "autnum",
+  "definitions": {
+    "autnumClass" : {
+      "const": "autnum",
+      "errorCode": -12303
+    },
+    "handle": {
+      "type": "string",
+      "errorCode": -12304
+    }
+  },
+  "properties": {
+    "objectClassName": {
+      "$ref": "#/definitions/autnumClass"
+    },
+    "handle": {
+      "$ref": "#/definitions/handle"
+    },
+    "startAutnum": {
+      "type": "integer"
+    },
+    "endAutnum": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "entities": {
+      "$ref": "rdap_entities.json#"
+    },
+    "remarks": {
+      "$ref": "rdap_common.json#/definitions/remarks"
+    },
+    "links" : {
+      "$ref": "rdap_common.json#/definitions/links"
+    },
+    "events": {
+      "$ref": "rdap_events.json#"
+    },
+    "status": {
+      "$ref": "rdap_status.json#"
+    },
+    "port43": {
+      "$ref": "rdap_port43.json#"
+    },
+    "rdapConformance": {
+      "$ref": "rdap_common.json#/definitions/rdapConformance"
+    },
+    "notices": {
+      "$ref": "rdap_notices.json#"
+    }
+  },
+  "additionalProperties": false,
+  "structureInvalid": -12300,
+  "stdRdapEntitiesValidation": -12308,
+  "stdRdapRemarksValidation": -12309,
+  "stdRdapEventsValidation": -12311,
+  "stdRdapStatusValidation": -12313,
+  "stdRdapLinksValidation": -12310,
+  "stdRdapNoticesRemarksValidation": -12217,
+  "stdRdapConformanceValidation": -12219,
+  "unknownKeys": -12301,
+  "duplicateKeys": -12302,
+  "stdRdapPort43WhoisServerValidation": -12314,
+  "validationName": "stdRdapAutnumLookupValidation"
+}

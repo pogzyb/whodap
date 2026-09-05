@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_notices.json",
+  "title": "notices",
+  "type": "array",
+  "items": {
+    "$ref": "rdap_notice.json#"
+  },
+  "validationName": "stdRdapNoticesRemarksValidation",
+  "stdRdapLinksValidation": -10704,
+  "structureInvalid": -10700,
+  "unknownKeys": -10701
+}

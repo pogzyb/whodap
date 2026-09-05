@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ipAddress",
+  "$id": "rdap_ipAddress.json",
+  "definitions": {
+    "ipv4": {
+      "allOf": [
+        {
+          "type": "string",
+          "validationName": "IPv4Validation",
+          "errorCode": -11405
+        },
+        {
+          "type": "string",
+          "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}$",
+          "validationName": "IPv4Validation",
+          "errorCode": -11406,
+          "errorMsg": "The IPv4 address is not syntactically valid in dot-decimal notation."
+        },
+        {
+          "format": "ipv4-validation",
+          "validationName": "IPv4Validation",
+          "errorCode": -11404
+        }
+      ]
+    },
+    "ipv6": {
+      "allOf": [
+        {
+          "type": "string",
+          "validationName": "IPv6Validation",
+          "errorCode": -11408
+        },
+        {
+          "format": "ipv6-validation",
+          "validationName": "IPv6Validation",
+          "errorCode": -11407
+        }
+      ]
+    },
+    "ip": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ipv4"
+        },
+        {
+          "$ref": "#/definitions/ipv6"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "v4": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ipv4"
+      }
+    },
+    "v6": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ipv6"
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "required": [
+        "v4"
+      ]
+    },
+    {
+      "required": [
+        "v6"
+      ]
+    }
+  ],
+  "unknownKeys": -11401,
+  "structureInvalid": -11400,
+  "v4Missing": -11403,
+  "v6Missing": -11403,
+  "additionalProperties": false,
+  "validationName": "stdRdapIpAddressesValidation"
+}

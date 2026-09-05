@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_entity_without_asEventActor.json",
+  "title": "entity",
+  "properties": {
+    "rdapConformance": {
+      "$ref": "rdap_common.json#/definitions/rdapConformance"
+    },
+    "lang" : {
+      "$ref": "rdap_common.json#/definitions/lang"
+    },
+    "notices" : {
+      "$ref": "rdap_notices.json#"
+    },
+    "objectClassName": {
+      "$ref": "rdap_entity.json#/definitions/entityClass"
+    },
+    "handle": {
+      "$ref": "rdap_entity.json#/definitions/handle"
+    },
+    "vcardArray": {
+      "$ref": "jcard.json#/definitions/vcardArray"
+    },
+    "roles": {
+      "$ref": "rdap_entity.json#/definitions/roles"
+    },
+    "entities": {
+      "$ref": "rdap_entities.json#"
+    },
+    "publicIds": {
+      "$ref": "rdap_publicIds.json#"
+    },
+    "autnums": {
+      "$ref": "rdap_autnums.json#"
+    },
+    "networks": {
+      "$ref": "rdap_ip_networks.json#"
+    },
+    "events": {
+      "$ref": "rdap_events.json#"
+    },
+    "remarks": {
+      "$ref": "rdap_common.json#/definitions/remarks"
+    },
+    "links" : {
+      "$ref": "rdap_common.json#/definitions/links"
+    },
+    "status": {
+      "$ref": "rdap_status.json#"
+    },
+    "port43": {
+      "$ref": "rdap_port43.json#"
+    }
+  },
+  "links": [
+    {
+      "description": "Get entity",
+      "href": "/entity/{handle}",
+      "hrefSchema": {
+        "properties": {
+          "handle": {
+            "type": "string"
+          }
+        }
+      },
+      "method": "GET",
+      "rel": "self",
+      "title": "entity",
+      "targetSchema" : {"$ref":"#"}      
+    }    
+  ],
+  "additionalProperties": false,
+  "structureInvalid": -12300,
+  "unknownKeys": -12301,
+  "duplicateKeys": -12302,
+  "stdRdapRolesValidation": -12306,
+  "stdRdapPublicIdsValidation": -12307,
+  "stdRdapEntitiesValidation": -12308,
+  "stdRdapRemarksValidation": -12309,
+  "stdRdapLinksValidation": -12310,
+  "stdRdapEventsValidation": -12311,
+  "stdRdapAsEventActorValidation": -12312,
+  "stdRdapStatusValidation": -12313,
+  "stdRdapPort43WhoisServerValidation": -12314,
+  "stdRdapNoticesRemarksValidation": -12315,
+  "stdRdapConformanceValidation": -12317,
+  "stdRdapAutnumsValidation": -12318,
+  "stdRdapIpNetworksValidation": -12319,
+  "validationName": "stdRdapEntityLookupValidation",
+  "noticesTopMost": -12316
+}

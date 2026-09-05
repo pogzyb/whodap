@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "status",
+  "$id": "rdap_status.json",
+  "definitions": {
+    "statusValue": {
+      "allOf": [
+        {
+          "type": "string",
+          "errorCode": -11001
+        },
+        {
+          "type": "string",
+          "format": "status",
+          "errorCode": -11002,
+          "errorMsg": "The JSON string is not included as a Value with \nType=\"status\"."
+        }
+      ]
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/statusValue"
+  },
+  "validationName": "stdRdapStatusValidation",
+  "structureInvalid": -11000
+}

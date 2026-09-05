@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "asEventActor",
+  "$id": "rdap_asEventActor.json",
+  "type": "array",
+  "items": {
+    "$ref": "rdap_asEventActor_object.json#"
+  },
+  "validationName": "stdRdapAsEventActorValidation",
+  "structureInvalid": -11300
+}

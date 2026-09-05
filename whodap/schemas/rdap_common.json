@@ -1,0 +1,303 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id" : "rdap_common.json",
+  "definitions": {
+    "rdapExtensions": {
+      "allOf": [
+        {
+          "type": "string",
+          "errorCode": -10501
+        },
+        {
+          "type": "string",
+          "format": "rdapExtensions",
+          "errorCode": -10502,
+          "errorMsg": "The JSON string is not included as an Extension Identifier in RDAPExtensions."
+        }
+      ]
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "uniqueStringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "rdapConformance": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "validationName": "stdRdapConformanceValidation",
+      "structureInvalid": -10500
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "uri": {
+      "allOf": [
+        {
+          "pattern": "^(https?|http?)://",
+          "errorCode": -10401,
+          "errorMsg": "The scheme of the URI is not 'http' nor 'https'"
+        },
+        {
+          "type": "string",
+          "format": "uri",
+          "errorCode": -10400,
+          "errorMsg": "The URI is not syntactically valid according to RFC3986."
+        },
+        {
+          "type": "string",
+          "format": "hostname-in-uri",
+          "errorCode": -10402,
+          "errorMsg": "The host does not pass Domain Name validation [domainNameValidation], IPv4 address validation [ipv4Validation] nor IPv6 address  validation [ipv6Validation]."
+        }
+      ],
+      "validationName": "webUriValidation"
+    },
+    "rirBasicType": {
+	      "type": "string",
+	      "enum": [
+	        "DIRECT ALLOCATION",
+	        "DIRECT ASSIGNMENT",
+	        "REALLOCATION",
+	        "REASSIGNMENT",
+	        "ALLOCATED UNSPECIFIED",
+	        "ALLOCATED-BY-RIR",
+	        "ALLOCATED-BY-LIR"
+	       ]
+	    },   
+    "rirType": {
+        "anyOf":[
+          {
+          "$ref": "#/definitions/rirBasicType"
+ 	      },
+	      {
+	      	"type" : "string",
+	      	"description": "non standard rir type"
+	      }
+	     ]
+     },        
+    "ldhName": {
+      "type": "string",
+      "format" : "idn-hostname",
+      "validationName": "stdRdapLdhNameValidation",
+      "errorCode": -11703,
+      "labelTooLong": -11700,
+      "domainTooLong": -11701,
+      "lessThanTwoLabels": -11702
+    },
+    "unicodeName": {
+      "type": "string",
+      "format" : "idn-hostname",
+      "validationName": "stdRdapUnicodeNameValidation",
+      "errorCode": -11603,
+      "labelTooLong": -11600,
+      "domainTooLong": -11601,
+      "lessThanTwoLabels": -11602
+    },
+    "domainName": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ldhName"
+        },
+        {
+          "$ref": "#/definitions/unicodeName"
+        }
+      ]
+    },
+    "noticeType": {
+      "allOf": [
+        {
+          "type": "string",
+          "errorCode": -10705
+        },
+        {
+          "type": "string",
+          "format": "noticeAndRemark",
+          "errorCode": -10706,
+          "errorMsg": "The JSON string is not included as a Value with Type=\"notice  and remark type\" in the RDAPJSONValues dataset."
+        }
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "pattern": "[a-z]{2}(-[A-Z][a-zA-Z]*(\\-[A-Z]{2})?)?",
+      "errorCode": -10800,
+      "validationName": "stdRdapLanguageIdentifierValidation"
+    },
+    "country": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "link": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/uri",
+          "webUriValidation": -10609
+        },
+        "rel": {
+          "type": "string",
+          "format": "linkRelations",
+          "errorCode": -10604,
+          "errorMsg": "The JSON value is not included as a Relation Name in linkRelations."
+        },
+        "href": {
+          "$ref": "#/definitions/uri",
+          "webUriValidation": -10611
+        },
+        "hreflang": {
+          "oneOf": [
+            {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "allOf": [
+                  {
+                    "type": "string",
+                    "errorCode": -10607
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "[a-z]{2}(-[A-Z][a-zA-Z]*(\\-[A-Z]{2})?)?",
+                    "errorCode": -10608
+                  }
+                ]
+              }
+            },
+            {
+              "allOf": [
+                {
+                  "type": "string",
+                  "errorCode": -10607
+                },
+                {
+                  "type": "string",
+                  "pattern": "[a-z]{2}(-[A-Z][a-zA-Z]*(\\-[A-Z]{2})?)?",
+                  "errorCode": -10608
+                }
+              ]
+            }
+          ]
+        },
+        "title": {
+          "type": "string",
+          "errorCode": -10606
+        },
+        "media": {
+          "allOf": [
+            {
+              "type": "string",
+              "errorCode": -10603
+            },
+            {
+              "enum": [
+                "screen",
+                "tty",
+                "tv",
+                "projection",
+                "handheld",
+                "print",
+                "braille",
+                "embossed",
+                "speech",
+                "all"
+              ],
+              "errorCode": -10603
+            }
+          ]
+        },
+        "type": {
+          "type": "string",
+          "format": "mediaTypes",
+          "errorCode": -10605,
+          "errorMsg": "The JSON value is not included as a Name in mediaTypes."
+        }
+      },
+      "additionalProperties": false,
+      "hrefMissing": -10610,
+      "required": [
+        "href"
+      ],
+      "unknownKeys": -10601
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/link"
+      },
+      "structureInvalid": -10600,
+      "validationName": "stdRdapLinksValidation"
+    },
+    "notice": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "errorCode": -10703
+        },
+        "type": {
+          "$ref": "#/definitions/noticeType"
+        },
+        "description": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "errorCode": -10709
+          },
+          "errorCode": -10708
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "description"
+      ],
+      "descriptionMissing": -10707,
+      "duplicateKeys": -10702
+    },
+    "remarks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/notice"
+      },
+      "validationName": "stdRdapRemarksValidation"
+    }
+  },
+  "type": "object",
+  "properties": {
+    "handle": {
+      "type": "string"
+    },
+    "status": {
+      "$ref": "rdap_status.json#"
+    },
+    "port43": {
+      "$ref": "rdap_port43.json#"
+    },
+    "publicIds": {
+      "$ref": "rdap_publicIds.json#"
+    },
+    "events": {
+      "$ref": "rdap_events.json#"
+    },
+    "remarks": {
+      "$ref": "#/definitions/remarks"
+    },
+    "links" : {
+      "$ref": "#/definitions/links"
+    }
+  }
+}
