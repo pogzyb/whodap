@@ -1,0 +1,316 @@
+{
+    "objectClassName": "domain",
+    "ldhName": "namesilo.com",
+    "handle": "1566083588_DOMAIN_COM-VRSN",
+    "nameservers": [
+        {
+            "objectClassName": "nameserver",
+            "ldhName": "lily.ns.cloudflare.com"
+        },
+        {
+            "objectClassName": "nameserver",
+            "ldhName": "lloyd.ns.cloudflare.com"
+        }
+    ],
+    "secureDNS": {
+        "delegationSigned": false
+    },
+    "status": [
+        "client transfer prohibited"
+    ],
+    "events": [
+        {
+            "eventAction": "registration",
+            "eventDate": "2009-08-18T00:00:00Z"
+        },
+        {
+            "eventAction": "registrar expiration",
+            "eventDate": "2034-08-18T00:00:00Z"
+        },
+        {
+            "eventAction": "last changed",
+            "eventDate": "2026-09-08T18:51:38Z"
+        },
+        {
+            "eventAction": "last update of RDAP database",
+            "eventDate": "2026-09-13T00:00:01Z"
+        }
+    ],
+    "entities": [
+        {
+            "objectClassName": "entity",
+            "roles": [
+                "registrant",
+                "administrative",
+                "technical"
+            ],
+            "vcardArray": [
+                "vcard",
+                [
+                    [
+                        "version",
+                        {},
+                        "text",
+                        "4.0"
+                    ],
+                    [
+                        "fn",
+                        {},
+                        "text",
+                        "Administrator Domain"
+                    ],
+                    [
+                        "n",
+                        {},
+                        "text",
+                        [
+                            "Administrator",
+                            "Domain",
+                            "",
+                            "",
+                            ""
+                        ]
+                    ],
+                    [
+                        "email",
+                        {},
+                        "text",
+                        "internal_domains@namesilo.com"
+                    ],
+                    [
+                        "tel",
+                        {
+                            "type": "voice"
+                        },
+                        "uri",
+                        "tel:+1.8884626950"
+                    ],
+                    [
+                        "adr",
+                        {
+                            "type": "work",
+                            "cc": "US"
+                        },
+                        "text",
+                        [
+                            "",
+                            "Suite A-110",
+                            "1300 E. Missouri Avenue",
+                            "Phoenix",
+                            "AZ",
+                            "85014",
+                            ""
+                        ]
+                    ],
+                    [
+                        "org",
+                        {},
+                        "text",
+                        "NameSilo, LLC"
+                    ]
+                ]
+            ]
+        },
+        {
+            "objectClassName": "entity",
+            "publicIds": [
+                {
+                    "identifier": "1479",
+                    "type": "IANA Registrar ID"
+                }
+            ],
+            "entities": [
+                {
+                    "objectClassName": "entity",
+                    "handle": "ABUSE-1479",
+                    "roles": [
+                        "abuse"
+                    ],
+                    "vcardArray": [
+                        "vcard",
+                        [
+                            [
+                                "version",
+                                {},
+                                "text",
+                                "4.0"
+                            ],
+                            [
+                                "fn",
+                                {},
+                                "text",
+                                "NameSilo Abuse Contact"
+                            ],
+                            [
+                                "org",
+                                {},
+                                "text",
+                                "NameSilo, LLC"
+                            ],
+                            [
+                                "tel",
+                                {
+                                    "type": "voice"
+                                },
+                                "uri",
+                                "tel:+1.480.524.0066"
+                            ],
+                            [
+                                "email",
+                                {},
+                                "text",
+                                "abuse@namesilo.com"
+                            ]
+                        ]
+                    ],
+                    "lang": "en"
+                }
+            ],
+            "handle": "1479",
+            "roles": [
+                "registrar"
+            ],
+            "vcardArray": [
+                "vcard",
+                [
+                    [
+                        "version",
+                        {},
+                        "text",
+                        "4.0"
+                    ],
+                    [
+                        "fn",
+                        {},
+                        "text",
+                        "NameSilo, LLC"
+                    ],
+                    [
+                        "org",
+                        {},
+                        "text",
+                        "NameSilo, LLC"
+                    ],
+                    [
+                        "adr",
+                        {
+                            "type": "work",
+                            "cc": "US"
+                        },
+                        "text",
+                        [
+                            "",
+                            "",
+                            "390 NE 191st St STE 8437",
+                            "Miami",
+                            "FL",
+                            "33179",
+                            ""
+                        ]
+                    ],
+                    [
+                        "tel",
+                        {
+                            "type": "voice"
+                        },
+                        "uri",
+                        "tel:+1.888.462.6950"
+                    ],
+                    [
+                        "email",
+                        {},
+                        "text",
+                        "support@namesilo.com"
+                    ],
+                    [
+                        "url",
+                        {},
+                        "uri",
+                        "https://www.namesilo.com"
+                    ]
+                ]
+            ],
+            "links": [
+                {
+                    "value": "https://rdap.namesilo.com/",
+                    "rel": "about",
+                    "href": "https://www.namesilo.com/"
+                }
+            ],
+            "lang": "en"
+        }
+    ],
+    "links": [
+        {
+            "value": "https://rdap.namesilo.com/domain/namesilo.com",
+            "rel": "self",
+            "href": "https://rdap.namesilo.com/domain/namesilo.com",
+            "type": "application/rdap+json"
+        }
+    ],
+    "port43": "whois.namesilo.com",
+    "notices": [
+        {
+            "title": "Terms of Use",
+            "description": [
+                "By accessing and using this data, you agree to the Terms of Use available at https://www.namesilo.com/support/v2/articles/general-terms/rdap"
+            ],
+            "links": [
+                {
+                    "value": "https://rdap.namesilo.com/domain/namesilo.com",
+                    "rel": "terms-of-service",
+                    "href": "https://www.namesilo.com/support/v2/articles/general-terms/rdap",
+                    "type": "text/html"
+                }
+            ]
+        },
+        {
+            "title": "Status Codes",
+            "description": [
+                "For more information on domain status codes, please visit https://icann.org/epp"
+            ],
+            "links": [
+                {
+                    "value": "https://rdap.namesilo.com/domain/namesilo.com",
+                    "rel": "glossary",
+                    "href": "https://icann.org/epp",
+                    "type": "text/html"
+                }
+            ]
+        },
+        {
+            "title": "RDDS Inaccuracy Complaint Form",
+            "description": [
+                "URL of the ICANN RDDS Inaccuracy Complaint Form: https://icann.org/wicf"
+            ],
+            "links": [
+                {
+                    "value": "https://rdap.namesilo.com/domain/namesilo.com",
+                    "rel": "help",
+                    "href": "https://icann.org/wicf",
+                    "type": "text/html"
+                }
+            ]
+        }
+    ],
+    "lang": "en",
+    "rdapConformance": [
+        "rdap_level_0",
+        "icann_rdap_technical_implementation_guide_1",
+        "icann_rdap_response_profile_1",
+        "redacted"
+    ],
+    "redacted": [
+        {
+            "name": {
+                "type": "Registry Registrant ID"
+            },
+            "prePath": "$.entities[0].handle",
+            "pathLang": "jsonpath",
+            "method": "removal",
+            "reason": {
+                "description": "Server policy"
+            }
+        }
+    ]
+}
