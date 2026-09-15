@@ -18,7 +18,7 @@ def get_version(location: str) -> str:
 setup(
     name='whodap',
     version=get_version('whodap/__init__.py'),
-    description='Simple RDAP Utility for Python',
+    description='Simple RDAP Utility for Python that looks like WHOIS',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/pogzyb/whodap',
@@ -28,7 +28,7 @@ setup(
     keywords='security, whois, rdap, research',
     license="MIT",
     install_requires=[
-        'httpx>=0.28.1',
+        'httpx2>=2.12.0',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

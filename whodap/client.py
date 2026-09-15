@@ -6,7 +6,7 @@ from json import JSONDecodeError
 
 from contextlib import asynccontextmanager
 
-import httpx
+import httpx2
 
 from .codes import RDAPStatusCodes
 from .errors import (
@@ -38,7 +38,7 @@ class RDAPClient:
     _iana_services_key: str = "services"
     _iana_uri: str = ""
 
-    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]) -> None:
+    def __init__(self, httpx_client: Union[httpx2.Client, httpx2.AsyncClient]) -> None:
         self.httpx_client = httpx_client
         self.version: str = ""
         self.publication: str = ""
@@ -75,49 +75,49 @@ class RDAPClient:
 
     def close(self) -> None:
         """
-        Closes the underlying `httpx.Client`
+        Closes the underlying `httpx2.Client`
         """
-        if isinstance(self.httpx_client, httpx.Client):
+        if isinstance(self.httpx_client, httpx2.Client):
             if not self.httpx_client.is_closed:
                 self.httpx_client.close()
 
     async def aio_close(self) -> None:
         """
-        Closes the underlying `httpx.AsyncClient`
+        Closes the underlying `httpx2.AsyncClient`
         """
-        if isinstance(self.httpx_client, httpx.AsyncClient):
+        if isinstance(self.httpx_client, httpx2.AsyncClient):
             if not self.httpx_client.is_closed:
                 await self.httpx_client.aclose()
 
     @classmethod
     @contextmanager
-    def new_client_context(cls, httpx_client: httpx.Client | None = None) -> Any:
+    def new_client_context(cls, httpx_client: httpx2.Client | None = None) -> Any:
         """
         Contextmanager for instantiating a Synchronous DNSClient
 
-        :httpx_client: pre-configured instance of `httpx.Client`
+        :httpx_client: pre-configured instance of `httpx2.Client`
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or httpx.Client(follow_redirects=True, timeout=10))
+        client = cls(httpx_client or httpx2.Client(follow_redirects=True, timeout=10))
         try:
             iana_dns_info = client._get_iana_info()
             client._set_iana_info(iana_dns_info)
             yield client
         finally:
-            if isinstance(client.httpx_client, httpx.Client):
+            if isinstance(client.httpx_client, httpx2.Client):
                 if not client.httpx_client.is_closed:
                     client.httpx_client.close()
 
     @classmethod
-    def new_client(cls, httpx_client: httpx.Client | None = None) -> Any:
+    def new_client(cls, httpx_client: httpx2.Client | None = None) -> Any:
         """
         Classmethod for instantiating a synchronous instance of Client
 
-        :httpx_client: pre-configured instance of `httpx.Client`
+        :httpx_client: pre-configured instance of `httpx2.Client`
         :return: DNSClient with a sync httpx_client
         """
-        # init the client with a default httpx.Client if one is not provided
-        client = cls(httpx_client or httpx.Client(follow_redirects=True, timeout=10))
+        # init the client with a default httpx2.Client if one is not provided
+        client = cls(httpx_client or httpx2.Client(follow_redirects=True, timeout=10))
         # load the dns server information from IANA
         iana_info = client._get_iana_info()
         # parse and save the server information
@@ -128,36 +128,36 @@ class RDAPClient:
     @classmethod
     @asynccontextmanager
     async def new_aio_client_context(
-        cls, httpx_client: httpx.AsyncClient | None = None
+        cls, httpx_client: httpx2.AsyncClient | None = None
     ) -> Any:
         """
         Contextmanager for instantiating an Asynchronous DNSClient
 
-        :httpx_client: Optional pre-configured instance of `httpx.AsyncClient`
+        :httpx_client: Optional pre-configured instance of `httpx2.AsyncClient`
         :return: yields the initialized DNSClient
         """
         client = cls(
-            httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10)
+            httpx_client or httpx2.AsyncClient(follow_redirects=True, timeout=10)
         )
         try:
             iana_info = await client._aio_get_iana_info()
             client._set_iana_info(iana_info)
             yield client
         finally:
-            if isinstance(client.httpx_client, httpx.AsyncClient):
+            if isinstance(client.httpx_client, httpx2.AsyncClient):
                 if not client.httpx_client.is_closed:
                     await client.httpx_client.aclose()
 
     @classmethod
-    async def new_aio_client(cls, httpx_client: httpx.AsyncClient | None = None) -> Any:
+    async def new_aio_client(cls, httpx_client: httpx2.AsyncClient | None = None) -> Any:
         """
         Classmethod for instantiating an asynchronous instance of DNSClient
 
-        :httpx_client: pre-configured instance of `httpx.AsyncClient`
+        :httpx_client: pre-configured instance of `httpx2.AsyncClient`
         :return: DNSClient with an async httpx_client
         """
         client = cls(
-            httpx_client or httpx.AsyncClient(follow_redirects=True, timeout=10)
+            httpx_client or httpx2.AsyncClient(follow_redirects=True, timeout=10)
         )
         iana_info = await client._aio_get_iana_info()
         client._set_iana_info(iana_info)
@@ -183,25 +183,25 @@ class RDAPClient:
         response = await self._aio_get_request(self._iana_uri)
         return response.json()
 
-    def _get_request(self, uri: str) -> httpx.Response:
-        return cast(httpx.Response, self.httpx_client.get(uri))
+    def _get_request(self, uri: str) -> httpx2.Response:
+        return cast(httpx2.Response, self.httpx_client.get(uri))
 
-    async def _aio_get_request(self, uri: str) -> httpx.Response:
+    async def _aio_get_request(self, uri: str) -> httpx2.Response:
         #  Incompatible types in "await" (actual type "Response | Coroutine[Any, Any, Response]",
         #     expected type "Awaitable[Any]")
         x = await self.httpx_client.get(uri)  # type: ignore[misc]
-        return cast(httpx.Response, x)
+        return cast(httpx2.Response, x)
 
     def _get_authoritative_response(
         self, href: str, seen: list[str], depth: int = 0
-    ) -> httpx.Response | None:
+    ) -> httpx2.Response | None:
         """
         Makes HTTP calls to RDAP servers until it finds
         the authoritative source.
 
         :param href: href containing the location of an RDAP
         :param depth: recursion counter
-        :return: `httpx` response object
+        :return: `httpx2` response object
         """
         resp = self._get_request(href)
         try:
@@ -235,14 +235,14 @@ class RDAPClient:
 
     async def _aio_get_authoritative_response(
         self, href: str, seen: list[str], depth: int = 0
-    ) -> httpx.Response | None:
+    ) -> httpx2.Response | None:
         """
         Makes HTTP calls to RDAP servers until it finds
         the authoritative source.
 
         :param href: href containing the location of an RDAP
         :param depth: recursion counter
-        :return: `httpx` response object
+        :return: `httpx2` response object
         """
         resp = await self._aio_get_request(href)
         try:
@@ -337,7 +337,7 @@ class DNSClient(RDAPClient):
     # IANA DNS
     _iana_uri: str = "https://data.iana.org/rdap/dns.json"
 
-    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+    def __init__(self, httpx_client: Union[httpx2.Client, httpx2.AsyncClient]):
         super(DNSClient, self).__init__(httpx_client)
         self.iana_dns_server_map: dict[str, str] = {}
         self._target = None
@@ -445,7 +445,7 @@ class IPv4Client(RDAPClient):
     # IANA IPv4
     _iana_uri: str = "https://data.iana.org/rdap/ipv4.json"
 
-    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+    def __init__(self, httpx_client: Union[httpx2.Client, httpx2.AsyncClient]):
         super().__init__(httpx_client)
         self.iana_ipv4_server_map: dict[ipaddress.IPv4Network, str] = {}
         self._target = None
@@ -535,7 +535,7 @@ class IPv6Client(RDAPClient):
     # IANA IPv6
     _iana_uri: str = "https://data.iana.org/rdap/ipv6.json"
 
-    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]):
+    def __init__(self, httpx_client: Union[httpx2.Client, httpx2.AsyncClient]):
         super().__init__(httpx_client)
         self.iana_ipv6_server_map: dict[ipaddress.IPv6Network, str] = {}
         self._target = None
@@ -625,7 +625,7 @@ class ASNClient(RDAPClient):
     # IANA ASN
     _iana_uri: str = "https://data.iana.org/rdap/asn.json"
 
-    def __init__(self, httpx_client: Union[httpx.Client, httpx.AsyncClient]) -> None:
+    def __init__(self, httpx_client: Union[httpx2.Client, httpx2.AsyncClient]) -> None:
         super().__init__(httpx_client)
         self.iana_asn_server_map: dict[str, str] = {}
         self._target = None
