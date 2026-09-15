@@ -566,7 +566,7 @@ class DomainResponse(RDAPResponse):
             WHOISKeys.CREATED_DATE: parsed.get("registration"),
             WHOISKeys.UPDATED_DATE: parsed.get("last update")
             or parsed.get("last changed"),
-            WHOISKeys.EXPIRES_DATE: parsed.get("expiration", {}).get("registrar expiration"),
+            WHOISKeys.EXPIRES_DATE: parsed.get("expiration") or parsed.get("registrar expiration"),
             WHOISKeys.STATUS: parsed.get("status"),
             WHOISKeys.NAMESERVERS: parsed.get("nameservers"),
         }
