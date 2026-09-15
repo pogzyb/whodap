@@ -1,7 +1,7 @@
 import ipaddress
 from typing import Union, cast
 
-from httpx import Client, AsyncClient
+from httpx2 import Client, AsyncClient
 
 from .client import DNSClient, IPv4Client, IPv6Client, ASNClient
 from .response import DomainResponse, IPv4Response, IPv6Response, ASNResponse
@@ -33,7 +33,7 @@ def lookup_domain(
 
     :param domain: the domain name to query
     :param tld: the top level domain (e.g. "com", "net", "buzz")
-    :param httpx_client: Optional preconfigured instance of `httpx.Client`
+    :param httpx_client: Optional preconfigured instance of `httpx2.Client`
     :return: an instance of DomainResponse
     """
     dns_client = DNSClient.new_client(httpx_client)
@@ -57,7 +57,7 @@ async def aio_lookup_domain(
 
     :param domain: the domain name to query
     :param tld: the top level domain (e.g. "com", "net", "buzz")
-    :param httpx_client: Optional preconfigured instance of `httpx.AsyncClient`
+    :param httpx_client: Optional preconfigured instance of `httpx2.AsyncClient`
     :return: an instance of DomainResponse
     """
     dns_client = await DNSClient.new_aio_client(httpx_client)
@@ -80,7 +80,7 @@ def lookup_ipv4(
     returns the result as an IPv4Response.
 
     :param ipv4: The ipv4 string or ipaddress.IPv4address object
-    :param httpx_client: Optional preconfigured instance of `httpx.Client`
+    :param httpx_client: Optional preconfigured instance of `httpx2.Client`
     :return: an instance of IPv4Response
     """
     ipv4_client = IPv4Client.new_client(httpx_client)
@@ -103,7 +103,7 @@ async def aio_lookup_ipv4(
     returns the result as an IPv4Response.
 
     :param ipv4: The ipv4 string or ipaddress.IPv4address object
-    :param httpx_client: Optional preconfigured instance of `httpx.AsyncClient`
+    :param httpx_client: Optional preconfigured instance of `httpx2.AsyncClient`
     :return: an instance of IPv4Response
     """
     ipv4_client = await IPv4Client.new_aio_client(httpx_client)
@@ -126,7 +126,7 @@ def lookup_ipv6(
     returns the result as a DomainResponse.
 
     :param ipv6: The ipv6 string or ipaddress.IPv6address object
-    :param httpx_client: Optional preconfigured instance of `httpx.Client`
+    :param httpx_client: Optional preconfigured instance of `httpx2.Client`
     :return: an instance of IPv6Response
     """
     ipv6_client = IPv6Client.new_client(httpx_client)
@@ -149,7 +149,7 @@ async def aio_lookup_ipv6(
     returns the result as a DomainResponse.
 
     :param ipv6: The ipv6 string or ipaddress.IPv6address object
-    :param httpx_client: Optional preconfigured instance of `httpx.AsyncClient`
+    :param httpx_client: Optional preconfigured instance of `httpx2.AsyncClient`
     :return: an instance of IPv6Response
     """
     ipv6_client = await IPv6Client.new_aio_client(httpx_client)
@@ -170,7 +170,7 @@ def lookup_asn(asn: int, httpx_client: Client | None = None) -> ASNResponse:
     the result as an ASNResponse.
 
     :param asn: The asn number to lookup
-    :param httpx_client: Optional preconfigured instance of `httpx.Client`
+    :param httpx_client: Optional preconfigured instance of `httpx2.Client`
     :return: an instance of ASNResponse
     """
     asn_client = ASNClient.new_client(httpx_client)
@@ -193,7 +193,7 @@ async def aio_lookup_asn(
     the result as an ASNResponse.
 
     :param asn: The asn number to lookup
-    :param httpx_client: Optional preconfigured instance of `httpx.AsyncClient`
+    :param httpx_client: Optional preconfigured instance of `httpx2.AsyncClient`
     :return: an instance of ASNResponse
     """
     asn_client = await ASNClient.new_aio_client(httpx_client)

@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 
-from whodap.response import DomainResponse, WHOISKeys
+from whodap.response import REDACTED, DomainResponse, WHOISKeys
 from whodap.errors import RDAPConformanceException
 
 
@@ -45,6 +45,142 @@ class TestDomainResponse(unittest.TestCase):
                 assert type(v) == datetime, f"{type(v)} is not datetime"
             if k == WHOISKeys.DNSSEC:
                 assert type(v) == str, f"{type(v)} is not bool"
+
+    def test_to_whois_dict_marks_rfc9537_empty_value_as_redacted(self):
+        response = DomainResponse.from_json(
+            json.dumps(
+                {
+                    "ldhName": "example.test",
+                    "entities": [
+                        {
+                            "roles": ["registrant"],
+                            "vcardArray": [
+                                "vcard",
+                                [["fn", {}, "text", ""]],
+                            ],
+                        }
+                    ],
+                    "redacted": [
+                        {
+                            "name": {"type": "Registrant Name"},
+                            "postPath": (
+                                "$.entities[?(@.roles[0]=='registrant')]"
+                                ".vcardArray[1][?(@[0]=='fn')][3]"
+                            ),
+                            "method": "emptyValue",
+                        }
+                    ],
+                }
+            )
+        )
+
+        whois_dict = response.to_whois_dict()
+
+        self.assertEqual(whois_dict[WHOISKeys.REGISTRANT_NAME], REDACTED)
+
+    def test_to_whois_dict_marks_rfc9537_removed_value_as_redacted(self):
+        response = DomainResponse.from_json(
+            json.dumps(
+                {
+                    "ldhName": "example.test",
+                    "entities": [{"roles": ["registrant"]}],
+                    "redacted": [
+                        {
+                            "name": {"description": "Private mailbox"},
+                            "prePath": (
+                                "$.entities[?(@.roles[0]=='registrant')]"
+                                ".vcardArray[1][?(@[0]=='email')]"
+                            ),
+                            "method": "removal",
+                        }
+                    ],
+                }
+            )
+        )
+
+        whois_dict = response.to_whois_dict()
+
+        self.assertEqual(whois_dict[WHOISKeys.REGISTRANT_EMAIL], REDACTED)
+        self.assertIsNone(whois_dict[WHOISKeys.REGISTRANT_NAME])
+
+    def test_to_whois_dict_marks_rfc9537_removed_contact_as_redacted(self):
+        response = DomainResponse.from_json(
+            json.dumps(
+                {
+                    "ldhName": "example.test",
+                    "redacted": [
+                        {
+                            "name": {"description": "Administrative Contact"},
+                            "prePath": "$.entities[?(@.roles[0]=='administrative')]",
+                        }
+                    ],
+                }
+            )
+        )
+
+        whois_dict = response.to_whois_dict()
+
+        for key in (
+            WHOISKeys.ADMIN_NAME,
+            WHOISKeys.ADMIN_ORG,
+            WHOISKeys.ADMIN_EMAIL,
+            WHOISKeys.ADMIN_ADDRESS,
+            WHOISKeys.ADMIN_PHONE,
+            WHOISKeys.ADMIN_FAX,
+        ):
+            self.assertEqual(whois_dict[key], REDACTED)
+
+    def test_to_whois_dict_preserves_rfc9537_replacement_and_partial_values(self):
+        response = DomainResponse.from_json(
+            json.dumps(
+                {
+                    "ldhName": "example.test",
+                    "entities": [
+                        {
+                            "roles": ["registrant"],
+                            "vcardArray": [
+                                "vcard",
+                                [
+                                    ["fn", {}, "text", "J*** D**"],
+                                    [
+                                        "contact-uri",
+                                        {},
+                                        "uri",
+                                        "https://example.test/contact/123",
+                                    ],
+                                ],
+                            ],
+                        }
+                    ],
+                    "redacted": [
+                        {
+                            "name": {"type": "Registrant Name"},
+                            "postPath": (
+                                "$.entities[?(@.roles[0]=='registrant')]"
+                                ".vcardArray[1][?(@[0]=='fn')][3]"
+                            ),
+                            "method": "partialValue",
+                        },
+                        {
+                            "name": {"description": "Registrant Email"},
+                            "replacementPath": (
+                                "$.entities[?(@.roles[0]=='registrant')]"
+                                ".vcardArray[1][?(@[0]=='contact-uri')]"
+                            ),
+                            "method": "replacementValue",
+                        },
+                    ],
+                }
+            )
+        )
+
+        whois_dict = response.to_whois_dict()
+
+        self.assertEqual(whois_dict[WHOISKeys.REGISTRANT_NAME], "J*** D**")
+        self.assertEqual(
+            whois_dict[WHOISKeys.REGISTRANT_EMAIL],
+            "https://example.test/contact/123",
+        )
 
     def test_to_whois_dict_strict(self):
         self.test_filename = "bad_response_01.json"

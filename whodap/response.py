@@ -1,5 +1,6 @@
 from datetime import datetime
 from json import dumps, loads
+import re
 from types import SimpleNamespace
 from typing import Any, Union, TypeAlias, cast
 
@@ -223,6 +224,9 @@ class DomainResponse(RDAPResponse):
         # convert dict keys over to "WHOISKeys"
         flat = self._construct_flat_dict(cast(dict[str, Any], flat))
 
+        for key in self._redacted_whois_keys():
+            flat[key] = REDACTED
+
         # add domain name
         flat[WHOISKeys.DOMAIN_NAME] = self.ldhName
 
@@ -387,6 +391,138 @@ class DomainResponse(RDAPResponse):
         # return parsed entities dict
         return entities_dict
 
+    def _redacted_whois_keys(self) -> set[WHOISKeys]:
+        redactions = getattr(self, "redacted", None)
+        if not isinstance(redactions, list):
+            return set()
+
+        role_keys = {
+            "administrative": {
+                "name": WHOISKeys.ADMIN_NAME,
+                "organization": WHOISKeys.ADMIN_ORG,
+                "email": WHOISKeys.ADMIN_EMAIL,
+                "address": WHOISKeys.ADMIN_ADDRESS,
+                "phone": WHOISKeys.ADMIN_PHONE,
+                "fax": WHOISKeys.ADMIN_FAX,
+            },
+            "billing": {
+                "name": WHOISKeys.BILLING_NAME,
+                "organization": WHOISKeys.BILLING_ORG,
+                "email": WHOISKeys.BILLING_EMAIL,
+                "address": WHOISKeys.BILLING_ADDRESS,
+                "phone": WHOISKeys.BILLING_PHONE,
+                "fax": WHOISKeys.BILLING_FAX,
+            },
+            "registrant": {
+                "name": WHOISKeys.REGISTRANT_NAME,
+                "organization": WHOISKeys.REGISTRANT_ORG,
+                "email": WHOISKeys.REGISTRANT_EMAIL,
+                "address": WHOISKeys.REGISTRANT_ADDRESS,
+                "phone": WHOISKeys.REGISTRANT_PHONE,
+                "fax": WHOISKeys.REGISTRANT_FAX,
+            },
+            "registrar": {
+                "name": WHOISKeys.REGISTRAR_NAME,
+                "email": WHOISKeys.REGISTRAR_EMAIL,
+                "address": WHOISKeys.REGISTRAR_ADDRESS,
+                "phone": WHOISKeys.REGISTRAR_PHONE,
+                "fax": WHOISKeys.REGISTRAR_FAX,
+            },
+            "technical": {
+                "name": WHOISKeys.TECHNICAL_NAME,
+                "organization": WHOISKeys.TECHNICAL_ORG,
+                "email": WHOISKeys.TECHNICAL_EMAIL,
+                "address": WHOISKeys.TECHNICAL_ADDRESS,
+                "phone": WHOISKeys.TECHNICAL_PHONE,
+                "fax": WHOISKeys.TECHNICAL_FAX,
+            },
+            "abuse": {
+                "email": WHOISKeys.ABUSE_EMAIL,
+                "phone": WHOISKeys.ABUSE_PHONE,
+            },
+        }
+        role_aliases = {
+            "admin": "administrative",
+            "tech": "technical",
+        }
+        address_fields = {"address", "city", "country", "postal", "state", "street"}
+        redacted_keys: set[WHOISKeys] = set()
+
+        for redaction in redactions:
+            method = getattr(redaction, "method", "removal")
+            if method not in ("removal", "emptyValue"):
+                continue
+
+            name = getattr(redaction, "name", None)
+            logical_name = getattr(name, "type", None) or getattr(
+                name, "description", None
+            )
+            if not isinstance(logical_name, str):
+                continue
+
+            name_words = set(re.findall(r"[a-z]+", logical_name.lower()))
+            role = next((role for role in role_keys if role in name_words), None)
+            if role is None:
+                role = next(
+                    (
+                        canonical
+                        for alias, canonical in role_aliases.items()
+                        if alias in name_words
+                    ),
+                    None,
+                )
+
+            path_words: set[str] = set()
+            path_lang = getattr(redaction, "pathLang", "jsonpath")
+            if path_lang == "jsonpath":
+                path = getattr(redaction, "postPath", None) or getattr(
+                    redaction, "prePath", ""
+                )
+                if isinstance(path, str):
+                    path_words = set(re.findall(r"[a-z]+", path.lower()))
+                    if role is None:
+                        path_roles = {
+                            candidate: path.lower().rfind(candidate)
+                            for candidate in role_keys
+                            if candidate in path_words
+                        }
+                        path_roles.update(
+                            {
+                                canonical: path.lower().rfind(alias)
+                                for alias, canonical in role_aliases.items()
+                                if alias in path_words
+                            }
+                        )
+                        if path_roles:
+                            role = max(path_roles, key=path_roles.get)
+            if role is None:
+                continue
+
+            field_words = name_words | path_words
+            matched_field = False
+            if field_words & (address_fields | {"adr"}):
+                address_key = role_keys[role].get("address")
+                if address_key is not None:
+                    redacted_keys.add(address_key)
+                    matched_field = True
+            else:
+                field_aliases = {
+                    "name": {"fn", "name"},
+                    "organization": {"org", "organisation", "organization"},
+                    "email": {"email", "mail", "uri"},
+                    "phone": {"phone", "telephone", "voice"},
+                    "fax": {"fax"},
+                }
+                for field, aliases in field_aliases.items():
+                    if field in role_keys[role] and field_words & aliases:
+                        redacted_keys.add(role_keys[role][field])
+                        matched_field = True
+
+            if not matched_field and "contact" in name_words:
+                redacted_keys.update(role_keys[role].values())
+
+        return redacted_keys
+
     @staticmethod
     def _construct_flat_dict(parsed: dict[str, Any]) -> WhoisDict:
         converted: dict[str, Any] = {
@@ -395,37 +531,42 @@ class DomainResponse(RDAPResponse):
             WHOISKeys.ABUSE_PHONE: parsed.get("abuse", {}).get("phone"),
             WHOISKeys.ADMIN_NAME: parsed.get("administrative", {}).get("name"),
             WHOISKeys.ADMIN_ORG: parsed.get("administrative", {}).get("org"),
-            WHOISKeys.ADMIN_EMAIL: parsed.get("administrative", {}).get("email"),
+            WHOISKeys.ADMIN_EMAIL: parsed.get("administrative", {}).get("email")
+            or parsed.get("administrative", {}).get("contact-uri"),
             WHOISKeys.ADMIN_ADDRESS: parsed.get("administrative", {}).get("address"),
             WHOISKeys.ADMIN_PHONE: parsed.get("administrative", {}).get("phone"),
             WHOISKeys.ADMIN_FAX: parsed.get("administrative", {}).get("fax"),
             WHOISKeys.BILLING_NAME: parsed.get("billing", {}).get("name"),
             WHOISKeys.BILLING_ORG: parsed.get("billing", {}).get("org"),
-            WHOISKeys.BILLING_EMAIL: parsed.get("billing", {}).get("email"),
+            WHOISKeys.BILLING_EMAIL: parsed.get("billing", {}).get("email")
+            or parsed.get("billing", {}).get("contact-uri"),
             WHOISKeys.BILLING_ADDRESS: parsed.get("billing", {}).get("address"),
             WHOISKeys.BILLING_PHONE: parsed.get("billing", {}).get("phone"),
             WHOISKeys.BILLING_FAX: parsed.get("billing", {}).get("fax"),
             WHOISKeys.REGISTRANT_NAME: parsed.get("registrant", {}).get("name"),
             WHOISKeys.REGISTRANT_ORG: parsed.get("registrant", {}).get("org"),
-            WHOISKeys.REGISTRANT_EMAIL: parsed.get("registrant", {}).get("email"),
+            WHOISKeys.REGISTRANT_EMAIL: parsed.get("registrant", {}).get("email")
+            or parsed.get("registrant", {}).get("contact-uri"),
             WHOISKeys.REGISTRANT_ADDRESS: parsed.get("registrant", {}).get("address"),
             WHOISKeys.REGISTRANT_PHONE: parsed.get("registrant", {}).get("phone"),
             WHOISKeys.REGISTRANT_FAX: parsed.get("registrant", {}).get("fax"),
             WHOISKeys.REGISTRAR_NAME: parsed.get("registrar", {}).get("name"),
-            WHOISKeys.REGISTRAR_EMAIL: parsed.get("registrar", {}).get("email"),
+            WHOISKeys.REGISTRAR_EMAIL: parsed.get("registrar", {}).get("email")
+            or parsed.get("registrar", {}).get("contact-uri"),
             WHOISKeys.REGISTRAR_ADDRESS: parsed.get("registrar", {}).get("address"),
             WHOISKeys.REGISTRAR_PHONE: parsed.get("registrar", {}).get("phone"),
             WHOISKeys.REGISTRAR_FAX: parsed.get("registrar", {}).get("fax"),
             WHOISKeys.TECHNICAL_NAME: parsed.get("technical", {}).get("name"),
             WHOISKeys.TECHNICAL_ORG: parsed.get("technical", {}).get("org"),
-            WHOISKeys.TECHNICAL_EMAIL: parsed.get("technical", {}).get("email"),
+            WHOISKeys.TECHNICAL_EMAIL: parsed.get("technical", {}).get("email")
+            or parsed.get("technical", {}).get("contact-uri"),
             WHOISKeys.TECHNICAL_ADDRESS: parsed.get("technical", {}).get("address"),
             WHOISKeys.TECHNICAL_PHONE: parsed.get("technical", {}).get("phone"),
             WHOISKeys.TECHNICAL_FAX: parsed.get("technical", {}).get("fax"),
             WHOISKeys.CREATED_DATE: parsed.get("registration"),
             WHOISKeys.UPDATED_DATE: parsed.get("last update")
             or parsed.get("last changed"),
-            WHOISKeys.EXPIRES_DATE: parsed.get("expiration"),
+            WHOISKeys.EXPIRES_DATE: parsed.get("expiration") or parsed.get("registrar expiration"),
             WHOISKeys.STATUS: parsed.get("status"),
             WHOISKeys.NAMESERVERS: parsed.get("nameservers"),
         }
