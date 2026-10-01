@@ -359,9 +359,15 @@ class RDAPClient:
             raise BadStatusCode(f"Status code <{status_code}>")
 
     @staticmethod
-    def _get_default_httpx_client(proxy_url: str | None = None) -> httpx2.Client:
+    def _get_default_httpx_client(
+        proxy_url: str | None = None, aio: bool = False
+    ) -> httpx2.Client | httpx2.AsyncClient:
         proxy = httpx2.Proxy(proxy_url) if proxy_url else None
-        return httpx2.Client(follow_redirects=True, timeout=10, proxy=proxy)
+        return (
+            httpx2.Client(follow_redirects=True, timeout=10, proxy=proxy)
+            if not aio
+            else httpx2.AsyncClient(follow_redirects=True, timeout=10, proxy=proxy)
+        )
 
 
 class DNSClient(RDAPClient):
