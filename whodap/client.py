@@ -105,7 +105,10 @@ class RDAPClient:
 
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or cls._get_default_httpx_client(proxy_url))
+        client = cls(
+            httpx_client
+            or cls._get_default_httpx_client(proxy_url=proxy_url, aio=False)
+        )
         try:
             iana_dns_info = client._get_iana_info()
             client._set_iana_info(iana_dns_info)
@@ -131,7 +134,10 @@ class RDAPClient:
         :return: DNSClient with a sync httpx_client
         """
         # initialize a default httpx2.Client if one is not provided
-        client = cls(httpx_client or cls._get_default_httpx_client())
+        client = cls(
+            httpx_client
+            or cls._get_default_httpx_client(proxy_url=proxy_url, aio=False)
+        )
         # load the dns server information from IANA
         iana_info = client._get_iana_info()
         # parse and save the server information
@@ -157,7 +163,9 @@ class RDAPClient:
 
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or cls._get_default_httpx_client())
+        client = cls(
+            httpx_client or cls._get_default_httpx_client(proxy_url=proxy_url, aio=True)
+        )
         try:
             iana_info = await client._aio_get_iana_info()
             client._set_iana_info(iana_info)
@@ -184,7 +192,9 @@ class RDAPClient:
 
         :return: DNSClient with an async httpx_client
         """
-        client = cls(httpx_client or cls._get_default_httpx_client())
+        client = cls(
+            httpx_client or cls._get_default_httpx_client(proxy_url=proxy_url, aio=True)
+        )
         iana_info = await client._aio_get_iana_info()
         client._set_iana_info(iana_info)
         return client
