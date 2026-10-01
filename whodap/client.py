@@ -361,7 +361,7 @@ class RDAPClient:
     @staticmethod
     def _get_default_httpx_client(proxy_url: str | None = None) -> httpx2.Client:
         proxy = httpx2.Proxy(proxy_url) if proxy_url else None
-        return httpx2.Client(follow_redirects=True, timeout=10, prox=proxy)
+        return httpx2.Client(follow_redirects=True, timeout=10, proxy=proxy)
 
 
 class DNSClient(RDAPClient):
