@@ -91,14 +91,24 @@ class RDAPClient:
 
     @classmethod
     @contextmanager
-    def new_client_context(cls, httpx_client: httpx2.Client | None = None) -> Any:
+    def new_client_context(
+        cls, httpx_client: httpx2.Client | None = None, proxy_url: str | None = None
+    ) -> Any:
         """
         Contextmanager for instantiating a Synchronous DNSClient
 
+        .. note::
+            proxy_url will be ignored if you pass your own httpx_client
+
         :httpx_client: pre-configured instance of `httpx2.Client`
+        :proxy_url: proxy URL to be used for HTTP requests
+
         :return: yields the initialized DNSClient
         """
-        client = cls(httpx_client or httpx2.Client(follow_redirects=True, timeout=10))
+        client = cls(
+            httpx_client
+            or cls._get_default_httpx_client(proxy_url=proxy_url, aio=False)
+        )
         try:
             iana_dns_info = client._get_iana_info()
             client._set_iana_info(iana_dns_info)
@@ -109,15 +119,25 @@ class RDAPClient:
                     client.httpx_client.close()
 
     @classmethod
-    def new_client(cls, httpx_client: httpx2.Client | None = None) -> Any:
+    def new_client(
+        cls, httpx_client: httpx2.Client | None = None, proxy_url: str | None = None
+    ) -> Any:
         """
         Classmethod for instantiating a synchronous instance of Client
 
+        .. note::
+            proxy_url will be ignored if you pass your own httpx_client
+
         :httpx_client: pre-configured instance of `httpx2.Client`
+        :proxy_url: proxy URL to be used for HTTP requests
+
         :return: DNSClient with a sync httpx_client
         """
-        # init the client with a default httpx2.Client if one is not provided
-        client = cls(httpx_client or httpx2.Client(follow_redirects=True, timeout=10))
+        # initialize a default httpx2.Client if one is not provided
+        client = cls(
+            httpx_client
+            or cls._get_default_httpx_client(proxy_url=proxy_url, aio=False)
+        )
         # load the dns server information from IANA
         iana_info = client._get_iana_info()
         # parse and save the server information
@@ -128,16 +148,23 @@ class RDAPClient:
     @classmethod
     @asynccontextmanager
     async def new_aio_client_context(
-        cls, httpx_client: httpx2.AsyncClient | None = None
+        cls,
+        httpx_client: httpx2.AsyncClient | None = None,
+        proxy_url: str | None = None,
     ) -> Any:
         """
         Contextmanager for instantiating an Asynchronous DNSClient
 
+        .. note::
+            proxy_url will be ignored if you pass your own httpx_client
+
         :httpx_client: Optional pre-configured instance of `httpx2.AsyncClient`
+        :proxy_url: proxy URL to be used for HTTP requests
+
         :return: yields the initialized DNSClient
         """
         client = cls(
-            httpx_client or httpx2.AsyncClient(follow_redirects=True, timeout=10)
+            httpx_client or cls._get_default_httpx_client(proxy_url=proxy_url, aio=True)
         )
         try:
             iana_info = await client._aio_get_iana_info()
@@ -149,15 +176,24 @@ class RDAPClient:
                     await client.httpx_client.aclose()
 
     @classmethod
-    async def new_aio_client(cls, httpx_client: httpx2.AsyncClient | None = None) -> Any:
+    async def new_aio_client(
+        cls,
+        httpx_client: httpx2.AsyncClient | None = None,
+        proxy_url: str | None = None,
+    ) -> Any:
         """
         Classmethod for instantiating an asynchronous instance of DNSClient
 
+        .. note::
+            proxy_url will be ignored if you pass your own httpx_client
+
         :httpx_client: pre-configured instance of `httpx2.AsyncClient`
+        :proxy_url: proxy URL to be used for HTTP requests
+
         :return: DNSClient with an async httpx_client
         """
         client = cls(
-            httpx_client or httpx2.AsyncClient(follow_redirects=True, timeout=10)
+            httpx_client or cls._get_default_httpx_client(proxy_url=proxy_url, aio=True)
         )
         iana_info = await client._aio_get_iana_info()
         client._set_iana_info(iana_info)
@@ -331,6 +367,17 @@ class RDAPClient:
             raise RateLimitError(f"Too many requests: {RDAPStatusCodes.RATE_LIMIT_429}")
         else:
             raise BadStatusCode(f"Status code <{status_code}>")
+
+    @staticmethod
+    def _get_default_httpx_client(
+        proxy_url: str | None = None, aio: bool = False
+    ) -> httpx2.Client | httpx2.AsyncClient:
+        proxy = httpx2.Proxy(proxy_url) if proxy_url else None
+        return (
+            httpx2.Client(follow_redirects=True, timeout=10, proxy=proxy)
+            if not aio
+            else httpx2.AsyncClient(follow_redirects=True, timeout=10, proxy=proxy)
+        )
 
 
 class DNSClient(RDAPClient):
